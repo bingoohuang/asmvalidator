@@ -15,4 +15,11 @@ public class AsmValidateResult {
     public void addError(ValidatorError validatorError) {
         errors.add(validatorError);
     }
+
+    @Override
+    public String toString() {
+        return "AsmValidateResult{" +
+                "errors=" + errors +
+                '}';
+    }
 }

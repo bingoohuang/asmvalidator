@@ -1,10 +1,14 @@
 package com.github.bingoohuang.asmvalidator.domain;
 
-import com.github.bingoohuang.asmvalidator.annotations.AsmSize;
+import com.github.bingoohuang.asmvalidator.annotations.AsmBlankable;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMaxSize;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMinSize;
 
 public class Person2 {
-    @AsmSize(max = 16)
+    @AsmMinSize(3)
+    @AsmMaxSize(16)
     String name;
+    @AsmBlankable
     String addr;
 
     public Person2() {

@@ -1,4 +1,10 @@
-package com.github.bingoohuang.asmvalidator.asm;
+package com.github.bingoohuang.asmvalidator.utils;
+
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.ValidatorError;
+import org.objectweb.asm.MethodVisitor;
+
+import static org.objectweb.asm.Opcodes.*;
 
 public class Asms {
     // Creates a dotted class name from a path/package name
@@ -112,4 +118,18 @@ public class Asms {
 
         return signature.toString();
     }
+
+    public static void visitInt(MethodVisitor mv, int value) {
+        if (value >= 0 && value <= 5)
+            // iconst_n is defined for n from 0 to 5
+            mv.visitInsn(ICONST_0 + value);
+        else if (value >= -128 && value <= 127)
+            // // bipush can push constant values between -128 and 127. It is a two-byte instruction.
+            mv.visitIntInsn(BIPUSH, value);
+        else {
+            // sipush: push a two-byte signed integer (-32768 to 32767)
+            mv.visitIntInsn(SIPUSH, value);
+        }
+    }
+
 }

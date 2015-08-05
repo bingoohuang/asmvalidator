@@ -6,4 +6,9 @@ public class AsmValidatorException extends RuntimeException {
     public AsmValidatorException(AsmValidateResult asmValidateResult) {
         this.asmValidateResult = asmValidateResult;
     }
+
+    @Override
+    public String getMessage() {
+        return asmValidateResult.toString();
+    }
 }

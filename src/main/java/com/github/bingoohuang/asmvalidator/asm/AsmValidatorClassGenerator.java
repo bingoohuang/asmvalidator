@@ -8,7 +8,7 @@ import org.objectweb.asm.MethodVisitor;
 import java.io.File;
 import java.io.IOException;
 
-import static com.github.bingoohuang.asmvalidator.asm.Asms.p;
+import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static org.objectweb.asm.Opcodes.*;
 
 public class AsmValidatorClassGenerator {

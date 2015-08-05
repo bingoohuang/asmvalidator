@@ -8,4 +8,12 @@ public class ValidatorError {
         this.fieldName = fieldName;
         this.errorMessage = errorMessage;
     }
+
+    @Override
+    public String toString() {
+        return "ValidatorError{" +
+                "fieldName='" + fieldName + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                '}';
+    }
 }

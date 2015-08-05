@@ -4,7 +4,6 @@ import com.github.bingoohuang.asmvalidator.asm.AsmValidatorClassGenerator;
 import com.github.bingoohuang.utils.lang.Fucks;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 
 import java.util.concurrent.Callable;
@@ -35,5 +34,9 @@ public class AsmValidatorFactory {
         Object asmValidator = objenesisStd.newInstance(asmValidatorClass);
 
         return (AsmValidator) asmValidator;
+    }
+
+    public static AsmValidateResult validate(Object bean) {
+        return getValidator(bean.getClass()).validate(bean);
     }
 }
