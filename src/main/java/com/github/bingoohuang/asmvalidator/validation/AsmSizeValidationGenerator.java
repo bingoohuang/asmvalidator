@@ -1,7 +1,7 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
-import com.github.bingoohuang.asmvalidator.annotations.AsmMinSize;
+import com.github.bingoohuang.asmvalidator.annotations.AsmSize;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.utils.Asms;
 import org.objectweb.asm.Label;
@@ -14,11 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmMinSizeValidationGenerator implements AsmValidationGenerator {
+public class AsmSizeValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation,
                             int originalLocalIndex, int stringLocalIndex, AtomicInteger localIndex) {
-        AsmMinSize asmMinSize = (AsmMinSize) fieldAnnotation;
+        AsmSize asmSize = (AsmSize) fieldAnnotation;
 
         mv.visitVarInsn(ALOAD, stringLocalIndex);
         Label l1 = new Label();
@@ -26,14 +26,14 @@ public class AsmMinSizeValidationGenerator implements AsmValidationGenerator {
         mv.visitVarInsn(ALOAD, stringLocalIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "length", "()I", false);
 
-        int minSize = asmMinSize.value();
-        Asms.visitInt(mv, minSize);
+        int size = asmSize.value();
+        Asms.visitInt(mv, size);
         Label l2 = new Label();
-        mv.visitJumpInsn(IF_ICMPGE, l2);
+        mv.visitJumpInsn(IF_ICMPEQ, l2);
         mv.visitLabel(l1);
         AsmValidators.newValidatorError(mv);
         mv.visitLdcInsn(field.getName());
-        mv.visitLdcInsn("长度小于" + minSize);
+        mv.visitLdcInsn("长度不等于" + size);
         AsmValidators.addError(mv);
         mv.visitLabel(l2);
     }

@@ -16,13 +16,14 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class AsmMaxSizeValidationGenerator implements AsmValidationGenerator {
     @Override
-    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, AtomicInteger localIndex) {
+    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation,
+                            int originalLocalIndex, int stringLocalIndex, AtomicInteger localIndex) {
         AsmMaxSize asmMaxSize = (AsmMaxSize) fieldAnnotation;
 
-        mv.visitVarInsn(ALOAD, localIndex.get());
+        mv.visitVarInsn(ALOAD, stringLocalIndex);
         Label l1 = new Label();
         mv.visitJumpInsn(IFNULL, l1);
-        mv.visitVarInsn(ALOAD, localIndex.get());
+        mv.visitVarInsn(ALOAD, stringLocalIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "length", "()I", false);
         int maxSize = asmMaxSize.value();
 

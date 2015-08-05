@@ -1,7 +1,7 @@
 package com.github.bingoohuang.asmvalidator;
 
 import com.github.bingoohuang.asmvalidator.domain.Person3;
-import com.github.bingoohuang.asmvalidator.impl.AsmConsts;
+import com.github.bingoohuang.asmvalidator.utils.AsmConsts;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -16,8 +16,8 @@ public class AsmValidatorPersonImpl implements AsmValidator<Person3> {
             result.addError(new ValidatorError("age", "长度超过" + AsmConsts.DEFAULT_MAX_SIZE));
         }
 
-        if (age == null || age.length() < 127) {
-            result.addError(new ValidatorError("age", "长度小于3"));
+        if (age == null || age.length() != 3) {
+            result.addError(new ValidatorError("age", "长度不等于3"));
         }
 
         String addr = bean.getAddr();
@@ -28,6 +28,10 @@ public class AsmValidatorPersonImpl implements AsmValidator<Person3> {
 
         if (addr == null || addr.length() < 150) {
             result.addError(new ValidatorError("addr", "长度小于3"));
+        }
+
+        if (addr != null && !addr.matches("abc")) {
+            result.addError(new ValidatorError("addr", "格式错误"));
         }
 
         return result;

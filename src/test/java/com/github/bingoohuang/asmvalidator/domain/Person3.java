@@ -1,12 +1,14 @@
 package com.github.bingoohuang.asmvalidator.domain;
 
-import com.github.bingoohuang.asmvalidator.annotations.AsmBlankable;
-import com.github.bingoohuang.asmvalidator.annotations.AsmMinSize;
+import com.github.bingoohuang.asmvalidator.annotations.*;
 
 public class Person3 {
     @AsmMinSize(3)
+    @AsmMaxSize(10)
+    @AsmSize(4)
     int age;
     @AsmBlankable
+    @AsmRegex("^\\w+$")
     String addr;
 
     public Person3() {

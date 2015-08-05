@@ -64,7 +64,9 @@ public class AsmValidatorMethodGenerator {
                 annotations = defaultAnnotations.toArray(new Annotation[0]);
             }
 
+            int originalLocalIndex = localIndex.get() + 1;
             if (annotations.length > 0) createFieldValueLocal(localIndex, mv, field);
+            int stringLocalIndex = localIndex.get();
 
             for (Annotation fieldAnnotation : annotations) {
                 Class<?> annotationType = fieldAnnotation.annotationType();
@@ -73,7 +75,7 @@ public class AsmValidatorMethodGenerator {
                 AsmConstraint asmConstraint = annotationType.getAnnotation(AsmConstraint.class);
                 Class<? extends AsmValidationGenerator> validateByClass = asmConstraint.validateBy();
                 AsmValidationGenerator validateBy = objenesisStd.newInstance(validateByClass);
-                validateBy.generateAsm(mv, field, fieldAnnotation, localIndex);
+                validateBy.generateAsm(mv, field, fieldAnnotation, originalLocalIndex, stringLocalIndex, localIndex);
             }
         }
     }
@@ -83,11 +85,24 @@ public class AsmValidatorMethodGenerator {
 
         String fieldName = field.getName();
         String getterName = "get" + StringUtils.capitalize(fieldName);
-        mv.visitMethodInsn(INVOKEVIRTUAL, p(field.getDeclaringClass()), getterName, sig(String.class), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, p(field.getDeclaringClass()), getterName, sig(field.getType()), false);
 
         localIndex.incrementAndGet();
-        mv.visitVarInsn(ASTORE, localIndex.get());
-        mv.visitVarInsn(ALOAD, localIndex.get());
+
+        if (field.getType().isPrimitive()) {
+            if (field.getType() == int.class) {
+                mv.visitVarInsn(ISTORE, localIndex.get());
+                mv.visitVarInsn(ILOAD, localIndex.get());
+
+                mv.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(I)Ljava/lang/String;", false);
+                localIndex.incrementAndGet();
+                mv.visitVarInsn(ASTORE, localIndex.get());
+                mv.visitVarInsn(ALOAD, localIndex.get());
+            }
+        } else {
+            mv.visitVarInsn(ASTORE, localIndex.get());
+            mv.visitVarInsn(ALOAD, localIndex.get());
+        }
     }
 
     private Method getAsmDefaultAnnotations() {

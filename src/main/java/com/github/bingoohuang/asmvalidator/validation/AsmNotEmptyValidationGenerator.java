@@ -16,7 +16,8 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class AsmNotEmptyValidationGenerator implements AsmValidationGenerator {
     @Override
-    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, AtomicInteger localIndex) {
+    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation,
+                            int originalLocalIndex, int stringLocalIndex, AtomicInteger localIndex) {
         mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class), "isBlank",
                 sig(boolean.class, CharSequence.class), false);
         Label l0 = new Label();
