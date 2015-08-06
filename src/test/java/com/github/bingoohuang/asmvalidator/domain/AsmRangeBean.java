@@ -8,6 +8,9 @@ public class AsmRangeBean {
     @AsmRange("[A00,B99)")
     String addr;
 
+    @AsmRange("男,女,人妖")
+    String sex;
+
     public AsmRangeBean() {
     }
 
@@ -25,5 +28,13 @@ public class AsmRangeBean {
 
     public void setAddr(String addr) {
         this.addr = addr;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
     }
 }

@@ -9,6 +9,7 @@ public class AsmRangeTest {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
         bean.setAddr("A00");
+        bean.setSex("男");
 
         AsmValidateResult result = AsmValidatorFactory.validate(bean);
         result.throwExceptionIfError();
@@ -39,6 +40,17 @@ public class AsmRangeTest {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(11);
         bean.setAddr("B99");
+
+        AsmValidateResult result = AsmValidatorFactory.validate(bean);
+        result.throwExceptionIfError();
+    }
+
+    @Test(expected = AsmValidatorException.class)
+    public void rangBad4() {
+        AsmRangeBean bean = new AsmRangeBean();
+        bean.setAge(10);
+        bean.setAddr("A00");
+        bean.setSex("不男不女");
 
         AsmValidateResult result = AsmValidatorFactory.validate(bean);
         result.throwExceptionIfError();
