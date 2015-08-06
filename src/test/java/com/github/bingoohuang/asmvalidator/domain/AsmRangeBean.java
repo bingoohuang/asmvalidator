@@ -23,6 +23,8 @@ public class AsmRangeBean {
     @AsmRange("[A00,]")
     String code;
 
+
+
     public String getCode() {
         return code;
     }
