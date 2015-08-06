@@ -1,12 +1,12 @@
 package com.github.bingoohuang.asmvalidator;
 
+import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public interface AsmValidationGenerator {
-    void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation,
-                     int originalLocalIndex, int stringLocalIndex, AtomicInteger localIndex);
+    void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, LocalIndices localIndices);
+
 }

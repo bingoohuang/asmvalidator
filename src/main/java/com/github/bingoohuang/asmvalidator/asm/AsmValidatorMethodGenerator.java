@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.utils.AsmDefaultAnnotations;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
 
@@ -64,9 +65,8 @@ public class AsmValidatorMethodGenerator {
                 annotations = defaultAnnotations.toArray(new Annotation[0]);
             }
 
-            int originalLocalIndex = localIndex.get() + 1;
-            if (annotations.length > 0) createFieldValueLocal(localIndex, mv, field);
-            int stringLocalIndex = localIndex.get();
+            LocalIndices localIndices = new LocalIndices(localIndex);
+            if (annotations.length > 0) createFieldValueLocal(localIndices, mv, field);
 
             for (Annotation fieldAnnotation : annotations) {
                 Class<?> annotationType = fieldAnnotation.annotationType();
@@ -75,34 +75,52 @@ public class AsmValidatorMethodGenerator {
                 AsmConstraint asmConstraint = annotationType.getAnnotation(AsmConstraint.class);
                 Class<? extends AsmValidationGenerator> validateByClass = asmConstraint.validateBy();
                 AsmValidationGenerator validateBy = objenesisStd.newInstance(validateByClass);
-                validateBy.generateAsm(mv, field, fieldAnnotation, originalLocalIndex, stringLocalIndex, localIndex);
+                validateBy.generateAsm(mv, field, fieldAnnotation, localIndices);
             }
         }
     }
 
-    private void createFieldValueLocal(AtomicInteger localIndex, MethodVisitor mv, Field field) {
+    private void createFieldValueLocal(LocalIndices localIndices, MethodVisitor mv, Field field) {
         mv.visitVarInsn(ALOAD, 1);
 
         String fieldName = field.getName();
         String getterName = "get" + StringUtils.capitalize(fieldName);
         mv.visitMethodInsn(INVOKEVIRTUAL, p(field.getDeclaringClass()), getterName, sig(field.getType()), false);
 
-        localIndex.incrementAndGet();
+        localIndices.incrementAndSetOriginalLocalIndex();
 
         if (field.getType().isPrimitive()) {
             if (field.getType() == int.class) {
-                mv.visitVarInsn(ISTORE, localIndex.get());
-                mv.visitVarInsn(ILOAD, localIndex.get());
+                mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
+                mv.visitVarInsn(ILOAD, localIndices.getLocalIndex());
 
                 mv.visitMethodInsn(INVOKESTATIC, "java/lang/String", "valueOf", "(I)Ljava/lang/String;", false);
-                localIndex.incrementAndGet();
-                mv.visitVarInsn(ASTORE, localIndex.get());
-                mv.visitVarInsn(ALOAD, localIndex.get());
+
+                localIndices.incrementAndSetStringLocalIndex();
+
+                mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
+                mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
             }
         } else {
-            mv.visitVarInsn(ASTORE, localIndex.get());
-            mv.visitVarInsn(ALOAD, localIndex.get());
+            mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
+            mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
         }
+
+        addIsStringNullLocal(localIndices, mv);
+    }
+
+    private void addIsStringNullLocal(LocalIndices localIndices, MethodVisitor mv) {
+        Label l0 = new Label();
+        mv.visitJumpInsn(IFNONNULL, l0);
+        mv.visitInsn(ICONST_1);
+        Label l1 = new Label();
+        mv.visitJumpInsn(GOTO, l1);
+        mv.visitLabel(l0);
+        mv.visitInsn(ICONST_0);
+        mv.visitLabel(l1);
+        localIndices.incrementAndSetStringNullLocalIndex();
+        mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
+        mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
     }
 
     private Method getAsmDefaultAnnotations() {

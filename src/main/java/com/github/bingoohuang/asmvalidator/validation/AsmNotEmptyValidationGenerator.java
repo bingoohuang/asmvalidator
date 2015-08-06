@@ -1,6 +1,7 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
@@ -8,16 +9,15 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
-import static org.objectweb.asm.Opcodes.*;
+import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
 public class AsmNotEmptyValidationGenerator implements AsmValidationGenerator {
     @Override
-    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation,
-                            int originalLocalIndex, int stringLocalIndex, AtomicInteger localIndex) {
+    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, LocalIndices localIndices) {
         mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class), "isBlank",
                 sig(boolean.class, CharSequence.class), false);
         Label l0 = new Label();
