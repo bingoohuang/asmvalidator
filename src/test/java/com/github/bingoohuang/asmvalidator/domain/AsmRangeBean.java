@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.domain;
 import com.github.bingoohuang.asmvalidator.annotations.*;
 
 public class AsmRangeBean {
-    @AsmRange("[10,20]")
+    @AsmRange("[10,100]")
     int age;
     @AsmRange("[A00,B99)")
     String addr;
@@ -13,6 +13,29 @@ public class AsmRangeBean {
 
     @AsmRange("1,5,10,20,50,100")
     int rmb;
+
+    @AsmRange("[10,]")
+    int ageMin;
+
+    @AsmRange("[,10]")
+    int ageMax;
+
+
+    public int getAgeMax() {
+        return ageMax;
+    }
+
+    public void setAgeMax(int ageMax) {
+        this.ageMax = ageMax;
+    }
+
+    public int getAgeMin() {
+        return ageMin;
+    }
+
+    public void setAgeMin(int ageMin) {
+        this.ageMin = ageMin;
+    }
 
     public AsmRangeBean() {
     }

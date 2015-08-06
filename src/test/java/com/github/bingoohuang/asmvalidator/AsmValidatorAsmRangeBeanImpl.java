@@ -13,7 +13,11 @@ public class AsmValidatorAsmRangeBeanImpl implements AsmValidator<AsmRangeBean> 
         boolean argNull = age == null;
 
 
-        if (intAge < 10 || intAge > 20) {
+        if (intAge < 10) {
+            result.addError(new ValidatorError("age", "格式错误"));
+        }
+
+        if (intAge > 20) {
             result.addError(new ValidatorError("age", "格式错误"));
         }
 
@@ -26,6 +30,11 @@ public class AsmValidatorAsmRangeBeanImpl implements AsmValidator<AsmRangeBean> 
         List<String> sexList = Lists.newArrayList("男", "女", "人妖");
         if (!sexList.contains(sex)) {
             result.addError(new ValidatorError("sex", "格式错误"));
+        }
+
+        int ageMin = bean.getAgeMin();
+        if (ageMin < 10){
+            result.addError(new ValidatorError("age", "格式错误"));
         }
 
         return result;
