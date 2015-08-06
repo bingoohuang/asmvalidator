@@ -7,20 +7,18 @@ import com.google.common.cache.CacheBuilder;
 import org.objenesis.ObjenesisStd;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 
 public class AsmValidatorFactory {
     private static Cache<Class, AsmValidator> cache = CacheBuilder.newBuilder().build();
 
     public static AsmValidator getValidator(final Class<?> beanClass) {
-//        return new AsmValidatorPersonImpl();
         try {
             return cache.get(beanClass, new Callable<AsmValidator>() {
                 public AsmValidator call() throws Exception {
                     return asmCreate(beanClass);
                 }
             });
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             Throwable ex = e.getCause() != null ? e.getCause() : e;
             throw Fucks.fuck(ex);
         }

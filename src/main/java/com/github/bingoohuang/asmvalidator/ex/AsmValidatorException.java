@@ -1,4 +1,6 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.ex;
+
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 
 public class AsmValidatorException extends RuntimeException {
     private final AsmValidateResult asmValidateResult;

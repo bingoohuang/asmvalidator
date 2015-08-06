@@ -1,6 +1,7 @@
 package com.github.bingoohuang.asmvalidator;
 
 import com.github.bingoohuang.asmvalidator.domain.Person;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
 import org.junit.Test;
 
 public class PersonTest {

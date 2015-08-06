@@ -1,6 +1,7 @@
 package com.github.bingoohuang.asmvalidator;
 
 import com.github.bingoohuang.asmvalidator.domain.AsmRangeBean;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
 import org.junit.Test;
 
 public class AsmRangeTest {

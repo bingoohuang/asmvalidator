@@ -1,5 +1,6 @@
 package com.github.bingoohuang.asmvalidator;
 
+import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
 import com.google.common.collect.Lists;
 
 import java.util.List;
