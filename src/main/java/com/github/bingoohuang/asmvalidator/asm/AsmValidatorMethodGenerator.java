@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
@@ -44,7 +45,7 @@ public class AsmValidatorMethodGenerator {
     }
 
     private void bodyValidatorMethod(MethodVisitor mv) {
-        int localIndex = 2; // 0: this, 1:bean, 2: AsmValidateResult
+        AtomicInteger localIndex = new AtomicInteger(2); // 0: this, 1:bean, 2: AsmValidateResult
         ObjenesisStd objenesisStd = new ObjenesisStd();
 
         for (Field field : beanClass.getDeclaredFields()) {
