@@ -1,11 +1,11 @@
 package com.github.bingoohuang.asmvalidator;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmRegex;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorAnnotationBadArgumentException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgumentException;
 import org.junit.Test;
 
 public class BadAsmRegexBeanTest {
-    @Test(expected = AsmValidatorAnnotationBadArgumentException.class)
+    @Test(expected = AsmValidatorBadArgumentException.class)
     public void test() {
         BadAsmRegexBean badAsmRegexBean = new BadAsmRegexBean();
         AsmValidatorFactory.validate(badAsmRegexBean);

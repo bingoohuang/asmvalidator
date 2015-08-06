@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.validation;
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRegex;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorAnnotationBadArgumentException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgumentException;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -26,7 +26,7 @@ public class AsmRegexValidationGenerator implements AsmValidationGenerator {
         try {
             Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
-            throw new AsmValidatorAnnotationBadArgumentException("正则表达式错误:" + fieldAnnotation);
+            throw new AsmValidatorBadArgumentException("正则表达式错误:" + fieldAnnotation);
         }
 
         mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());

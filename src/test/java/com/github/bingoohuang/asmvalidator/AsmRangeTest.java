@@ -1,10 +1,6 @@
 package com.github.bingoohuang.asmvalidator;
 
 import com.github.bingoohuang.asmvalidator.domain.AsmRangeBean;
-<<<<<<< Updated upstream
-=======
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorAnnotationBadArgumentException;
->>>>>>> Stashed changes
 import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
 import org.junit.Test;
 
@@ -71,7 +67,7 @@ public class AsmRangeTest {
     }
 
     @Test(expected = AsmValidatorException.class)
-    public void rangeBad5(){
+    public void rangeBad5() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
         bean.setAddr("A00");
@@ -80,8 +76,9 @@ public class AsmRangeTest {
         AsmValidateResult result = AsmValidatorFactory.validate(bean);
         result.throwExceptionIfError();
     }
+
     @Test(expected = AsmValidatorException.class)
-     public void rangeBad6(){
+    public void rangeBad6() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
         bean.setAddr("A00");
@@ -93,7 +90,7 @@ public class AsmRangeTest {
     }
 
     @Test(expected = AsmValidatorException.class)
-    public void rangeBad7(){
+    public void rangeBad7() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
         bean.setAddr("A00");
@@ -106,7 +103,7 @@ public class AsmRangeTest {
     }
 
     @Test(expected = AsmValidatorException.class)
-    public void rangeBad8(){
+    public void rangeBad8() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
         bean.setAddr("A00");
@@ -117,4 +114,20 @@ public class AsmRangeTest {
         AsmValidateResult result = AsmValidatorFactory.validate(bean);
         result.throwExceptionIfError();
     }
+
+    @Test()
+    public void rangeBad9() {
+        AsmRangeBean bean = new AsmRangeBean();
+        bean.setAge(10);
+        bean.setAddr("A00");
+        bean.setSex("男");
+        bean.setRmb(100);
+        bean.setAgeMin(10);
+        bean.setAgeMax(10);
+        bean.setCode("A01");
+        AsmValidateResult result = AsmValidatorFactory.validate(bean);
+        result.throwExceptionIfError();
+    }
+
+
 }

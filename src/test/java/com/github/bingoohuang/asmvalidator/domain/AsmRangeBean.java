@@ -1,6 +1,6 @@
 package com.github.bingoohuang.asmvalidator.domain;
 
-import com.github.bingoohuang.asmvalidator.annotations.*;
+import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 
 public class AsmRangeBean {
     @AsmRange("[10,100]")
@@ -20,6 +20,16 @@ public class AsmRangeBean {
     @AsmRange("[,10]")
     int ageMax;
 
+    @AsmRange("[A00,]")
+    String code;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public int getAgeMax() {
         return ageMax;

@@ -22,7 +22,10 @@ public class AsmValidatorAsmRangeBeanImpl implements AsmValidator<AsmRangeBean> 
         }
 
         String addr = bean.getAddr();
-        if (addr.compareTo("A00") < 0 || addr.compareTo("B99") > 0) {
+        if (addr.compareTo("A00") < 0) {
+            result.addError(new ValidatorError("addr", "格式错误"));
+        }
+        if (addr.compareTo("B99") > 0) {
             result.addError(new ValidatorError("addr", "格式错误"));
         }
 
@@ -33,9 +36,10 @@ public class AsmValidatorAsmRangeBeanImpl implements AsmValidator<AsmRangeBean> 
         }
 
         int ageMin = bean.getAgeMin();
-        if (ageMin < 10){
+        if (ageMin < 10) {
             result.addError(new ValidatorError("age", "格式错误"));
         }
+
 
         return result;
     }
