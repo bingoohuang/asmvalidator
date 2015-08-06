@@ -1,15 +1,13 @@
 package com.github.bingoohuang.asmvalidator.asm;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class LocalIndices {
-    private final AtomicInteger localIndex; // 当前变量索引
+    private int localIndex; // 当前变量索引
 
     private int originalLocalIndex; // 原始本地变量索引
     private int stringLocalIndex; // 转换为string的本地变量索引
     private int stringLocalNullIndex; // 空判断布尔本地变量索引
 
-    public LocalIndices(AtomicInteger localIndex) {
+    public LocalIndices(int localIndex) {
         this.localIndex = localIndex;
     }
 
@@ -27,19 +25,19 @@ public class LocalIndices {
     }
 
     public int getLocalIndex() {
-        return localIndex.get();
+        return localIndex;
     }
 
     public void incrementAndSetOriginalLocalIndex() {
-        this.originalLocalIndex = localIndex.incrementAndGet();
+        this.originalLocalIndex = ++localIndex;
         this.stringLocalIndex = this.originalLocalIndex;
     }
 
     public void incrementAndSetStringLocalIndex() {
-        this.stringLocalIndex = localIndex.incrementAndGet();
+        this.stringLocalIndex = ++localIndex;
     }
 
     public void incrementAndSetStringNullLocalIndex() {
-        this.stringLocalNullIndex = localIndex.incrementAndGet();
+        this.stringLocalNullIndex = ++localIndex;
     }
 }
