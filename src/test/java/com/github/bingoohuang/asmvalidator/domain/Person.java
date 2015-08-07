@@ -1,8 +1,22 @@
 package com.github.bingoohuang.asmvalidator.domain;
 
+
+import com.github.bingoohuang.asmvalidator.annotations.AsmIngore;
+
 public class Person {
     String name;
     String addr;
+
+    @AsmIngore
+    String code;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
 
     public Person() {
     }

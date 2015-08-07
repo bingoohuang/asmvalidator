@@ -56,6 +56,9 @@ public class AsmValidatorMethodGenerator {
             if (annotations.length == 0) annotations = asmDefaultMethod.getAnnotations();
             else {
                 List<Annotation> defaultAnnotations = Lists.newArrayList();
+                if (field.isAnnotationPresent(AsmIngore.class)){
+                    continue;
+                }
                 if (!field.isAnnotationPresent(AsmBlankable.class) && !field.isAnnotationPresent(AsmMinSize.class))
                     defaultAnnotations.add(asmDefaultMethod.getAnnotation(AsmNotBlank.class));
                 if (!field.isAnnotationPresent(AsmMaxSize.class))
