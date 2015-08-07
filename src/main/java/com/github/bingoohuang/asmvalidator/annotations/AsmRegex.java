@@ -6,7 +6,8 @@ import java.lang.annotation.*;
 
 @Documented
 @AsmConstraint(validateBy = AsmRegexValidationGenerator.class)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD,
+        ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmRegex {
     String value();

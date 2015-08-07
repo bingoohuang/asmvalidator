@@ -5,6 +5,7 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmRegex;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgException;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
+import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -21,7 +22,7 @@ public class AsmRegexValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices) {
+            Annotation fieldAnnotation, LocalIndices localIndices, String message) {
         AsmRegex asmRegex = (AsmRegex) fieldAnnotation;
         String regex = asmRegex.value();
 
@@ -42,7 +43,7 @@ public class AsmRegexValidationGenerator implements AsmValidationGenerator {
         mv.visitJumpInsn(IFNE, l1);
         AsmValidators.newValidatorError(mv);
         mv.visitLdcInsn(field.getName());
-        mv.visitLdcInsn("格式错误");
+        mv.visitLdcInsn(StringUtils.isEmpty(message) ? "格式错误" : message);
         AsmValidators.addError(mv);
         mv.visitLabel(l1);
     }

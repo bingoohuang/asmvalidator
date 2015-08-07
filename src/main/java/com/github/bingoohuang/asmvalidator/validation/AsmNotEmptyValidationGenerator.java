@@ -19,7 +19,7 @@ public class AsmNotEmptyValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices) {
+            Annotation fieldAnnotation, LocalIndices localIndices, String message) {
         mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class), "isBlank",
                 sig(boolean.class, CharSequence.class), false);
         Label l0 = new Label();

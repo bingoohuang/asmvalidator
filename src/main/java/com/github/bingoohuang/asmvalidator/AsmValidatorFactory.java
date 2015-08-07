@@ -37,6 +37,7 @@ public class AsmValidatorFactory {
     }
 
     public static AsmValidateResult validate(Object bean) {
-        return getValidator(bean.getClass()).validate(bean);
+        AsmValidator validator = getValidator(bean.getClass());
+        return validator.validate(bean);
     }
 }

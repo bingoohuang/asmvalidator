@@ -18,7 +18,7 @@ public class AsmSizeValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices) {
+            Annotation fieldAnnotation, LocalIndices localIndices, String message) {
         AsmSize asmSize = (AsmSize) fieldAnnotation;
 
         mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());

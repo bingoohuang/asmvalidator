@@ -25,7 +25,8 @@ public class AsmValidatorClassGenerator {
     public Class<?> generate() {
         byte[] bytes = createImplClassBytes();
 
-        createClassFileForDiagnose(bytes);
+        if (beanClass.isAnnotationPresent(CreateClassFile4Debug.class))
+            createClassFileForDiagnose(bytes);
 
         return defineClass(bytes);
     }

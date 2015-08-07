@@ -1,6 +1,7 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import org.objectweb.asm.Label;
@@ -17,7 +18,8 @@ public class AsmMobileValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices) {
+            Annotation fieldAnnotation, LocalIndices localIndices, String message) {
+        AsmMobile asmMobile = (AsmMobile) fieldAnnotation;
 
         mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
         mv.visitLdcInsn("^1\\d{10}$");
@@ -29,7 +31,7 @@ public class AsmMobileValidationGenerator implements AsmValidationGenerator {
         AsmValidators.newValidatorError(mv);
 
         mv.visitLdcInsn(field.getName());
-        mv.visitLdcInsn("手机号码格式不正确!");
+        mv.visitLdcInsn(asmMobile.message());
         AsmValidators.addError(mv);
         mv.visitLabel(l0);
     }

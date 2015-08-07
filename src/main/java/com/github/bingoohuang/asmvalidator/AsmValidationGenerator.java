@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 public interface AsmValidationGenerator {
     void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices);
+            Annotation fieldAnnotation,
+            LocalIndices localIndices,String message);
 
 }

@@ -11,7 +11,7 @@ public class AsmNoopValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices) {
-
+            Annotation fieldAnnotation,
+            LocalIndices localIndices, String message) {
     }
 }

@@ -18,7 +18,7 @@ public class AsmMaxSizeValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, Field field,
-            Annotation fieldAnnotation, LocalIndices localIndices) {
+            Annotation fieldAnnotation, LocalIndices localIndices,String message) {
         AsmMaxSize asmMaxSize = (AsmMaxSize) fieldAnnotation;
 
         mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());

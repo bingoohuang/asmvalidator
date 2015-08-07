@@ -12,6 +12,7 @@ public class AsmValidators {
                 Asms.sig(void.class, String.class, String.class), false);
         mv.visitMethodInsn(INVOKEVIRTUAL, Asms.p(AsmValidateResult.class), "addError",
                 Asms.sig(void.class, ValidatorError.class), false);
+        mv.visitInsn(RETURN);
     }
 
     public static void newValidatorError(MethodVisitor mv) {

@@ -26,6 +26,7 @@ public class AsmValidatorMethodGenerator {
     private final ClassWriter cw;
     private final String implName;
     private final Class<?> beanClass;
+    private ObjenesisStd objenesisStd = new ObjenesisStd();
 
     public AsmValidatorMethodGenerator(
             Class<?> beanClass, ClassWriter classWriter, String implName) {
@@ -40,30 +41,27 @@ public class AsmValidatorMethodGenerator {
     }
 
     private void createValidatorMethod() {
-        MethodVisitor mv = startValidatorMethod();
-        bodyValidatorMethod(mv);
-        endValidateMethod(mv);
+        createValidatorMainMethod();
+        createValidatorFieldMethods();
     }
 
-    private void bodyValidatorMethod(MethodVisitor mv) {
-        // 0: this, 1:bean, 2: AsmValidateResult
-        AtomicInteger localIndex = new AtomicInteger(2);
-        ObjenesisStd objenesisStd = new ObjenesisStd();
-
+    private void createValidatorFieldMethods() {
         for (Field field : beanClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(AsmIgnore.class)) continue;
 
-            bodyFieldValidator(mv, localIndex, objenesisStd, field);
+            bodyFieldValidator(field);
         }
     }
 
-    private void bodyFieldValidator(
-            MethodVisitor mv, AtomicInteger localIndex,
-            ObjenesisStd objStd, Field field) {
-        Annotation[] annotations = createAnnotationsForField(field);
+    private void bodyFieldValidator(Field field) {
+        MethodVisitor mv = startFieldValidatorMethod(field);
+
+        // 0: this, 1:bean, 2: AsmValidateResult
+        AtomicInteger localIndex = new AtomicInteger(2);
+        List<Annotation> annotations = createAnnotationsForField(field);
 
         LocalIndices localIndices = new LocalIndices(localIndex);
-        if (annotations.length > 0) {
+        if (annotations.size() > 0) {
             createFieldValueLocal(localIndices, mv, field);
         }
 
@@ -71,33 +69,95 @@ public class AsmValidatorMethodGenerator {
             Class<?> annType = fieldAnnotation.annotationType();
             AsmConstraint constraint = annType.getAnnotation(AsmConstraint.class);
             if (constraint == null) continue;
+            String message = constraint.message();
 
             Class<? extends AsmValidationGenerator> validateByClz;
             validateByClz = constraint.validateBy();
-            AsmValidationGenerator validateBy = objStd.newInstance(validateByClz);
-            validateBy.generateAsm(mv, field, fieldAnnotation, localIndices);
+            AsmValidationGenerator validateBy = objenesisStd.newInstance(validateByClz);
+            validateBy.generateAsm(mv, field, fieldAnnotation, localIndices, message);
         }
+
+        endFieldValidateMethod(mv);
     }
 
-    private Annotation[] createAnnotationsForField(Field field) {
-        Annotation[] annotations = field.getDeclaredAnnotations();
+
+    private MethodVisitor startFieldValidatorMethod(Field field) {
+        MethodVisitor mv;
+        mv = cw.visitMethod(ACC_PRIVATE,
+                "validate" + StringUtils.capitalize(field.getName()),
+                sig(void.class, beanClass, AsmValidateResult.class),
+                null, null);
+        mv.visitCode();
+        return mv;
+    }
+
+    private void endFieldValidateMethod(MethodVisitor mv) {
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(-1, -1);
+        mv.visitEnd();
+    }
+
+    private List<Annotation> createAnnotationsForField(Field field) {
+        List<Annotation> asmConstraintsAnns = Lists.newArrayList();
+        searchAnnotations(asmConstraintsAnns, field);
 
         // use default not empty and max size validator
-        Method asmDefaultMethod = getAsmDefaultAnnotations();
-        if (annotations.length == 0) return asmDefaultMethod.getAnnotations();
+        Method defaultMethod = getAsmDefaultAnnotations();
+        if (asmConstraintsAnns.size() == 0)
+            return Arrays.asList(defaultMethod.getAnnotations());
 
-        List<Annotation> defaultAnns = Lists.newArrayList();
-
-        if (!field.isAnnotationPresent(AsmBlankable.class)
-                && !field.isAnnotationPresent(AsmMinSize.class)) {
-            defaultAnns.add(asmDefaultMethod.getAnnotation(AsmNotBlank.class));
+        if (requireAsmNotBlank(asmConstraintsAnns)) {
+            asmConstraintsAnns.add(defaultMethod.getAnnotation(AsmNotBlank.class));
         }
-        if (!field.isAnnotationPresent(AsmMaxSize.class)) {
-            defaultAnns.add(asmDefaultMethod.getAnnotation(AsmMaxSize.class));
+        if (requireAsmMaxSize(asmConstraintsAnns)) {
+            asmConstraintsAnns.add(defaultMethod.getAnnotation(AsmMaxSize.class));
         }
 
-        defaultAnns.addAll(Arrays.asList(annotations));
-        return defaultAnns.toArray(new Annotation[0]);
+        return asmConstraintsAnns;
+    }
+
+    private boolean requireAsmMaxSize(List<Annotation> asmConstraintsAnns) {
+        for (Annotation ann : asmConstraintsAnns) {
+            if (ann.annotationType() == AsmMaxSize.class) return false;
+            if (ann.annotationType() == AsmSize.class) return false;
+        }
+
+        return true;
+    }
+
+    private boolean requireAsmNotBlank(List<Annotation> asmConstraintsAnns) {
+        for (Annotation ann : asmConstraintsAnns) {
+            if (ann.annotationType() == AsmBlankable.class) return false;
+            if (ann.annotationType() == AsmMinSize.class) return false;
+            if (ann.annotationType() == AsmSize.class) return false;
+        }
+
+        return true;
+    }
+
+    private void searchAnnotations(
+            List<Annotation> asmConstraints, Field field) {
+        Annotation[] annotations = field.getAnnotations();
+        searchConstraints(asmConstraints, annotations);
+    }
+
+    private void searchAnnotations(
+            List<Annotation> asmConstraints, Annotation annotation) {
+        Annotation[] annotations = annotation.annotationType().getAnnotations();
+        searchConstraints(asmConstraints, annotations);
+
+    }
+
+    private void searchConstraints(
+            List<Annotation> asmConstraintAnns, Annotation[] annotations) {
+        for (Annotation ann : annotations) {
+            Class<?> annType = ann.annotationType();
+            AsmConstraint asmConstraint = annType.getAnnotation(AsmConstraint.class);
+            if (asmConstraint == null) continue;
+
+            searchAnnotations(asmConstraintAnns, ann);
+            asmConstraintAnns.add(ann);
+        }
     }
 
     private void createFieldValueLocal(
@@ -151,14 +211,8 @@ public class AsmValidatorMethodGenerator {
         return AsmDefaultAnnotations.class.getMethods()[0];
     }
 
-    private void endValidateMethod(MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitInsn(ARETURN);
-        mv.visitMaxs(-1, -1);
-        mv.visitEnd();
-    }
 
-    private MethodVisitor startValidatorMethod() {
+    private void createValidatorMainMethod() {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "validate",
                 sig(AsmValidateResult.class, beanClass), null, null);
         mv.visitCode();
@@ -167,7 +221,23 @@ public class AsmValidatorMethodGenerator {
         mv.visitMethodInsn(INVOKESPECIAL, p(AsmValidateResult.class),
                 "<init>", "()V", false);
         mv.visitVarInsn(ASTORE, 2);
-        return mv;
+
+        for (Field field : beanClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(AsmIgnore.class)) continue;
+
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ALOAD, 2);
+            mv.visitMethodInsn(INVOKESPECIAL, p(implName),
+                    "validate" + StringUtils.capitalize(field.getName()),
+                    sig(void.class, beanClass, AsmValidateResult.class),
+                    false);
+        }
+
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(-1, -1);
+        mv.visitEnd();
     }
 
     private void createBridge() {

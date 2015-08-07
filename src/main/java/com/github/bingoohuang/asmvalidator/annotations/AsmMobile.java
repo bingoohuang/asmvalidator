@@ -10,4 +10,5 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmMobile {
+    String message() default "手机号码格式不正确";
 }
