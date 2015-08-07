@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.validation;
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgumentException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgException;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.google.common.base.Splitter;
@@ -24,7 +24,9 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class AsmRangeValidationGenerator implements AsmValidationGenerator {
     @Override
-    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, LocalIndices localIndices) {
+    public void generateAsm(
+            MethodVisitor mv, Field field,
+            Annotation fieldAnnotation, LocalIndices localIndices) {
         AsmRange asmRange = (AsmRange) fieldAnnotation;
         String rangeExpression = StringUtils.trim(asmRange.value());
 
@@ -35,22 +37,27 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         if (rangeValues.size() < 2) throw error(fieldAnnotation);
 
         if (rangeValues.size() == 2) {
-            if (tryRangeCheckGenerate(mv, field, fieldAnnotation, localIndices, rangeExpression, rangeValues)) return;
+            if (tryRangeCheck(mv, field, fieldAnnotation,
+                    localIndices, rangeExpression, rangeValues)) return;
         }
 
-        enumRangeCheckGenerate(mv, field, localIndices, rangeExpression, rangeValues);
+        enumsCheck(mv, field, localIndices, rangeExpression, rangeValues);
     }
 
-    private boolean tryRangeCheckGenerate(MethodVisitor mv, Field field,
-                                          Annotation fieldAnnotation, LocalIndices localIndices,
-                                          String rangeExpression, List<String> rangeValues) {
+    private boolean tryRangeCheck(
+            MethodVisitor mv, Field field, Annotation fieldAnnotation,
+            LocalIndices localIndices, String rangeExpression,
+            List<String> rangeValues) {
+
         String from = rangeValues.get(0);
         String to = rangeValues.get(1);
 
         char fromStart = from.charAt(0);
         char toEnd = to.charAt(to.length() - 1);
 
-        boolean isRangeExpression = (fromStart == '[' || fromStart == '(') && (toEnd == ']' || toEnd == ')');
+        boolean isRangeExpression
+                = (fromStart == '[' || fromStart == '(')
+                && (toEnd == ']' || toEnd == ')');
         if (!isRangeExpression) return false;
 
         from = StringUtils.trim(from.substring(1));
@@ -73,18 +80,22 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
             return true;
         }
 
-        throw new AsmValidatorBadArgumentException(fieldAnnotation + " is not support yet for " + field.getType());
+        throw new AsmValidatorBadArgException(fieldAnnotation
+                + " is not support yet for " + field.getType());
     }
 
-    private AsmValidatorBadArgumentException error(Annotation fieldAnnotation) {
-        return new AsmValidatorBadArgumentException(fieldAnnotation + " is illegal");
+    private AsmValidatorBadArgException error(Annotation fieldAnnotation) {
+        return new AsmValidatorBadArgException(fieldAnnotation + " is illegal");
     }
 
-    private void enumRangeCheckGenerate(MethodVisitor mv, Field field, LocalIndices localIndices,
-                                        String rangeExpression, List<String> rangeValues) {
+    private void enumsCheck(
+            MethodVisitor mv, Field field, LocalIndices localIndices,
+            String rangeExpression, List<String> rangeValues) {
+
         mv.visitTypeInsn(NEW, p(ArrayList.class));
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, p(ArrayList.class), "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, p(ArrayList.class),
+                "<init>", "()V", false);
         localIndices.incrementLocalIndex();
         mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
 
@@ -106,10 +117,13 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         mv.visitLabel(l1);
     }
 
-    private void stringRangeCheckGenerate(MethodVisitor mv, Field field, LocalIndices localIndices,
-                                          String rangeExpression,
-                                          String from, String to,
-                                          boolean includeFrom, boolean includeEnd) {
+    private void stringRangeCheckGenerate(
+            MethodVisitor mv, Field field,
+            LocalIndices localIndices,
+            String rangeExpression,
+            String from, String to,
+            boolean includeFrom, boolean includeEnd) {
+
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
             mv.visitLdcInsn(from);
@@ -123,10 +137,13 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         }
     }
 
-    private void intRangeCheckGenerate(MethodVisitor mv, Field field, LocalIndices localIndices,
-                                       String rangeExpression,
-                                       String from, String to,
-                                       boolean includeFrom, boolean includeEnd) {
+    private void intRangeCheckGenerate(
+            MethodVisitor mv, Field field,
+            LocalIndices localIndices,
+            String rangeExpression,
+            String from, String to,
+            boolean includeFrom, boolean includeEnd) {
+
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ILOAD, localIndices.getOriginalLocalIndex());
             Asms.visitInt(mv, Integer.parseInt(from));
@@ -139,8 +156,10 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         }
     }
 
-    private void compareStringValue(MethodVisitor mv, Field field,
-                                    String rangeExpression, boolean includeEnd) {
+    private void compareStringValue(
+            MethodVisitor mv, Field field,
+            String rangeExpression, boolean includeEnd) {
+
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class),
                 "compareTo", sig(int.class, String.class), false);
         Label label = new Label();
@@ -149,8 +168,9 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         mv.visitLabel(label);
     }
 
-    private void compareValue(MethodVisitor mv, Field field,
-                              String rangeExpression, boolean includeBoundary) {
+    private void compareValue(
+            MethodVisitor mv, Field field,
+            String rangeExpression, boolean includeBoundary) {
         Label label = new Label();
         mv.visitJumpInsn(includeBoundary ? IF_ICMPGE : IF_ICMPGT, label);
         addErr(mv, field, rangeExpression);

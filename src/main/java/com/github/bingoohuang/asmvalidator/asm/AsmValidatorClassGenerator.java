@@ -44,14 +44,16 @@ public class AsmValidatorClassGenerator {
 
     private Class<?> defineClass(byte[] bytes) {
         ClassLoader parentClassLoader = beanClass.getClassLoader();
-        AsmValidatorClassLoader classLoader = new AsmValidatorClassLoader(parentClassLoader);
+        AsmValidatorClassLoader classLoader =
+                new AsmValidatorClassLoader(parentClassLoader);
         return classLoader.defineClass(implName, bytes);
     }
 
     private byte[] createImplClassBytes() {
         constructor();
 
-        new AsmValidatorMethodGenerator(beanClass, classWriter, implName).generate();
+        new AsmValidatorMethodGenerator(beanClass, classWriter, implName)
+                .generate();
 
         return createBytes();
     }
@@ -64,17 +66,18 @@ public class AsmValidatorClassGenerator {
     private ClassWriter createClassWriter() {
         ClassWriter cw = new ClassWriter(0);
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, p(implName),
-                null // "Ljava/lang/Object;Lcom/github/bingoohuang/asmvalidator/AsmValidator<Lcom/github/bingoohuang/asmvalidator/domain/Person;>;"
-                , p(Object.class), new String[]{p(AsmValidator.class)});
+                null, p(Object.class), new String[]{p(AsmValidator.class)});
 
         return cw;
     }
 
     private void constructor() {
-        MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        MethodVisitor mv;
+        mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, p(Object.class), "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, p(Object.class),
+                "<init>", "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();

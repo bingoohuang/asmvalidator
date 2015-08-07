@@ -16,14 +16,17 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class AsmSizeValidationGenerator implements AsmValidationGenerator {
     @Override
-    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, LocalIndices localIndices) {
+    public void generateAsm(
+            MethodVisitor mv, Field field,
+            Annotation fieldAnnotation, LocalIndices localIndices) {
         AsmSize asmSize = (AsmSize) fieldAnnotation;
 
         mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
         mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
-        mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "length", "()I", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class),
+                "length", "()I", false);
 
         int size = asmSize.value();
         Asms.visitInt(mv, size);

@@ -9,7 +9,9 @@ import java.lang.reflect.Field;
 
 public class AsmNoopValidationGenerator implements AsmValidationGenerator {
     @Override
-    public void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, LocalIndices localIndices) {
+    public void generateAsm(
+            MethodVisitor mv, Field field,
+            Annotation fieldAnnotation, LocalIndices localIndices) {
 
     }
 }

@@ -7,6 +7,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 public interface AsmValidationGenerator {
-    void generateAsm(MethodVisitor mv, Field field, Annotation fieldAnnotation, LocalIndices localIndices);
+    void generateAsm(
+            MethodVisitor mv, Field field,
+            Annotation fieldAnnotation, LocalIndices localIndices);
 
 }

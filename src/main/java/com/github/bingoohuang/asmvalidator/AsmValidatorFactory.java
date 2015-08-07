@@ -9,7 +9,8 @@ import org.objenesis.ObjenesisStd;
 import java.util.concurrent.Callable;
 
 public class AsmValidatorFactory {
-    private static Cache<Class, AsmValidator> cache = CacheBuilder.newBuilder().build();
+    private static Cache<Class, AsmValidator>
+            cache = CacheBuilder.newBuilder().build();
 
     public static AsmValidator getValidator(final Class<?> beanClass) {
         try {
@@ -25,7 +26,8 @@ public class AsmValidatorFactory {
     }
 
     private static AsmValidator asmCreate(Class<?> beanClass) {
-        AsmValidatorClassGenerator generator = new AsmValidatorClassGenerator(beanClass);
+        AsmValidatorClassGenerator generator
+                = new AsmValidatorClassGenerator(beanClass);
         Class<?> asmValidatorClass = generator.generate();
 
         ObjenesisStd objenesisStd = new ObjenesisStd();
