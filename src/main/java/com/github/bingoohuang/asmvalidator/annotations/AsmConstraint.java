@@ -9,5 +9,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmConstraint {
     Class<? extends AsmValidationGenerator> validateBy();
-    String message() default "";
+    String message();
 }

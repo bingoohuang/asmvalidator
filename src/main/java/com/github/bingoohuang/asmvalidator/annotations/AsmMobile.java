@@ -6,9 +6,9 @@ import com.github.bingoohuang.asmvalidator.validation.AsmMobileValidationGenerat
 import java.lang.annotation.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmMobileValidationGenerator.class)
+@AsmConstraint(validateBy = AsmMobileValidationGenerator.class,
+        message = "手机号码格式非法")
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmMobile {
-    String message() default "手机号码格式不正确";
 }

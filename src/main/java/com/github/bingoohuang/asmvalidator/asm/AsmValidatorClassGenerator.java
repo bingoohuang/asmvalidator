@@ -65,7 +65,8 @@ public class AsmValidatorClassGenerator {
     }
 
     private ClassWriter createClassWriter() {
-        ClassWriter cw = new ClassWriter(0);
+        int flags = ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS;
+        ClassWriter cw = new ClassWriter(flags);
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, p(implName),
                 null, p(Object.class), new String[]{p(AsmValidator.class)});
 

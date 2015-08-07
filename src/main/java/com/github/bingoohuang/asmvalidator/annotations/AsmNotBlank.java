@@ -5,8 +5,9 @@ import com.github.bingoohuang.asmvalidator.validation.AsmNotEmptyValidationGener
 import java.lang.annotation.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmNotEmptyValidationGenerator.class)
-@Target({ElementType.FIELD, ElementType.METHOD,ElementType.PARAMETER})
+@AsmConstraint(validateBy = AsmNotEmptyValidationGenerator.class,
+        message = "字段不能为空")
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmNotBlank {
 }

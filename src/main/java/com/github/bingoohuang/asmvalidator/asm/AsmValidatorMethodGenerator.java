@@ -4,6 +4,8 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.utils.AsmDefaultAnnotations;
+import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
+import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidationGenerator;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
@@ -61,20 +63,26 @@ public class AsmValidatorMethodGenerator {
         List<Annotation> annotations = createAnnotationsForField(field);
 
         LocalIndices localIndices = new LocalIndices(localIndex);
+        String defaultMessage = "";
         if (annotations.size() > 0) {
             createFieldValueLocal(localIndices, mv, field);
+            Annotation lastAnn = annotations.get(annotations.size() - 1);
+            defaultMessage = lastAnn.annotationType()
+                    .getAnnotation(AsmConstraint.class).message();
+            defaultMessage = AsmValidators.createMessage(lastAnn, defaultMessage);
         }
 
         for (Annotation fieldAnnotation : annotations) {
             Class<?> annType = fieldAnnotation.annotationType();
             AsmConstraint constraint = annType.getAnnotation(AsmConstraint.class);
-            if (constraint == null) continue;
-            String message = constraint.message();
 
             Class<? extends AsmValidationGenerator> validateByClz;
             validateByClz = constraint.validateBy();
+            if (validateByClz == AsmNoopValidationGenerator.class) continue;
+
             AsmValidationGenerator validateBy = objenesisStd.newInstance(validateByClz);
-            validateBy.generateAsm(mv, field, fieldAnnotation, localIndices, message);
+            validateBy.generateAsm(mv, field, fieldAnnotation, localIndices,
+                    constraint, defaultMessage);
         }
 
         endFieldValidateMethod(mv);
@@ -103,36 +111,32 @@ public class AsmValidatorMethodGenerator {
 
         // use default not empty and max size validator
         Method defaultMethod = getAsmDefaultAnnotations();
-        if (asmConstraintsAnns.size() == 0)
+        if (asmConstraintsAnns.isEmpty())
             return Arrays.asList(defaultMethod.getAnnotations());
 
-        if (requireAsmNotBlank(asmConstraintsAnns)) {
-            asmConstraintsAnns.add(defaultMethod.getAnnotation(AsmNotBlank.class));
-        }
-        if (requireAsmMaxSize(asmConstraintsAnns)) {
-            asmConstraintsAnns.add(defaultMethod.getAnnotation(AsmMaxSize.class));
-        }
+        tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod);
+        tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod);
 
         return asmConstraintsAnns;
     }
 
-    private boolean requireAsmMaxSize(List<Annotation> asmConstraintsAnns) {
+    private void tryAddAsmMaxSize(List<Annotation> asmConstraintsAnns, Method defaultMethod) {
         for (Annotation ann : asmConstraintsAnns) {
-            if (ann.annotationType() == AsmMaxSize.class) return false;
-            if (ann.annotationType() == AsmSize.class) return false;
+            if (ann.annotationType() == AsmMaxSize.class) return;
+            if (ann.annotationType() == AsmSize.class) return;
         }
 
-        return true;
+        asmConstraintsAnns.add(0, defaultMethod.getAnnotation(AsmMaxSize.class));
     }
 
-    private boolean requireAsmNotBlank(List<Annotation> asmConstraintsAnns) {
+    private void tryAddAsmNotBlank(List<Annotation> asmConstraintsAnns, Method defaultMethod) {
         for (Annotation ann : asmConstraintsAnns) {
-            if (ann.annotationType() == AsmBlankable.class) return false;
-            if (ann.annotationType() == AsmMinSize.class) return false;
-            if (ann.annotationType() == AsmSize.class) return false;
+            if (ann.annotationType() == AsmBlankable.class) return;
+            if (ann.annotationType() == AsmMinSize.class) return;
+            if (ann.annotationType() == AsmSize.class) return;
         }
 
-        return true;
+        asmConstraintsAnns.add(0, defaultMethod.getAnnotation(AsmNotBlank.class));
     }
 
     private void searchAnnotations(
@@ -210,7 +214,6 @@ public class AsmValidatorMethodGenerator {
     private Method getAsmDefaultAnnotations() {
         return AsmDefaultAnnotations.class.getMethods()[0];
     }
-
 
     private void createValidatorMainMethod() {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "validate",

@@ -5,7 +5,8 @@ import com.github.bingoohuang.asmvalidator.validation.AsmRegexValidationGenerato
 import java.lang.annotation.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmRegexValidationGenerator.class)
+@AsmConstraint(validateBy = AsmRegexValidationGenerator.class,
+        message = "格式非法")
 @Target({ElementType.FIELD, ElementType.METHOD,
         ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

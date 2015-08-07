@@ -1,6 +1,7 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import org.objectweb.asm.MethodVisitor;
 
@@ -12,6 +13,6 @@ public class AsmNoopValidationGenerator implements AsmValidationGenerator {
     public void generateAsm(
             MethodVisitor mv, Field field,
             Annotation fieldAnnotation,
-            LocalIndices localIndices, String message) {
+            LocalIndices localIndices, AsmConstraint constraint, String message) {
     }
 }

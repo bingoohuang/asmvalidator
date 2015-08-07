@@ -5,7 +5,8 @@ import com.github.bingoohuang.asmvalidator.validation.AsmMaxSizeValidationGenera
 import java.lang.annotation.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmMaxSizeValidationGenerator.class)
+@AsmConstraint(validateBy = AsmMaxSizeValidationGenerator.class,
+        message = "长度超过{value}")
 @Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmMaxSize {

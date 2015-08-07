@@ -11,7 +11,7 @@ public class AsmValidatorMobileImpl implements AsmValidator<MobileBean> {
         String mobile = bean.getMobile();
 
         if (!mobile.matches("^1\\d{10}$")) {
-            result.addError(new ValidatorError("mobile", "手机号码格式不正确"));
+            result.addError(new ValidatorError("mobile", mobile, "手机号码格式不正确"));
         }
         return result;
     }
