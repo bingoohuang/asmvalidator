@@ -24,7 +24,7 @@ public class PersonTest {
     @Test(expected = AsmValidatorException.class)
     public void tooLong() {
         Person person = new Person();
-        person.setName("12345678901");
+        person.setName("12345678901234567");
         person.setAddr("aaa");
         AsmValidateResult result = AsmValidatorFactory.validate(person);
         result.throwExceptionIfError();
