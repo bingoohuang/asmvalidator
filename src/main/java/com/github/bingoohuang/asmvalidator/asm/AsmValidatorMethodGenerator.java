@@ -49,6 +49,8 @@ public class AsmValidatorMethodGenerator {
         ObjenesisStd objenesisStd = new ObjenesisStd();
 
         for (Field field : beanClass.getDeclaredFields()) {
+            if (field.isAnnotationPresent(AsmIgnore.class)) continue;
+
             Annotation[] annotations = field.getDeclaredAnnotations();
 
             // use default not empty and max size validator
@@ -56,9 +58,7 @@ public class AsmValidatorMethodGenerator {
             if (annotations.length == 0) annotations = asmDefaultMethod.getAnnotations();
             else {
                 List<Annotation> defaultAnnotations = Lists.newArrayList();
-                if (field.isAnnotationPresent(AsmIngore.class)){
-                    continue;
-                }
+
                 if (!field.isAnnotationPresent(AsmBlankable.class) && !field.isAnnotationPresent(AsmMinSize.class))
                     defaultAnnotations.add(asmDefaultMethod.getAnnotation(AsmNotBlank.class));
                 if (!field.isAnnotationPresent(AsmMaxSize.class))
