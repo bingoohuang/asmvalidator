@@ -25,7 +25,6 @@ public class AsmNotEmptyValidationGenerator implements AsmValidationGenerator {
                 sig(boolean.class, CharSequence.class), false);
         Label l0 = new Label();
         mv.visitJumpInsn(IFEQ, l0);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(l0);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l0);
     }
 }

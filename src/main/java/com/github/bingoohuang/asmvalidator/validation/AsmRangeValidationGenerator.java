@@ -122,8 +122,7 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
                 "contains", sig(boolean.class, Object.class), true);
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(l1);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l1);
     }
 
     private void stringRangeCheckGenerate(
@@ -184,8 +183,7 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
                 "compareTo", sig(int.class, String.class), false);
         Label label = new Label();
         mv.visitJumpInsn(includeEnd ? IFGE : IFGT, label);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(label);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, label);
     }
 
     private void compareValue(
@@ -196,9 +194,6 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
     ) {
         Label label = new Label();
         mv.visitJumpInsn(includeBoundary ? IF_ICMPGE : IF_ICMPGT, label);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(label);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, label);
     }
-
-
 }

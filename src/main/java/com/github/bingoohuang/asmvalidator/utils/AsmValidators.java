@@ -5,6 +5,7 @@ import com.github.bingoohuang.asmvalidator.ValidatorError;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.utils.lang.Fucks;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
@@ -18,7 +19,8 @@ public class AsmValidators {
             String name, MethodVisitor mv,
             Annotation fieldAnnotation,
             AsmConstraint constraint, String message,
-            LocalIndices localIndices
+            LocalIndices localIndices,
+            Label label
     ) {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitTypeInsn(NEW, Asms.p(ValidatorError.class));
@@ -33,6 +35,7 @@ public class AsmValidators {
         mv.visitMethodInsn(INVOKEVIRTUAL, Asms.p(AsmValidateResult.class), "addError",
                 Asms.sig(void.class, ValidatorError.class), false);
         mv.visitInsn(RETURN);
+        mv.visitLabel(label);
     }
 
     public static String createMessage(

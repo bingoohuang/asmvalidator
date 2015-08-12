@@ -26,7 +26,6 @@ public class AsmMobileValidationGenerator implements AsmValidationGenerator {
         Label l0 = new Label();
         mv.visitJumpInsn(IFNE, l0);
 
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(l0);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l0);
     }
 }

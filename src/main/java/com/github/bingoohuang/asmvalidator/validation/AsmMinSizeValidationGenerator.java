@@ -33,7 +33,6 @@ public class AsmMinSizeValidationGenerator implements AsmValidationGenerator {
         Label l2 = new Label();
         mv.visitJumpInsn(IF_ICMPGE, l2);
         mv.visitLabel(l1);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(l2);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l2);
     }
 }

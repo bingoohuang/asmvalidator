@@ -1,9 +1,7 @@
 package com.github.bingoohuang.asmvalidator.validator.domain;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmUUID;
-import com.github.bingoohuang.asmvalidator.asm.AsmCreateClassFile4Debug;
 
-@AsmCreateClassFile4Debug
 public class UUIDBean {
     @AsmUUID
     String uuid;

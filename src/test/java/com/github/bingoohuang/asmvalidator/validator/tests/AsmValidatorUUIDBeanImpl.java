@@ -28,7 +28,6 @@ public class AsmValidatorUUIDBeanImpl implements AsmValidator<UUIDBean> {
             result.addError(new ValidatorError("uuid", uuid, "格式错误"));
             return;
         }
-
     }
 
     private void validateUuid2(UUIDBean bean, AsmValidateResult result) {

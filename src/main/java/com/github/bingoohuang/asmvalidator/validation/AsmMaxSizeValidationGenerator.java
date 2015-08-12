@@ -31,8 +31,7 @@ public class AsmMaxSizeValidationGenerator implements AsmValidationGenerator {
 
         Asms.visitInt(mv, maxSize);
         mv.visitJumpInsn(IF_ICMPLE, l1);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
-        mv.visitLabel(l1);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l1);
     }
 
 }

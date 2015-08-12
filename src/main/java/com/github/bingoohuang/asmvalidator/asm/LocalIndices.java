@@ -43,7 +43,7 @@ public class LocalIndices {
         this.stringLocalNullIndex = localIndex.incrementAndGet();
     }
 
-    public void incrementLocalIndex() {
-        this.localIndex.incrementAndGet();
+    public int incrementLocalIndex() {
+        return this.localIndex.incrementAndGet();
     }
 }
