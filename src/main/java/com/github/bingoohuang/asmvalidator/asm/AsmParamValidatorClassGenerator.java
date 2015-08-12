@@ -1,5 +1,6 @@
 package com.github.bingoohuang.asmvalidator.asm;
 
+import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.AsmValidator;
 import com.google.common.io.Files;
 import org.objectweb.asm.ClassWriter;
@@ -7,25 +8,33 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmValidatorClassGenerator {
-    private final Class<?> beanClass;
+public class AsmParamValidatorClassGenerator {
+    private final Method targetMethod;
+    private final int targetParameterIndex;
     private final String implName;
     private final ClassWriter classWriter;
 
-    public AsmValidatorClassGenerator(Class<?> beanClass) {
-        this.beanClass = beanClass;
-        this.implName = beanClass.getName() + "AsmValidator$BINGOOASM$Impl";
+    public AsmParamValidatorClassGenerator(
+            Method targetMethod, int targetParameterIndex) {
+        this.targetMethod = targetMethod;
+        this.targetParameterIndex = targetParameterIndex;
+        String validatorSignature = AsmParamsValidatorFactory
+                .createValidatorSignature(targetMethod);
+
+        this.implName = validatorSignature + "$"
+                + targetParameterIndex + "AsmValidator$BINGOOASM$Impl";
         this.classWriter = createClassWriter();
     }
 
     public Class<?> generate() {
         byte[] bytes = createImplClassBytes();
 
-        if (beanClass.isAnnotationPresent(AsmCreateClassFile4Debug.class))
+        if (targetMethod.isAnnotationPresent(AsmCreateClassFile4Debug.class))
             createClassFileForDiagnose(bytes);
 
         return defineClass(bytes);
@@ -44,7 +53,7 @@ public class AsmValidatorClassGenerator {
     }
 
     private Class<?> defineClass(byte[] bytes) {
-        ClassLoader parentClassLoader = beanClass.getClassLoader();
+        ClassLoader parentClassLoader = getClass().getClassLoader();
         AsmValidatorClassLoader classLoader =
                 new AsmValidatorClassLoader(parentClassLoader);
         return classLoader.defineClass(implName, bytes);
@@ -53,7 +62,8 @@ public class AsmValidatorClassGenerator {
     private byte[] createImplClassBytes() {
         constructor();
 
-        new AsmValidatorMethodGenerator(beanClass, classWriter, implName)
+        new AsmParamValidatorMethodGenerator(implName,
+                targetMethod, targetParameterIndex, classWriter)
                 .generate();
 
         return createBytes();
@@ -84,4 +94,5 @@ public class AsmValidatorClassGenerator {
         mv.visitMaxs(1, 1);
         mv.visitEnd();
     }
+
 }

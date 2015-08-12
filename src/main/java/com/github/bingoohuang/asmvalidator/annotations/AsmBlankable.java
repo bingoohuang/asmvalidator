@@ -1,13 +1,15 @@
 package com.github.bingoohuang.asmvalidator.annotations;
 
-import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidationGenerator;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.lang.annotation.*;
+import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmNoopValidationGenerator.class,
-    message = "可空")
-@Target({ElementType.FIELD, ElementType.METHOD})
+@AsmConstraint(message = "可空")
+@Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmBlankable {
 }

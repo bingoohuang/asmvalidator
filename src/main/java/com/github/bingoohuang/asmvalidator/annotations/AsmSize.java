@@ -2,13 +2,17 @@ package com.github.bingoohuang.asmvalidator.annotations;
 
 import com.github.bingoohuang.asmvalidator.validation.AsmSizeValidationGenerator;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmConstraint(validateBy = AsmSizeValidationGenerator.class,
-    message = "长度不等于{value}")
-@Target({ElementType.FIELD, ElementType.METHOD,
-        ElementType.ANNOTATION_TYPE, ElementType.PARAMETER})
+        message = "长度不等于{value}")
+@Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmSize {
     int value();

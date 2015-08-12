@@ -1,5 +1,6 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.validator.tests;
 
+import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRegex;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgException;
 import org.junit.Test;

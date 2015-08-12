@@ -5,12 +5,12 @@ import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 
 public interface AsmValidationGenerator {
     void generateAsm(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             Annotation fieldAnnotation,
-            LocalIndices localIndices, AsmConstraint constraint, String message);
+            LocalIndices localIndices,
+            AsmConstraint constraint, String message);
 
 }

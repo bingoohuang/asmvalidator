@@ -1,4 +1,4 @@
-package com.github.bingoohuang.asmvalidator.domain;
+package com.github.bingoohuang.asmvalidator.validator.domain;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 

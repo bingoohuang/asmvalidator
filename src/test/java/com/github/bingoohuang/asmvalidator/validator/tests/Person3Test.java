@@ -1,6 +1,8 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.validator.tests;
 
-import com.github.bingoohuang.asmvalidator.domain.Person3;
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.validator.domain.Person3;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
 import org.junit.Test;
 

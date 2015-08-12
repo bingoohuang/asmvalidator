@@ -9,7 +9,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
@@ -18,7 +17,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class AsmMaxSizeValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             Annotation fieldAnnotation, LocalIndices localIndices,
             AsmConstraint constraint, String message) {
         AsmMaxSize asmMaxSize = (AsmMaxSize) fieldAnnotation;
@@ -32,8 +31,7 @@ public class AsmMaxSizeValidationGenerator implements AsmValidationGenerator {
 
         Asms.visitInt(mv, maxSize);
         mv.visitJumpInsn(IF_ICMPLE, l1);
-        addError(field.getName(), mv, fieldAnnotation, constraint, message,
-                localIndices);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
         mv.visitLabel(l1);
     }
 

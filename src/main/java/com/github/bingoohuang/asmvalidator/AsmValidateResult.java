@@ -7,6 +7,7 @@ import java.util.List;
 
 public class AsmValidateResult {
     List<ValidatorError> errors = Lists.newArrayList();
+
     public void throwExceptionIfError() {
         if (errors.isEmpty()) return;
 
@@ -22,5 +23,13 @@ public class AsmValidateResult {
         return "AsmValidateResult{" +
                 "errors=" + errors +
                 '}';
+    }
+
+    public void addErrors(AsmValidateResult result) {
+        errors.addAll(result.getErrors());
+    }
+
+    public List<ValidatorError> getErrors() {
+        return errors;
     }
 }

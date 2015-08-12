@@ -12,7 +12,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +25,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class AsmRangeValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             Annotation fieldAnnotation, LocalIndices localIndices,
             AsmConstraint constraint, String message) {
         AsmRange asmRange = (AsmRange) fieldAnnotation;
@@ -39,16 +38,17 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         if (rangeValues.size() < 2) throw error(fieldAnnotation);
 
         if (rangeValues.size() == 2) {
-            if (tryRangeCheck(mv, field, fieldAnnotation,
+            if (tryRangeCheck(mv, fieldName, fieldType, fieldAnnotation,
                     localIndices, rangeValues, constraint, message)) return;
         }
 
-        enumsCheck(mv, field, localIndices, rangeValues, constraint, message,
+        enumsCheck(mv, fieldName, localIndices, rangeValues, constraint, message,
                 fieldAnnotation);
     }
 
     private boolean tryRangeCheck(
-            MethodVisitor mv, Field field, Annotation fieldAnnotation,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            Annotation fieldAnnotation,
             LocalIndices localIndices, List<String> rangeValues,
             AsmConstraint constraint, String message
     ) {
@@ -72,22 +72,22 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         boolean includeFrom = fromStart == '[';
         boolean includeEnd = toEnd == ']';
 
-        if (int.class == field.getType()) {
-            intRangeCheckGenerate(mv, field, localIndices,
+        if (int.class == fieldType) {
+            intRangeCheckGenerate(mv, fieldName, localIndices,
                     from, to, includeFrom, includeEnd,
                     constraint, message, fieldAnnotation);
             return true;
         }
 
-        if (String.class == field.getType()) {
-            stringRangeCheckGenerate(mv, field, localIndices,
+        if (String.class == fieldType) {
+            stringRangeCheckGenerate(mv, fieldName, localIndices,
                     from, to, includeFrom, includeEnd,
                     constraint, message, fieldAnnotation);
             return true;
         }
 
         throw new AsmValidatorBadArgException(fieldAnnotation
-                + " is not support yet for " + field.getType());
+                + " is not support yet for " + fieldType);
     }
 
     private AsmValidatorBadArgException error(Annotation fieldAnnotation) {
@@ -95,7 +95,7 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
     }
 
     private void enumsCheck(
-            MethodVisitor mv, Field field, LocalIndices localIndices,
+            MethodVisitor mv, String fieldName, LocalIndices localIndices,
             List<String> rangeValues,
             AsmConstraint constraint, String message,
             Annotation fieldAnnotation
@@ -122,12 +122,12 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
                 "contains", sig(boolean.class, Object.class), true);
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
-        addError(field.getName(), mv, fieldAnnotation, constraint, message, localIndices);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
         mv.visitLabel(l1);
     }
 
     private void stringRangeCheckGenerate(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName,
             LocalIndices localIndices,
             String from, String to,
             boolean includeFrom, boolean includeEnd,
@@ -138,20 +138,20 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
             mv.visitLdcInsn(from);
-            compareStringValue(mv, field, includeFrom, constraint,
+            compareStringValue(mv, fieldName, includeFrom, constraint,
                     message, fieldAnnotation, localIndices);
         }
 
         if (isNotEmpty(to)) {
             mv.visitLdcInsn(to);
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
-            compareStringValue(mv, field, includeEnd, constraint,
+            compareStringValue(mv, fieldName, includeEnd, constraint,
                     message, fieldAnnotation, localIndices);
         }
     }
 
     private void intRangeCheckGenerate(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName,
             LocalIndices localIndices,
             String from, String to,
             boolean includeFrom, boolean includeEnd,
@@ -162,19 +162,19 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ILOAD, localIndices.getOriginalLocalIndex());
             Asms.visitInt(mv, Integer.parseInt(from));
-            compareValue(mv, field, includeFrom, constraint,
+            compareValue(mv, fieldName, includeFrom, constraint,
                     message, fieldAnnotation, localIndices);
         }
         if (isNotEmpty(to)) {
             Asms.visitInt(mv, Integer.parseInt(to));
             mv.visitVarInsn(ILOAD, localIndices.getOriginalLocalIndex());
-            compareValue(mv, field, includeEnd, constraint,
+            compareValue(mv, fieldName, includeEnd, constraint,
                     message, fieldAnnotation, localIndices);
         }
     }
 
     private void compareStringValue(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName,
             boolean includeEnd,
             AsmConstraint constraint, String message,
             Annotation fieldAnnotation, LocalIndices localIndices
@@ -184,21 +184,19 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
                 "compareTo", sig(int.class, String.class), false);
         Label label = new Label();
         mv.visitJumpInsn(includeEnd ? IFGE : IFGT, label);
-        addError(field.getName(), mv, fieldAnnotation, constraint, message,
-                localIndices);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
         mv.visitLabel(label);
     }
 
     private void compareValue(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName,
             boolean includeBoundary,
             AsmConstraint constraint, String message,
             Annotation fieldAnnotation, LocalIndices localIndices
     ) {
         Label label = new Label();
         mv.visitJumpInsn(includeBoundary ? IF_ICMPGE : IF_ICMPGT, label);
-        addError(field.getName(), mv, fieldAnnotation, constraint, message,
-                localIndices);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
         mv.visitLabel(label);
     }
 

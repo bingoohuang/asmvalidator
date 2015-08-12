@@ -1,6 +1,9 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.validator.tests;
 
-import com.github.bingoohuang.asmvalidator.domain.Person3;
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.AsmValidator;
+import com.github.bingoohuang.asmvalidator.ValidatorError;
+import com.github.bingoohuang.asmvalidator.validator.domain.Person3;
 import com.github.bingoohuang.asmvalidator.utils.AsmConsts;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;

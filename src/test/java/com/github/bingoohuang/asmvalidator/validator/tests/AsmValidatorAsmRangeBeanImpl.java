@@ -1,6 +1,9 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.validator.tests;
 
-import com.github.bingoohuang.asmvalidator.domain.AsmRangeBean;
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.AsmValidator;
+import com.github.bingoohuang.asmvalidator.ValidatorError;
+import com.github.bingoohuang.asmvalidator.validator.domain.AsmRangeBean;
 import com.google.common.collect.Lists;
 
 import java.util.List;

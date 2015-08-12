@@ -1,7 +1,9 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.validator.tests;
 
 
-import com.github.bingoohuang.asmvalidator.domain.AsmRangeBean2;
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.validator.domain.AsmRangeBean2;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgException;
 import org.junit.Test;
 

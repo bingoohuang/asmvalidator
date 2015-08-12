@@ -9,7 +9,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -21,7 +20,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class AsmRegexValidationGenerator implements AsmValidationGenerator {
     @Override
     public void generateAsm(
-            MethodVisitor mv, Field field,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             Annotation fieldAnnotation, LocalIndices localIndices,
             AsmConstraint constraint, String message
     ) {
@@ -43,7 +42,7 @@ public class AsmRegexValidationGenerator implements AsmValidationGenerator {
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "matches",
                 sig(boolean.class, String.class), false);
         mv.visitJumpInsn(IFNE, l1);
-        addError(field.getName(), mv, fieldAnnotation, constraint, message, localIndices);
+        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices);
         mv.visitLabel(l1);
     }
 }

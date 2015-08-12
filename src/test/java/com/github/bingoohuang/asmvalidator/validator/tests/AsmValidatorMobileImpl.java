@@ -1,7 +1,10 @@
-package com.github.bingoohuang.asmvalidator;
+package com.github.bingoohuang.asmvalidator.validator.tests;
 
 
-import com.github.bingoohuang.asmvalidator.domain.MobileBean;
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.AsmValidator;
+import com.github.bingoohuang.asmvalidator.ValidatorError;
+import com.github.bingoohuang.asmvalidator.validator.domain.MobileBean;
 
 public class AsmValidatorMobileImpl implements AsmValidator<MobileBean> {
 
