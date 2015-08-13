@@ -2,6 +2,7 @@ package com.github.bingoohuang.asmvalidator.asm;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.utils.AsmDefaultAnnotations;
 import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidationGenerator;
@@ -23,8 +24,6 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static org.objectweb.asm.Opcodes.*;
 
 public class AsmParamValidatorMethodGenerator {
-    private final Method targetMethod;
-    private final int targetParameterIndex;
     private final ClassWriter cw;
     private final Annotation[] targetAnnotations;
     private final Class<?> targetParamType;
@@ -36,8 +35,6 @@ public class AsmParamValidatorMethodGenerator {
             String implName, Method targetMethod, int targetParameterIndex,
             ClassWriter classWriter) {
         this.implName = implName;
-        this.targetMethod = targetMethod;
-        this.targetParameterIndex = targetParameterIndex;
         this.cw = classWriter;
         this.fieldName = "arg" + targetParameterIndex;
 
@@ -48,10 +45,10 @@ public class AsmParamValidatorMethodGenerator {
 
     public void generate() {
         createValidatorMainMethod();
-        bodyFieldValidator();
+        bodyParamValidator();
     }
 
-    private void bodyFieldValidator() {
+    private void bodyParamValidator() {
         MethodVisitor mv = startFieldValidatorMethod();
 
         // 0: this, 1:bean, 2: AsmValidateResult
@@ -61,14 +58,16 @@ public class AsmParamValidatorMethodGenerator {
         LocalIndices localIndices = new LocalIndices(localIndex);
         String defaultMessage = "";
         if (annotations.size() > 0) {
-            createValueLocal(localIndices, mv);
-
-            boolean hasAsmMessage = isAnnotationPresent(AsmMessage.class);
-            if (hasAsmMessage) {
-                AsmMessage asmMessage = findAnnotationPresent(AsmMessage.class);
-                defaultMessage = asmMessage.value();
+            boolean supportParamType = createValueLocal(localIndices, mv);
+            if (!supportParamType) {
+                endFieldValidateMethod(mv);
+                return;
             }
+
+            AsmMessage asmMessage = findAnnotationPresent(AsmMessage.class);
+            if (asmMessage != null) defaultMessage = asmMessage.value();
         }
+
 
         for (Annotation fieldAnnotation : annotations) {
             Class<?> annType = fieldAnnotation.annotationType();
@@ -84,7 +83,6 @@ public class AsmParamValidatorMethodGenerator {
                     fieldAnnotation, localIndices,
                     constraint, defaultMessage);
         }
-
 
         endFieldValidateMethod(mv);
     }
@@ -159,29 +157,48 @@ public class AsmParamValidatorMethodGenerator {
         }
     }
 
-    private void createValueLocal(LocalIndices localIndices, MethodVisitor mv) {
-        if (targetParamType.isPrimitive()) {
-            if (targetParamType == int.class) {
-                mv.visitVarInsn(ILOAD, 1);
-
-                mv.visitMethodInsn(INVOKESTATIC, p(String.class),
-                        "valueOf", sig(String.class, int.class), false);
-
-                localIndices.incrementAndSetStringLocalIndex();
-
-                mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
-                mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
-            }
-        } else {
+    private boolean createValueLocal(LocalIndices localIndices, MethodVisitor mv) {
+        if (targetParamType == String.class) {
             mv.visitVarInsn(ALOAD, 1);
             mv.visitTypeInsn(CHECKCAST, p(String.class));
             localIndices.incrementAndSetStringLocalIndex();
             mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
             mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
+            addIsStringNullLocal(localIndices, mv);
+
+            return true;
         }
 
+        if (targetParamType == int.class) {
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitTypeInsn(CHECKCAST, p(Integer.class));
+            int localIndex = localIndices.incrementLocalIndex();
+            mv.visitVarInsn(ASTORE, localIndex);
+            localIndices.setOriginalLocalIndex(localIndex);
 
-        addIsStringNullLocal(localIndices, mv);
+            mv.visitVarInsn(ALOAD, localIndex);
+            mv.visitMethodInsn(INVOKEVIRTUAL, p(Integer.class),
+                    "toString", sig(String.class), false);
+
+            localIndices.incrementAndSetStringLocalIndex();
+            mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
+            mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
+            addIsStringNullLocal(localIndices, mv);
+
+            return true;
+        }
+
+        if (targetParamType.isAnnotationPresent(AsmValid.class)) {
+            mv.visitVarInsn(ALOAD, 1);
+            mv.visitVarInsn(ALOAD, 2);
+            mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
+                    "validate",
+                    sig(void.class, Object.class, AsmValidateResult.class),
+                    false);
+            return false;
+        }
+
+        return false;
     }
 
     private void addIsStringNullLocal(

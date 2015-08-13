@@ -1,11 +1,9 @@
 package com.github.bingoohuang.asmvalidator.validator.domain;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmBase64;
-import com.github.bingoohuang.asmvalidator.asm.AsmCreateClassFile4Debug;
 
 import static com.github.bingoohuang.asmvalidator.annotations.AsmBase64.Base64Format.UrlSafe;
 
-@AsmCreateClassFile4Debug
 public class Base64Bean {
     @AsmBase64
     String base64;

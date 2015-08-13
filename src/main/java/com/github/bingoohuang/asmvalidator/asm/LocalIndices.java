@@ -6,6 +6,7 @@ public class LocalIndices {
     private AtomicInteger localIndex; // 当前变量索引
 
     private int originalLocalIndex = 1; // 原始本地变量索引
+    private boolean originalPrimitive; // 原始变量是否是原生类型
     private int stringLocalIndex = 1; // 转换为string的本地变量索引
     private int stringLocalNullIndex; // 空判断布尔本地变量索引
 
@@ -45,5 +46,17 @@ public class LocalIndices {
 
     public int incrementLocalIndex() {
         return this.localIndex.incrementAndGet();
+    }
+
+    public void setOriginalLocalIndex(int originalLocalIndex) {
+        this.originalLocalIndex = originalLocalIndex;
+    }
+
+    public boolean isOriginalPrimitive() {
+        return originalPrimitive;
+    }
+
+    public void setOriginalPrimitive(boolean originalPrimitive) {
+        this.originalPrimitive = originalPrimitive;
     }
 }

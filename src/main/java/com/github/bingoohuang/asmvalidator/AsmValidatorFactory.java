@@ -41,6 +41,11 @@ public class AsmValidatorFactory {
         return validator.validate(bean);
     }
 
+    public static void validate(Object bean, AsmValidateResult asmValidateResult) {
+        AsmValidator validator = getValidator(bean.getClass());
+        asmValidateResult.addErrors(validator.validate(bean));
+    }
+
     public static void validateWithThrow(Object bean) {
         AsmValidator validator = getValidator(bean.getClass());
         validator.validate(bean).throwExceptionIfError();

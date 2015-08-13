@@ -2,6 +2,7 @@ package com.github.bingoohuang.asmvalidator.asm;
 
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.AsmValidator;
+import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
 import com.google.common.io.Files;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -34,14 +35,14 @@ public class AsmParamValidatorClassGenerator {
     public Class<?> generate() {
         byte[] bytes = createImplClassBytes();
 
-        if (targetMethod.isAnnotationPresent(AsmCreateClassFile4Debug.class))
-            createClassFileForDiagnose(bytes);
+        createClassFileForDiagnose(bytes);
 
         return defineClass(bytes);
     }
 
     private void createClassFileForDiagnose(byte[] bytes) {
-        writeClassFile4Diagnose(bytes, implName + ".class");
+        if (targetMethod.isAnnotationPresent(AsmCreateClassFile4Debug.class))
+            writeClassFile4Diagnose(bytes, implName + ".class");
     }
 
     private void writeClassFile4Diagnose(byte[] bytes, String fileName) {

@@ -2,7 +2,6 @@ package com.github.bingoohuang.asmvalidator;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.asm.AsmParamValidatorClassGenerator;
-import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.primitives.UnsignedInts;
@@ -10,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.objenesis.ObjenesisStd;
 
 import java.lang.reflect.Method;
+
+import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 
 public class AsmParamsValidatorFactory {
     private static Cache<String, AsmValidator>
@@ -21,8 +22,8 @@ public class AsmParamsValidatorFactory {
         return cache.getIfPresent(createKey(methodSignature, parameterIndex));
     }
 
-    private static String createKey(String methodSignature, int parameterIndex) {
-        return methodSignature + "." + parameterIndex;
+    private static String createKey(String methodSig, int parameterIndex) {
+        return methodSig + "." + parameterIndex;
     }
 
     private static AsmValidator asmCreate(Method method, int parameterIndex) {
@@ -50,7 +51,7 @@ public class AsmParamsValidatorFactory {
     }
 
     public static String createValidatorSignature(Method method) {
-        String sig = Asms.sig(method.getReturnType(), method.getParameterTypes());
+        String sig = sig(method.getReturnType(), method.getParameterTypes());
         String methodValidatorSignature =
                 method.getDeclaringClass().getName()
                         + StringUtils.capitalize(method.getName())
@@ -59,14 +60,13 @@ public class AsmParamsValidatorFactory {
     }
 
     public static void validate(
-            String methodSignature, Object... parametersValue) {
+            String methodSignature, Object... parametersValues) {
         AsmValidateResult result = new AsmValidateResult();
-        for (int i = 0, ii = parametersValue.length; i < ii; ++i) {
+        for (int i = 0, ii = parametersValues.length; i < ii; ++i) {
             AsmValidator validator = getValidator(methodSignature, i);
             if (validator == null) continue;
 
-            AsmValidateResult pResult = validator.validate(parametersValue[i]);
-            result.addErrors(pResult);
+            result.addErrors(validator.validate(parametersValues[i]));
         }
 
         result.throwExceptionIfError();

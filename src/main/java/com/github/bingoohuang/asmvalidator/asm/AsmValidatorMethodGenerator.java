@@ -7,12 +7,14 @@ import com.github.bingoohuang.asmvalidator.utils.AsmDefaultAnnotations;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidationGenerator;
 import com.google.common.collect.Lists;
+import com.google.common.io.ByteStreams;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
 
+import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -177,6 +179,7 @@ public class AsmValidatorMethodGenerator {
         localIndices.incrementAndSetOriginalLocalIndex();
 
         if (field.getType().isPrimitive()) {
+            localIndices.setOriginalPrimitive(true);
             if (field.getType() == int.class) {
                 mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
                 mv.visitVarInsn(ILOAD, localIndices.getLocalIndex());

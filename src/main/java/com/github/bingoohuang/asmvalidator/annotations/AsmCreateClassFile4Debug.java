@@ -1,4 +1,4 @@
-package com.github.bingoohuang.asmvalidator.asm;
+package com.github.bingoohuang.asmvalidator.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
