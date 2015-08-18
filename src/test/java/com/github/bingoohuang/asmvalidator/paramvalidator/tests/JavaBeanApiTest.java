@@ -1,9 +1,10 @@
 package com.github.bingoohuang.asmvalidator.paramvalidator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ public class JavaBeanApiTest {
 
     public interface BeanApi {
         @AsmValid
+        @AsmCreateClassFile4Debug
         String getAreaByDistrict(
                 @RequestParam("districtCode")
                 DistrictCode districtCode);
@@ -37,7 +39,7 @@ public class JavaBeanApiTest {
         validate(validatorSignature, districtCode);
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void badDistrictCode() {
         DistrictCode districtCode = new DistrictCode();
         districtCode.setMobile("X8602506990");

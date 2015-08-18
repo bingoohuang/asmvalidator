@@ -1,5 +1,6 @@
 package com.github.bingoohuang.asmvalidator.springmvc.controller;
 
+import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.springmvc.domain.Address;
 import com.github.bingoohuang.asmvalidator.springmvc.dto.HelloForm;
 import org.springframework.http.MediaType;
@@ -15,14 +16,11 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
 public class DemoController {
+    @AsmValid
     @RequestMapping(value = "/hello",
             method = GET,
             produces = "application/json")
-    public String hello(@RequestParam("name") String name,
-                        BindingResult result) {
-        if (result.hasErrors()) {
-            return "error:";
-        }
+    public String hello(@RequestParam("name") String name) {
         return "Hello " + name;
     }
 

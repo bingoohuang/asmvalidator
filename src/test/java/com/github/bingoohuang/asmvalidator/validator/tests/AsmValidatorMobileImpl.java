@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidator;
-import com.github.bingoohuang.asmvalidator.ValidatorError;
+import com.github.bingoohuang.asmvalidator.ValidateError;
 import com.github.bingoohuang.asmvalidator.validator.domain.MobileBean;
 
 public class AsmValidatorMobileImpl implements AsmValidator<MobileBean> {
@@ -14,7 +14,7 @@ public class AsmValidatorMobileImpl implements AsmValidator<MobileBean> {
         String mobile = bean.getMobile();
 
         if (!mobile.matches("^1\\d{10}$")) {
-            result.addError(new ValidatorError("mobile", mobile, "手机号码格式不正确"));
+            result.addError(new ValidateError("mobile", mobile, "手机号码格式不正确"));
         }
         return result;
     }

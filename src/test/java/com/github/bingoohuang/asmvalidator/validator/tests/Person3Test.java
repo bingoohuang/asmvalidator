@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.validator.domain.Person3;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.Test;
 
 public class Person3Test {
@@ -16,7 +16,7 @@ public class Person3Test {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void asmMinSizeForIntErr() {
         Person3 person3 = new Person3();
         person3.setAge(12);
@@ -25,7 +25,7 @@ public class Person3Test {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void asmMinSizeForIntErr2() {
         Person3 person3 = new Person3();
         person3.setAge(12345);
@@ -44,7 +44,7 @@ public class Person3Test {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void asmRegexError() {
         Person3 person3 = new Person3();
         person3.setAge(1234);

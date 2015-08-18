@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.validator.domain.Person;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.Test;
 
 public class PersonTest {
@@ -16,14 +16,14 @@ public class PersonTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void startup() {
         Person person = new Person();
         AsmValidateResult result = AsmValidatorFactory.validate(person);
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void tooLong() {
         Person person = new Person();
         person.setName("12345678901234567");

@@ -1,6 +1,6 @@
 package com.github.bingoohuang.asmvalidator.annotations;
 
-import com.github.bingoohuang.asmvalidator.validation.AsmRegexValidationGenerator;
+import com.github.bingoohuang.asmvalidator.validation.AsmRegexValidateGenerator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmRegexValidationGenerator.class,
+@AsmConstraint(validateBy = AsmRegexValidateGenerator.class,
         message = "格式非法")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

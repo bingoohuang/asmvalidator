@@ -1,6 +1,6 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
-import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmBase64;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
@@ -15,7 +15,7 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmBase64ValidationGenerator implements AsmValidationGenerator {
+public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv,
@@ -32,7 +32,7 @@ public class AsmBase64ValidationGenerator implements AsmValidationGenerator {
         if (asmBase64.purified()) {
             mv.visitVarInsn(ALOAD, stringLocalIndex);
             mv.visitMethodInsn(INVOKESTATIC,
-                    p(AsmBase64ValidationGenerator.class),
+                    p(AsmBase64ValidateGenerator.class),
                     "padding", sig(String.class, String.class), false);
             mv.visitVarInsn(ASTORE, paddedIndex);
         }

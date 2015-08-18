@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.validator.domain.AsmRangeBean;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.Test;
 
 public class AsmRangeTest {
@@ -21,7 +21,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangBad1() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(9);
@@ -36,7 +36,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangBad2() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(11);
@@ -51,7 +51,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangBad3() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(11);
@@ -66,7 +66,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangBad4() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
@@ -80,7 +80,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangeBad5() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
@@ -94,7 +94,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangeBad6() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
@@ -107,7 +107,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangeBad7() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
@@ -121,7 +121,7 @@ public class AsmRangeTest {
         result.throwExceptionIfError();
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void rangeBad8() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);

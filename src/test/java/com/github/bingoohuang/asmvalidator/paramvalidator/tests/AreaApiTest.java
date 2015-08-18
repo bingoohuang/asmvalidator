@@ -4,7 +4,7 @@ import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRegex;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,12 +37,12 @@ public class AreaApiTest {
         validate(validatorSignature, "110123");
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void validZoroHeadDistrictCode() {
         validate(validatorSignature, "010123");
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void validBadSizeDistrictCode() {
         validate(validatorSignature, "110");
     }

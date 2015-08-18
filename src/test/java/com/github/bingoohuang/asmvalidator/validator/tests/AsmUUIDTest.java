@@ -3,12 +3,12 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.validator.domain.UUIDBean;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.Test;
 
 public class AsmUUIDTest {
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void testEx() {
         UUIDBean UUIDBean = new UUIDBean();
         UUIDBean.setUuid("123456789");

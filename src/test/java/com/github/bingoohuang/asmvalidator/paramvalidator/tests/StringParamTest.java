@@ -3,7 +3,7 @@ package com.github.bingoohuang.asmvalidator.paramvalidator.tests;
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -39,7 +39,7 @@ public class StringParamTest {
         try {
             validate(validatorSignature, (String) null);
             fail();
-        } catch (AsmValidatorException e) {
+        } catch (AsmValidateException e) {
             assertTrue(e.getMessage().contains("字段不能为空"));
         }
     }
@@ -49,7 +49,7 @@ public class StringParamTest {
         try {
             validate(validatorSignature, "28602506990");
             fail();
-        } catch (AsmValidatorException e) {
+        } catch (AsmValidateException e) {
             assertTrue(e.getMessage().contains("手机号码格式非法"));
         }
     }

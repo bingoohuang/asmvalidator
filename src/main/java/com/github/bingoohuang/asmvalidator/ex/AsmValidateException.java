@@ -2,15 +2,20 @@ package com.github.bingoohuang.asmvalidator.ex;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 
-public class AsmValidatorException extends RuntimeException {
+public class AsmValidateException extends RuntimeException {
     private final AsmValidateResult asmValidateResult;
 
-    public AsmValidatorException(AsmValidateResult asmValidateResult) {
+    public AsmValidateException(AsmValidateResult asmValidateResult) {
         this.asmValidateResult = asmValidateResult;
     }
 
     @Override
     public String getMessage() {
         return asmValidateResult.toString();
+    }
+
+    public AsmValidateException replaceFieldName(String oldName, String newName) {
+        asmValidateResult.replaceFieldName(oldName, newName);
+        return this;
     }
 }

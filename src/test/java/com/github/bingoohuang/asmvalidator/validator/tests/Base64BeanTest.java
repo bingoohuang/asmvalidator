@@ -1,7 +1,7 @@
 package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.github.bingoohuang.asmvalidator.validator.domain.Base64Bean;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class Base64BeanTest {
         AsmValidatorFactory.validateWithThrow(base64Bean);
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void badUrlSafe() {
         Base64Bean base64Bean = new Base64Bean();
         base64Bean.setBase64("YWJjZGU=");
@@ -33,7 +33,7 @@ public class Base64BeanTest {
         AsmValidatorFactory.validateWithThrow(base64Bean);
     }
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void purifiedBase64() {
         Base64Bean base64Bean = new Base64Bean();
         base64Bean.setBase64("YWJjZGU");
@@ -43,7 +43,7 @@ public class Base64BeanTest {
     }
 
 
-    @Test(expected = AsmValidatorException.class)
+    @Test(expected = AsmValidateException.class)
     public void badBase64() {
         Base64Bean base64Bean = new Base64Bean();
         base64Bean.setBase64("YWJjZG*aa");

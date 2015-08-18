@@ -1,21 +1,21 @@
 package com.github.bingoohuang.asmvalidator;
 
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.google.common.collect.Lists;
 
 import java.util.List;
 
 public class AsmValidateResult {
-    List<ValidatorError> errors = Lists.newArrayList();
+    List<ValidateError> errors = Lists.newArrayList();
 
     public void throwExceptionIfError() {
         if (errors.isEmpty()) return;
 
-        throw new AsmValidatorException(this);
+        throw new AsmValidateException(this);
     }
 
-    public void addError(ValidatorError validatorError) {
-        errors.add(validatorError);
+    public void addError(ValidateError validateError) {
+        errors.add(validateError);
     }
 
     @Override
@@ -29,7 +29,15 @@ public class AsmValidateResult {
         errors.addAll(result.getErrors());
     }
 
-    public List<ValidatorError> getErrors() {
+    public List<ValidateError> getErrors() {
         return errors;
+    }
+
+    public AsmValidateResult replaceFieldName(String oldName, String newName) {
+        for (ValidateError validateError : errors) {
+            validateError.replaceFieldName(oldName, newName);
+        }
+
+        return this;
     }
 }

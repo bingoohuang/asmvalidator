@@ -3,8 +3,7 @@ package com.github.bingoohuang.asmvalidator.paramvalidator.tests;
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,7 +37,7 @@ public class IntParamTest {
     public void tooLargeMobile() {
         try {
             validate(validatorSignature, 201);
-        } catch (AsmValidatorException e) {
+        } catch (AsmValidateException e) {
             assertTrue(e.getMessage().contains("取值不在范围[100,200]"));
         }
     }

@@ -1,10 +1,10 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
-import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
-import com.github.bingoohuang.asmvalidator.ex.AsmValidatorBadArgException;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadArgException;
 import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +22,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmRangeValidationGenerator implements AsmValidationGenerator {
+public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
@@ -85,12 +85,12 @@ public class AsmRangeValidationGenerator implements AsmValidationGenerator {
             return true;
         }
 
-        throw new AsmValidatorBadArgException(fieldAnnotation
+        throw new AsmValidateBadArgException(fieldAnnotation
                 + " is not support yet for " + fieldType);
     }
 
-    private AsmValidatorBadArgException error(Annotation fieldAnnotation) {
-        return new AsmValidatorBadArgException(fieldAnnotation + " is illegal");
+    private AsmValidateBadArgException error(Annotation fieldAnnotation) {
+        return new AsmValidateBadArgException(fieldAnnotation + " is illegal");
     }
 
     private void enumsCheck(

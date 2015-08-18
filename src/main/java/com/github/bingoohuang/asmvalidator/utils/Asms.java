@@ -1,7 +1,5 @@
 package com.github.bingoohuang.asmvalidator.utils;
 
-import com.github.bingoohuang.asmvalidator.AsmValidateResult;
-import com.github.bingoohuang.asmvalidator.ValidatorError;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.objectweb.asm.Opcodes.*;

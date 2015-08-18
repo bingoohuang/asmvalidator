@@ -1,6 +1,6 @@
 package com.github.bingoohuang.asmvalidator.annotations;
 
-import com.github.bingoohuang.asmvalidator.validation.AsmBase64ValidationGenerator;
+import com.github.bingoohuang.asmvalidator.validation.AsmBase64ValidateGenerator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -11,7 +11,7 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmConstraint(
-        validateBy = AsmBase64ValidationGenerator.class,
+        validateBy = AsmBase64ValidateGenerator.class,
         message = "不符合BASE64编码格式")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

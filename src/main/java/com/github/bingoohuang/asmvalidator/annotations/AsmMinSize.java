@@ -1,6 +1,6 @@
 package com.github.bingoohuang.asmvalidator.annotations;
 
-import com.github.bingoohuang.asmvalidator.validation.AsmMinSizeValidationGenerator;
+import com.github.bingoohuang.asmvalidator.validation.AsmMinSizeValidateGenerator;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmMinSizeValidationGenerator.class,
+@AsmConstraint(validateBy = AsmMinSizeValidateGenerator.class,
         message = "长度小于{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

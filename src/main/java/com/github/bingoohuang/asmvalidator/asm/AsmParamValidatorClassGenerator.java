@@ -28,7 +28,7 @@ public class AsmParamValidatorClassGenerator {
                 .createValidatorSignature(targetMethod);
 
         this.implName = validatorSignature + "$"
-                + targetParameterIndex + "AsmValidator$BINGOOASM$Impl";
+                + targetParameterIndex + "AsmParamValidator$BINGOOASM$Impl";
         this.classWriter = createClassWriter();
     }
 

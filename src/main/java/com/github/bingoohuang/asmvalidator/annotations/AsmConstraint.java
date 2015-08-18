@@ -1,7 +1,7 @@
 package com.github.bingoohuang.asmvalidator.annotations;
 
-import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
-import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidationGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
+import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidateGenerator;
 
 import java.lang.annotation.*;
 
@@ -9,8 +9,8 @@ import java.lang.annotation.*;
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmConstraint {
-    Class<? extends AsmValidationGenerator> validateBy()
-            default AsmNoopValidationGenerator.class;
+    Class<? extends AsmValidateGenerator> validateBy()
+            default AsmNoopValidateGenerator.class;
 
     String message();
 }

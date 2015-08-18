@@ -44,8 +44,13 @@ public class AsmParamsValidatorFactory {
         String validatorSignature = createValidatorSignature(method);
 
         for (int i = 0, ii = parameterTypes.length; i < ii; ++i) {
-            AsmValidator asmValidator = asmCreate(method, i);
-            cache.put(createKey(validatorSignature, i), asmValidator);
+            String key = createKey(validatorSignature, i);
+            if (cache.getIfPresent(key) == null) {
+                AsmValidator asmValidator = asmCreate(method, i);
+                cache.put(key, asmValidator);
+            } else {
+                return true;
+            }
         }
         return true;
     }
@@ -57,6 +62,16 @@ public class AsmParamsValidatorFactory {
                         + StringUtils.capitalize(method.getName())
                         + UnsignedInts.toString(sig.hashCode());
         return methodValidatorSignature;
+    }
+
+    public static void validate(
+            Method method, int parameterIndex, Object parameterValue) {
+
+        String methodSignature = createValidatorSignature(method);
+        String key = createKey(methodSignature, parameterIndex);
+        AsmValidator validator = cache.getIfPresent(key);
+        AsmValidateResult result = validator.validate(parameterValue);
+        result.throwExceptionIfError();
     }
 
     public static void validate(

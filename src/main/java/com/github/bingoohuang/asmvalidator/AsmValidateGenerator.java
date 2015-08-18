@@ -6,7 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
 
-public interface AsmValidationGenerator {
+public interface AsmValidateGenerator {
     void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
             Annotation fieldAnnotation,

@@ -1,6 +1,6 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
-import com.github.bingoohuang.asmvalidator.AsmValidationGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +15,7 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 
-public class AsmNotEmptyValidationGenerator implements AsmValidationGenerator {
+public class AsmNotEmptyValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
