@@ -1,2 +1,2 @@
 # asmvalidator
-bean validator based on asm
+java bean validator based on asm
