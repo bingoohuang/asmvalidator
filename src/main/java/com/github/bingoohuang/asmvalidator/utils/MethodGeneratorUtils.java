@@ -32,8 +32,8 @@ public class MethodGeneratorUtils {
         if (asmConstraintsAnns.isEmpty())
             return filterForPrimitiveType(defaultMethod.getAnnotations(), type);
 
-        tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type);
         tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod);
+        tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type);
 
         return asmConstraintsAnns;
     }

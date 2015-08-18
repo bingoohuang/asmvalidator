@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmRegexValidateGenerator.class,
+@AsmConstraint(asmValidateBy = AsmRegexValidateGenerator.class,
         message = "格式非法")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

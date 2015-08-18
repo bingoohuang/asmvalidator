@@ -24,7 +24,6 @@ public class AsmRangeBean {
     String code;
 
 
-
     public String getCode() {
         return code;
     }

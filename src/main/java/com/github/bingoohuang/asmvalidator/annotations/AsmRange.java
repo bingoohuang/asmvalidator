@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmRangeValidateGenerator.class,
+@AsmConstraint(asmValidateBy = AsmRangeValidateGenerator.class,
         message = "取值不在范围{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

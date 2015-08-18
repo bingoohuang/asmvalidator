@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmSizeValidateGenerator.class,
+@AsmConstraint(asmValidateBy = AsmSizeValidateGenerator.class,
         message = "长度不等于{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

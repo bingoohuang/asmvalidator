@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmMinSizeValidateGenerator.class,
+@AsmConstraint(asmValidateBy = AsmMinSizeValidateGenerator.class,
         message = "长度小于{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

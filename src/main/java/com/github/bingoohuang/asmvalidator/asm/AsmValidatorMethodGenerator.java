@@ -10,7 +10,9 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
+import com.github.bingoohuang.asmvalidator.validation.AsmCustomValidateGenerator;
 import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidateGenerator;
+import com.github.bingoohuang.asmvalidator.validation.MsaNoopValidator;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
@@ -76,21 +78,37 @@ public class AsmValidatorMethodGenerator {
         String defaultMessage = asmMessage != null ? asmMessage.value() : "";
 
         AsmConstraint constraint;
-        AsmValidateGenerator validateBy;
         Class<? extends AsmValidateGenerator> validateByClz;
 
         for (Annotation fieldAnnotation : anns) {
             Class<?> annType = fieldAnnotation.annotationType();
             constraint = annType.getAnnotation(AsmConstraint.class);
 
-            validateByClz = constraint.validateBy();
-            if (validateByClz == AsmNoopValidateGenerator.class) continue;
+            validateByClz = constraint.asmValidateBy();
+            if (validateByClz != AsmNoopValidateGenerator.class) {
+                generateAsmValidateCode(mv, field, localIndices,
+                        defaultMessage, constraint,
+                        validateByClz, fieldAnnotation);
+            }
 
-            validateBy = objenesisStd.newInstance(validateByClz);
-            validateBy.generateAsm(mv, field.getName(), field.getType(),
-                    fieldAnnotation, localIndices,
-                    constraint, defaultMessage);
+            if (constraint.validateBy() != MsaNoopValidator.class) {
+                generateAsmValidateCode(mv, field, localIndices,
+                        defaultMessage, constraint,
+                        AsmCustomValidateGenerator.class, fieldAnnotation);
+            }
         }
+    }
+
+    private void generateAsmValidateCode(
+            MethodVisitor mv, Field field, LocalIndices localIndices,
+            String defaultMessage, AsmConstraint constraint,
+            Class<? extends AsmValidateGenerator> validateByClz,
+            Annotation fieldAnnotation) {
+        AsmValidateGenerator validateBy;
+        validateBy = objenesisStd.newInstance(validateByClz);
+        validateBy.generateAsm(mv, field.getName(), field.getType(),
+                fieldAnnotation, localIndices,
+                constraint, defaultMessage);
     }
 
     /**

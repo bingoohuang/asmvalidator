@@ -14,8 +14,9 @@ public class AsmValidateResult {
         throw new AsmValidateException(this);
     }
 
-    public void addError(ValidateError validateError) {
+    public AsmValidateResult addError(ValidateError validateError) {
         errors.add(validateError);
+        return this;
     }
 
     @Override
@@ -25,8 +26,9 @@ public class AsmValidateResult {
                 '}';
     }
 
-    public void addErrors(AsmValidateResult result) {
+    public AsmValidateResult addErrors(AsmValidateResult result) {
         errors.addAll(result.getErrors());
+        return this;
     }
 
     public List<ValidateError> getErrors() {

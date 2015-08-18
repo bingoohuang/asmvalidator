@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmNotEmptyValidateGenerator.class,
+@AsmConstraint(asmValidateBy = AsmNotEmptyValidateGenerator.class,
         message = "字段不能为空")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

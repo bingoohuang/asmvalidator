@@ -15,8 +15,6 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.objectweb.asm.Opcodes.*;
 
 public class AsmValidators {
-
-
     public static void addError(
             String name, MethodVisitor mv,
             Annotation fieldAnnotation,
@@ -35,7 +33,8 @@ public class AsmValidators {
         mv.visitMethodInsn(INVOKESPECIAL, Asms.p(ValidateError.class), "<init>",
                 Asms.sig(void.class, String.class, String.class, String.class), false);
         mv.visitMethodInsn(INVOKEVIRTUAL, Asms.p(AsmValidateResult.class), "addError",
-                Asms.sig(void.class, ValidateError.class), false);
+                Asms.sig(AsmValidateResult.class, ValidateError.class), false);
+        mv.visitInsn(POP); // Pop the unused result of addError
         mv.visitInsn(RETURN);
         mv.visitLabel(label);
     }

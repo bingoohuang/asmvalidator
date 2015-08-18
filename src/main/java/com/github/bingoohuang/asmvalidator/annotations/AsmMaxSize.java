@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(validateBy = AsmMaxSizeValidateGenerator.class,
+@AsmConstraint(asmValidateBy = AsmMaxSizeValidateGenerator.class,
         message = "长度超过{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
