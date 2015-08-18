@@ -1,7 +1,6 @@
 package com.github.bingoohuang.asmvalidator.paramvalidator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
-import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
@@ -19,7 +18,6 @@ public class JavaBeanApiTest {
 
     public interface BeanApi {
         @AsmValid
-        @AsmCreateClassFile4Debug
         String getAreaByDistrict(
                 @RequestParam("districtCode")
                 DistrictCode districtCode);
@@ -51,6 +49,7 @@ public class JavaBeanApiTest {
     public static class DistrictCode {
         @AsmMobile
         private String mobile;
+        private long money;
 
         public String getMobile() {
             return mobile;
@@ -58,6 +57,14 @@ public class JavaBeanApiTest {
 
         public void setMobile(String mobile) {
             this.mobile = mobile;
+        }
+
+        public long getMoney() {
+            return money;
+        }
+
+        public void setMoney(long money) {
+            this.money = money;
         }
     }
 }

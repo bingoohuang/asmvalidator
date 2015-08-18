@@ -7,7 +7,9 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
+import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidateGenerator;
+import com.google.common.primitives.Primitives;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
@@ -50,7 +52,7 @@ public class AsmParamValidatorMethodGenerator {
     }
 
     private void bodyParamValidator(MethodVisitor mv) {
-        List<Annotation> annotations = createValidateAnns(targetAnns);
+        List<Annotation> annotations = createValidateAnns(targetAnns, targetParamType);
         if (annotations.size() == 0) return;
 
         if (!isParameterValidateSupported()) return;
@@ -87,6 +89,7 @@ public class AsmParamValidatorMethodGenerator {
     boolean isParameterValidateSupported() {
         if (targetParamType == String.class) return true;
         if (targetParamType == int.class) return true;
+        if (targetParamType == long.class) return true;
         if (isAsmValid()) return true;
 
         return false;
@@ -102,15 +105,17 @@ public class AsmParamValidatorMethodGenerator {
             return;
         }
 
-        if (targetParamType == int.class) {
+        if (targetParamType == int.class || targetParamType == long.class) {
             mv.visitVarInsn(ALOAD, 1);
-            mv.visitTypeInsn(CHECKCAST, p(Integer.class));
+            Class<?> wrapClass = Primitives.wrap(targetParamType);
+            mv.visitTypeInsn(CHECKCAST, p(wrapClass));
+            AsmValidators.processWideLocal(targetParamType, localIndices);
             int localIndex = localIndices.incrementLocalIndex();
             mv.visitVarInsn(ASTORE, localIndex);
             localIndices.setOriginalLocalIndex(localIndex);
 
             mv.visitVarInsn(ALOAD, localIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, p(Integer.class),
+            mv.visitMethodInsn(INVOKEVIRTUAL, p(wrapClass),
                     "toString", sig(String.class), false);
 
             localIndices.incrementAndSetStringLocalIndex();
@@ -120,7 +125,6 @@ public class AsmParamValidatorMethodGenerator {
             return;
         }
     }
-
 
     private boolean isAsmValidAndCall(MethodVisitor mv) {
         if (!isAsmValid()) return false;

@@ -18,7 +18,7 @@ public class IntParamTest {
 
     public interface IntParams {
         @AsmValid
-        String something(@AsmRange("[100,200]") int number);
+        String something(@AsmRange("[100,200]") int number, long money);
     }
 
     @BeforeClass
@@ -30,15 +30,20 @@ public class IntParamTest {
 
     @Test
     public void validMobile() {
-        validate(validatorSignature, 123);
+        validate(validatorSignature, 123, 234L);
     }
 
     @Test
     public void tooLargeMobile() {
         try {
-            validate(validatorSignature, 201);
+            validate(validatorSignature, 201, 234L);
         } catch (AsmValidateException e) {
             assertTrue(e.getMessage().contains("取值不在范围[100,200]"));
         }
+    }
+
+    @Test(expected = AsmValidateException.class)
+    public void validTooMuchMoney() { // 长度超过16
+        validate(validatorSignature, 123, 12345678901234567L);
     }
 }

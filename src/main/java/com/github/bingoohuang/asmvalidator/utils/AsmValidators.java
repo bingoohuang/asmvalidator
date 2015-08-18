@@ -61,4 +61,10 @@ public class AsmValidators {
             throw Fucks.fuck(e);
         }
     }
+
+    public static void processWideLocal(Class<?> type, LocalIndices localIndices) {
+        if (type == long.class) {
+            localIndices.incrementLocalIndex();
+        }
+    }
 }

@@ -130,4 +130,15 @@ public class Asms {
         }
     }
 
+    public static int storeOpCode(Class<?> type) {
+        if (type == int.class) return ISTORE;
+        if (type == long.class) return LSTORE;
+        throw new RuntimeException("not supported now");
+    }
+
+    public static int loadOpCode(Class<?> type) {
+        if (type == int.class) return ILOAD;
+        if (type == long.class) return LLOAD;
+        throw new RuntimeException("not supported now");
+    }
 }

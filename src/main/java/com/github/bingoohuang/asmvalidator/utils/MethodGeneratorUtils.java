@@ -13,7 +13,6 @@ import org.objectweb.asm.MethodVisitor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
@@ -23,20 +22,33 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class MethodGeneratorUtils {
     public static List<Annotation> createValidateAnns(
-            Annotation[] targetAnnotations
-    ) {
+            Annotation[] targetAnnotations,
+            Class<?> type) {
         List<Annotation> asmConstraintsAnns = Lists.newArrayList();
         searchConstraints(asmConstraintsAnns, targetAnnotations);
 
         // use default not empty and max size validator
         Method defaultMethod = getAsmDefaultAnnotations();
         if (asmConstraintsAnns.isEmpty())
-            return Arrays.asList(defaultMethod.getAnnotations());
+            return filterForPrimitiveType(defaultMethod.getAnnotations(), type);
 
-        tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod);
+        tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type);
         tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod);
 
         return asmConstraintsAnns;
+    }
+
+    private static List<Annotation> filterForPrimitiveType(
+            Annotation[] annotations, Class<?> type) {
+        List<Annotation> result = Lists.newArrayList();
+
+        for (Annotation annotation : annotations) {
+            if (type.isPrimitive()
+                    && annotation instanceof AsmNotBlank) continue;
+            result.add(annotation);
+        }
+
+        return result;
     }
 
     private static Method getAsmDefaultAnnotations() {
@@ -54,7 +66,9 @@ public class MethodGeneratorUtils {
     }
 
     private static void tryAddAsmNotBlank(
-            List<Annotation> asmConstraintsAnns, Method defaultMethod) {
+            List<Annotation> asmConstraintsAnns, Method defaultMethod, Class<?> type) {
+        if (type.isPrimitive()) return;
+
         for (Annotation ann : asmConstraintsAnns) {
             if (ann.annotationType() == AsmBlankable.class) return;
             if (ann.annotationType() == AsmMinSize.class) return;
@@ -112,7 +126,7 @@ public class MethodGeneratorUtils {
         return false;
     }
 
-    public static  <T> T findAnn(
+    public static <T> T findAnn(
             Annotation[] targetAnnotations,
             Class<T> annotationType) {
         for (Annotation ann : targetAnnotations) {

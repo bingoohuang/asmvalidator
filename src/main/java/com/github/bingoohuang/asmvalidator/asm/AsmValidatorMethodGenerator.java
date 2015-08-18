@@ -7,6 +7,8 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
+import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
+import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
 import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidateGenerator;
 import org.objectweb.asm.ClassWriter;
@@ -57,7 +59,8 @@ public class AsmValidatorMethodGenerator {
     }
 
     private void bodyFieldValidator(MethodVisitor mv, Field field) {
-        List<Annotation> anns = createValidateAnns(field.getAnnotations());
+        List<Annotation> anns = createValidateAnns(
+                field.getAnnotations(), field.getType());
         if (anns.size() == 0) return;
 
         if (!isFieldValidateSupported(field)) return;
@@ -100,6 +103,7 @@ public class AsmValidatorMethodGenerator {
         Class<?> fieldType = field.getType();
         if (fieldType == String.class) return true;
         if (fieldType == int.class) return true;
+        if (fieldType == long.class) return true;
 
         return false;
     }
@@ -131,12 +135,13 @@ public class AsmValidatorMethodGenerator {
             localIndices.setOriginalPrimitive(true);
         }
 
-        if (fieldType == int.class) {
-            mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
-            mv.visitVarInsn(ILOAD, localIndices.getLocalIndex());
+        if (fieldType == int.class || fieldType == long.class) {
+            mv.visitVarInsn(Asms.storeOpCode(fieldType), localIndices.getLocalIndex());
+            mv.visitVarInsn(Asms.loadOpCode(fieldType), localIndices.getLocalIndex());
+            AsmValidators.processWideLocal(fieldType, localIndices);
 
             mv.visitMethodInsn(INVOKESTATIC, p(String.class),
-                    "valueOf", sig(String.class, int.class), false);
+                    "valueOf", sig(String.class, fieldType), false);
 
             localIndices.incrementAndSetStringLocalIndex();
 
