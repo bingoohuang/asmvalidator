@@ -5,8 +5,8 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
-import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
+import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
@@ -17,7 +17,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,7 +26,8 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmValidatorMethodGenerator {
+public class AsmValidatorMethodGenerator
+        implements AsmValidatorMethodGeneratable {
     private final ClassWriter cw;
     private final String implName;
     private final Class<?> beanClass;
@@ -61,7 +61,7 @@ public class AsmValidatorMethodGenerator {
     }
 
     private void bodyFieldValidator(MethodVisitor mv, Field field) {
-        List<Annotation> anns = createValidateAnns(
+        List<AnnotationAndRoot> anns = createValidateAnns(
                 field.getAnnotations(), field.getType());
         if (anns.size() == 0) return;
 
@@ -74,41 +74,40 @@ public class AsmValidatorMethodGenerator {
         createFieldValueLocal(localIndices, mv, field);
         addIsStringNullLocal(localIndices, mv);
 
-        AsmMessage asmMessage = findAnn(field.getAnnotations(), AsmMessage.class);
-        String defaultMessage = asmMessage != null ? asmMessage.value() : "";
+        String defaultMessage = AsmValidators.tryGetAsmMessage(field.getAnnotations());
 
         AsmConstraint constraint;
         Class<? extends AsmValidateGenerator> validateByClz;
 
-        for (Annotation fieldAnnotation : anns) {
-            Class<?> annType = fieldAnnotation.annotationType();
+        for (AnnotationAndRoot annAndRoot : anns) {
+            Class<?> annType = annAndRoot.ann().annotationType();
             constraint = annType.getAnnotation(AsmConstraint.class);
 
             validateByClz = constraint.asmValidateBy();
             if (validateByClz != AsmNoopValidateGenerator.class) {
                 generateAsmValidateCode(mv, field, localIndices,
-                        defaultMessage, constraint,
-                        validateByClz, fieldAnnotation);
+                        defaultMessage,
+                        validateByClz, annAndRoot);
             }
 
             if (constraint.validateBy() != MsaNoopValidator.class) {
                 generateAsmValidateCode(mv, field, localIndices,
-                        defaultMessage, constraint,
-                        AsmCustomValidateGenerator.class, fieldAnnotation);
+                        defaultMessage,
+                        AsmCustomValidateGenerator.class, annAndRoot);
             }
         }
     }
 
     private void generateAsmValidateCode(
             MethodVisitor mv, Field field, LocalIndices localIndices,
-            String defaultMessage, AsmConstraint constraint,
+            String defaultMessage,
             Class<? extends AsmValidateGenerator> validateByClz,
-            Annotation fieldAnnotation) {
+            AnnotationAndRoot annAndRoot) {
         AsmValidateGenerator validateBy;
         validateBy = objenesisStd.newInstance(validateByClz);
         validateBy.generateAsm(mv, field.getName(), field.getType(),
-                fieldAnnotation, localIndices,
-                constraint, defaultMessage);
+                annAndRoot, localIndices,
+                defaultMessage);
     }
 
     /**

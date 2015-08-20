@@ -2,8 +2,11 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.github.bingoohuang.asmvalidator.validator.domain.MobileBean;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class MobileBeanTest {
 
@@ -14,5 +17,18 @@ public class MobileBeanTest {
 
         AsmValidateResult result = AsmValidatorFactory.validate(mobileBean);
         result.throwExceptionIfError();
+    }
+
+    @Test
+    public void testBadMobile() {
+        MobileBean mobileBean = new MobileBean();
+        mobileBean.setMobile("x12345678900");
+
+        try {
+            AsmValidateResult result = AsmValidatorFactory.validate(mobileBean);
+            result.throwExceptionIfError();
+        } catch (AsmValidateException ex) {
+            assertTrue(ex.getMessage().contains("手机号码格式非法"));
+        }
     }
 }

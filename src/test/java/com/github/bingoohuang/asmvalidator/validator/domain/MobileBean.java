@@ -3,7 +3,6 @@ package com.github.bingoohuang.asmvalidator.validator.domain;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 
 public class MobileBean {
-
     @AsmMobile
     String mobile;
 

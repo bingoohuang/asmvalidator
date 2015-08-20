@@ -5,8 +5,8 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
-import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
+import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.validation.AsmCustomValidateGenerator;
 import com.github.bingoohuang.asmvalidator.validation.AsmNoopValidateGenerator;
@@ -26,7 +26,8 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmParamValidatorMethodGenerator {
+public class AsmParamValidatorMethodGenerator
+        implements AsmValidatorMethodGeneratable {
     private final ClassWriter cw;
     private final Annotation[] targetAnns;
     private final Class<?> targetParamType;
@@ -54,7 +55,8 @@ public class AsmParamValidatorMethodGenerator {
     }
 
     private void bodyParamValidator(MethodVisitor mv) {
-        List<Annotation> annotations = createValidateAnns(targetAnns, targetParamType);
+        List<AnnotationAndRoot> annotations = createValidateAnns(
+                targetAnns, targetParamType);
         if (annotations.size() == 0) return;
 
         if (!isParameterValidateSupported()) return;
@@ -66,26 +68,25 @@ public class AsmParamValidatorMethodGenerator {
         createValueLocal(localIndices, mv);
         addIsStringNullLocal(localIndices, mv);
 
-        AsmMessage asmMessage = findAnn(targetAnns, AsmMessage.class);
-        String defaultMessage = asmMessage != null ? asmMessage.value() : "";
+        String defaultMessage = AsmValidators.tryGetAsmMessage(targetAnns);
 
         AsmConstraint constraint;
         Class<? extends AsmValidateGenerator> asmValidateByClz;
 
-        for (Annotation fieldAnn : annotations) {
-            Class<?> annType = fieldAnn.annotationType();
+        for (AnnotationAndRoot annAndRoot : annotations) {
+            Class<?> annType = annAndRoot.ann().annotationType();
             constraint = annType.getAnnotation(AsmConstraint.class);
 
             asmValidateByClz = constraint.asmValidateBy();
             if (asmValidateByClz != AsmNoopValidateGenerator.class) {
                 generateAsmValidateCode(mv, localIndices,
-                        defaultMessage, constraint, asmValidateByClz, fieldAnn);
+                        defaultMessage, constraint, asmValidateByClz, annAndRoot);
             }
 
             if (constraint.validateBy() != MsaNoopValidator.class) {
                 generateAsmValidateCode(mv, localIndices,
                         defaultMessage, constraint,
-                        AsmCustomValidateGenerator.class, fieldAnn);
+                        AsmCustomValidateGenerator.class, annAndRoot);
             }
         }
 
@@ -93,14 +94,15 @@ public class AsmParamValidatorMethodGenerator {
 
     private void generateAsmValidateCode(
             MethodVisitor mv, LocalIndices localIndices,
-            String defaultMessage, AsmConstraint constraint,
+            String defaultMessage,
+            AsmConstraint constraint,
             Class<? extends AsmValidateGenerator> asmValidateByClz,
-            Annotation fieldAnn) {
+            AnnotationAndRoot annAndRoot) {
         AsmValidateGenerator asmValidateBy;
         asmValidateBy = objenesisStd.newInstance(asmValidateByClz);
         asmValidateBy.generateAsm(mv, fieldName, targetParamType,
-                fieldAnn, localIndices,
-                constraint, defaultMessage);
+                annAndRoot, localIndices,
+                defaultMessage);
     }
 
     boolean isParameterValidateSupported() {

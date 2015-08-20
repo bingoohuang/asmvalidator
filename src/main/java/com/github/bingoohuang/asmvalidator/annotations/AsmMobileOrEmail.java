@@ -8,10 +8,15 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.*;
 
+
 @Documented
-@AsmRegex("^1\\d{10}$")
-@AsmConstraint(message = "手机号码格式非法")
+// @AsmOrBegin @AsmMobile @AsmEmail @AsmOrEnd
+@AsmRegex("^1\\d{10}$" + "|" + "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+        + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
+@AsmConstraint(message = "必须为手机号码或者邮箱")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AsmMobile {
+public @interface AsmMobileOrEmail {
+
 }
+

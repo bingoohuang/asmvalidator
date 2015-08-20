@@ -21,10 +21,10 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.objectweb.asm.Opcodes.*;
 
 public class MethodGeneratorUtils {
-    public static List<Annotation> createValidateAnns(
+    public static List<AnnotationAndRoot> createValidateAnns(
             Annotation[] targetAnnotations,
             Class<?> type) {
-        List<Annotation> asmConstraintsAnns = Lists.newArrayList();
+        List<AnnotationAndRoot> asmConstraintsAnns = Lists.newArrayList();
         searchConstraints(asmConstraintsAnns, targetAnnotations);
 
         // use default not empty and max size validator
@@ -38,14 +38,14 @@ public class MethodGeneratorUtils {
         return asmConstraintsAnns;
     }
 
-    private static List<Annotation> filterForPrimitiveType(
+    private static List<AnnotationAndRoot> filterForPrimitiveType(
             Annotation[] annotations, Class<?> type) {
-        List<Annotation> result = Lists.newArrayList();
+        List<AnnotationAndRoot> result = Lists.newArrayList();
 
-        for (Annotation annotation : annotations) {
-            if (type.isPrimitive()
-                    && annotation instanceof AsmNotBlank) continue;
-            result.add(annotation);
+        for (Annotation ann : annotations) {
+            if (ann instanceof AsmNotBlank
+                    && type.isPrimitive()) continue;
+            result.add(new AnnotationAndRoot(ann, null));
         }
 
         return result;
@@ -56,43 +56,56 @@ public class MethodGeneratorUtils {
     }
 
     private static void tryAddAsmMaxSize(
-            List<Annotation> asmConstraintsAnns, Method defaultMethod) {
-        for (Annotation ann : asmConstraintsAnns) {
+            List<AnnotationAndRoot> asmConstraintsAnns, Method defaultMethod) {
+        for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
+            Annotation ann = annAndRoot.ann();
             if (ann.annotationType() == AsmMaxSize.class) return;
             if (ann.annotationType() == AsmSize.class) return;
         }
 
-        asmConstraintsAnns.add(0, defaultMethod.getAnnotation(AsmMaxSize.class));
+        AsmMaxSize ann = defaultMethod.getAnnotation(AsmMaxSize.class);
+        asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
     }
 
     private static void tryAddAsmNotBlank(
-            List<Annotation> asmConstraintsAnns, Method defaultMethod, Class<?> type) {
+            List<AnnotationAndRoot> asmConstraintsAnns,
+            Method defaultMethod, Class<?> type) {
         if (type.isPrimitive()) return;
 
-        for (Annotation ann : asmConstraintsAnns) {
+        for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
+            Annotation ann = annAndRoot.ann();
             if (ann.annotationType() == AsmBlankable.class) return;
             if (ann.annotationType() == AsmMinSize.class) return;
             if (ann.annotationType() == AsmSize.class) return;
         }
 
-        asmConstraintsAnns.add(0, defaultMethod.getAnnotation(AsmNotBlank.class));
+        AsmNotBlank ann = defaultMethod.getAnnotation(AsmNotBlank.class);
+        asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
     }
 
-    public static void searchAnnotations(
-            List<Annotation> asmConstraints, Annotation annotation) {
-        Annotation[] annotations = annotation.annotationType().getAnnotations();
-        searchConstraints(asmConstraints, annotations);
+
+    public static void searchConstraints(
+            List<AnnotationAndRoot> asmConstraintAnns,
+            Annotation[] annotations
+    ) {
+        searchConstraints(asmConstraintAnns, annotations, null);
     }
 
     public static void searchConstraints(
-            List<Annotation> asmConstraintAnns, Annotation[] annotations) {
+            List<AnnotationAndRoot> asmConstraintAnns,
+            Annotation[] annotations,
+            Annotation rootAnnotation
+    ) {
+
         for (Annotation ann : annotations) {
             Class<?> annType = ann.annotationType();
             AsmConstraint asmConstraint = annType.getAnnotation(AsmConstraint.class);
             if (asmConstraint == null) continue;
 
-            searchAnnotations(asmConstraintAnns, ann);
-            asmConstraintAnns.add(ann);
+            Annotation[] subAnns = ann.annotationType().getAnnotations();
+            Annotation rootAnn = rootAnnotation == null ? ann : rootAnnotation;
+            searchConstraints(asmConstraintAnns, subAnns, rootAnn);
+            asmConstraintAnns.add(new AnnotationAndRoot(ann, rootAnn));
         }
     }
 

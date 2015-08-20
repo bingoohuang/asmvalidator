@@ -2,13 +2,11 @@ package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmBase64;
-import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
+import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-
-import java.lang.annotation.Annotation;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
@@ -20,15 +18,15 @@ public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv,
             String fieldName, Class<?> fieldType,
-            Annotation fieldAnnotation, LocalIndices localIndices,
-            AsmConstraint constraint, String message) {
+            AnnotationAndRoot annAndRoot, LocalIndices localIndices,
+            String message) {
         int stringLocalIndex = localIndices.getStringLocalIndex();
 
         mv.visitVarInsn(ALOAD, stringLocalIndex);
         int paddedIndex = localIndices.incrementLocalIndex();
         mv.visitVarInsn(ASTORE, paddedIndex);
 
-        AsmBase64 asmBase64 = (AsmBase64) fieldAnnotation;
+        AsmBase64 asmBase64 = (AsmBase64) annAndRoot.ann();
         if (asmBase64.purified()) {
             mv.visitVarInsn(ALOAD, stringLocalIndex);
             mv.visitMethodInsn(INVOKESTATIC,
@@ -48,7 +46,7 @@ public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "matches",
                 sig(boolean.class, String.class), false);
         mv.visitJumpInsn(IFNE, l1);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l1);
+        addError(fieldName, mv, annAndRoot, message, localIndices, l1);
     }
 
     public static String padding(String str) {

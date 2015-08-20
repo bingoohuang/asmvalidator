@@ -4,6 +4,7 @@ import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
+import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmConstraintCache;
 import com.google.common.primitives.UnsignedInts;
 import org.objectweb.asm.MethodVisitor;
@@ -18,19 +19,22 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, String fieldName,
-            Class<?> fieldType, Annotation fieldAnn,
-            LocalIndices localIndices, AsmConstraint constraint,
+            Class<?> fieldType, AnnotationAndRoot annAndRoot,
+            LocalIndices localIndices,
             String message
     ) {
-        String annHashCode = UnsignedInts.toString(fieldAnn.hashCode());
-        String hashCode = fieldAnn.annotationType().getName() + ":" + annHashCode;
+        String annHashCode = UnsignedInts.toString(annAndRoot.hashCode());
+        String hashCode = annAndRoot.ann().annotationType().getName() + ":" + annHashCode;
 
-        AsmConstraintCache.put(hashCode, fieldAnn);
+        AsmConstraintCache.put(hashCode, annAndRoot.ann());
+
+        AsmConstraint constraint = annAndRoot.ann().annotationType()
+                .getAnnotation(AsmConstraint.class);
 
         mv.visitLdcInsn(hashCode);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmConstraintCache.class), "get",
                 sig(Annotation.class, String.class), false);
-        mv.visitTypeInsn(CHECKCAST, p(fieldAnn.annotationType()));
+        mv.visitTypeInsn(CHECKCAST, p(annAndRoot.ann().annotationType()));
         int castedAnn = localIndices.incrementLocalIndex();
         mv.visitVarInsn(ASTORE, castedAnn);
         mv.visitTypeInsn(NEW, p(constraint.validateBy()));
@@ -45,7 +49,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
         mv.visitTypeInsn(CHECKCAST, p(fieldType));
         mv.visitMethodInsn(INVOKEVIRTUAL, p(constraint.validateBy()),
-                "validate", sig(void.class, fieldAnn.annotationType(),
+                "validate", sig(void.class, annAndRoot.ann().annotationType(),
                         AsmValidateResult.class, fieldType), false);
     }
 }

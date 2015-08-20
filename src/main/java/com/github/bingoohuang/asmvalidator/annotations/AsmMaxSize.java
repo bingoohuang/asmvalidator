@@ -11,6 +11,7 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmConstraint(asmValidateBy = AsmMaxSizeValidateGenerator.class,
+        allowMessageOverride = false,
         message = "长度超过{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

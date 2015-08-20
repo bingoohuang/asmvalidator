@@ -15,6 +15,7 @@ public @interface AsmConstraint {
             default AsmNoopValidateGenerator.class;
 
     String message() default "格式错误";
+    boolean allowMessageOverride() default true;
 
     Class<? extends MsaValidator> validateBy() default MsaNoopValidator.class;
 }

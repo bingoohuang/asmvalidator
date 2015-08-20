@@ -1,6 +1,7 @@
 package com.github.bingoohuang.asmvalidator.paramvalidator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMaxSize;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
@@ -18,7 +19,7 @@ public class IntParamTest {
 
     public interface IntParams {
         @AsmValid
-        String something(@AsmRange("[100,200]") int number, long money);
+        String something(@AsmRange("[100,200]") int number, @AsmMaxSize(16) long money);
     }
 
     @BeforeClass
@@ -43,7 +44,7 @@ public class IntParamTest {
     }
 
     @Test(expected = AsmValidateException.class)
-    public void validTooMuchMoney() { // 长度超过16
+    public void validTooMuchMoney() { // 长度超过64
         validate(validatorSignature, 123, 12345678901234567L);
     }
 }

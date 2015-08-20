@@ -1,14 +1,13 @@
 package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
-import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRegex;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadArgException;
+import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import java.lang.annotation.Annotation;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -21,17 +20,17 @@ public class AsmRegexValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
-            Annotation fieldAnnotation, LocalIndices localIndices,
-            AsmConstraint constraint, String message
+            AnnotationAndRoot annAndRoot, LocalIndices localIndices,
+            String message
     ) {
-        AsmRegex asmRegex = (AsmRegex) fieldAnnotation;
+        AsmRegex asmRegex = (AsmRegex) annAndRoot.ann();
         String regex = asmRegex.value();
 
         try {
             Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
             throw new AsmValidateBadArgException(
-                    "正则表达式错误:" + fieldAnnotation);
+                    "正则表达式错误:" + annAndRoot);
         }
 
         mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());
@@ -42,6 +41,6 @@ public class AsmRegexValidateGenerator implements AsmValidateGenerator {
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "matches",
                 sig(boolean.class, String.class), false);
         mv.visitJumpInsn(IFNE, l1);
-        addError(fieldName, mv, fieldAnnotation, constraint, message, localIndices, l1);
+        addError(fieldName, mv, annAndRoot, message, localIndices, l1);
     }
 }
