@@ -150,6 +150,7 @@ public class MethodGeneratorUtils {
     }
 
     public static void visitGetter(MethodVisitor mv, Field field) {
+        mv.visitVarInsn(ALOAD, 1);
         String getterName = "get" + capitalize(field.getName());
         Class<?> declaringClass = field.getDeclaringClass();
         try {

@@ -21,6 +21,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isListAndItemAsmValid;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
@@ -121,6 +122,7 @@ public class AsmValidatorMethodGenerator
         if (fieldType == String.class) return true;
         if (fieldType == int.class) return true;
         if (fieldType == long.class) return true;
+        if (isListAndItemAsmValid(fieldType, field.getGenericType())) return true;
 
         return false;
     }
@@ -134,8 +136,6 @@ public class AsmValidatorMethodGenerator
      */
     private void createFieldValueLocal(
             LocalIndices localIndices, MethodVisitor mv, Field field) {
-        mv.visitVarInsn(ALOAD, 1);
-
         visitGetter(mv, field);
 
         localIndices.incrementAndSetOriginalLocalIndex();
@@ -169,11 +169,24 @@ public class AsmValidatorMethodGenerator
 
     }
 
-    private boolean isAsmValidAndCall(MethodVisitor mv, Field field) {
-        if (!isAsmValid(field)) return false;
 
-        asmValidate(mv, beanClass);
-        return true;
+    private boolean isAsmValidAndCall(MethodVisitor mv, Field field) {
+        if (isAsmValid(field)) {
+            asmValidate(mv, beanClass);
+            return true;
+        }
+
+        Class<?> type = field.getType();
+        if (List.class == type) {
+            visitGetter(mv, field);
+
+            Class itemClass = AsmValidators.getListItemClass(field);
+            AsmValidators.validateListItems(mv, itemClass);
+
+            return true;
+        }
+
+        return false;
     }
 
     private boolean isAsmValid(Field field) {
