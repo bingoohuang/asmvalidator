@@ -9,7 +9,7 @@
     
     <groupId>com.github.bingoohuang</groupId>
     <artifactId>asmvalidator</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
 
     <name>asmvalidator</name>
     <description>javabean validator based on asm</description>
