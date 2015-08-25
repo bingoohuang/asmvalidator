@@ -41,6 +41,6 @@ public class AsmRegexValidateGenerator implements AsmValidateGenerator {
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "matches",
                 sig(boolean.class, String.class), false);
         mv.visitJumpInsn(IFNE, l1);
-        addError(fieldName, mv, annAndRoot, message, localIndices, l1);
+        addError(fieldName, fieldType, mv, annAndRoot, message, localIndices, l1);
     }
 }

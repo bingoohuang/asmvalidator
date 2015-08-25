@@ -18,6 +18,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -62,15 +63,32 @@ public class AsmValidatorMethodGenerator
     }
 
     private void bodyFieldValidator(MethodVisitor mv, Field field) {
-        List<AnnotationAndRoot> anns = createValidateAnns(
-                field.getAnnotations(), field.getType());
-        if (anns.size() == 0) return;
-
-        if (!isFieldValidateSupported(field)) return;
-        if (isAsmValidAndCall(mv, field)) return;
-
         // 0: this, 1:bean, 2: AsmValidateResult
         AtomicInteger localIndex = new AtomicInteger(2);
+
+        List<AnnotationAndRoot> anns = createValidateAnns(
+                field.getAnnotations(), field.getType());
+
+        if (anns.size() > 0) validateByAnnotations(localIndex, mv, field, anns);
+
+        if (isAsmValid(field)) asmValidate(mv, beanClass);
+
+        if (isListAndItemAsmValid(field.getType(), field.getGenericType())) {
+            visitGetter(mv, field);
+            mv.visitVarInsn(ALOAD, 2);
+
+            mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
+                    "validateAll",
+                    sig(void.class, Collection.class, AsmValidateResult.class),
+                    false);
+        }
+
+    }
+
+    private void validateByAnnotations(
+            AtomicInteger localIndex, MethodVisitor mv,
+            Field field, List<AnnotationAndRoot> anns) {
+
         LocalIndices localIndices = new LocalIndices(localIndex);
         createFieldValueLocal(localIndices, mv, field);
         addIsStringNullLocal(localIndices, mv);
@@ -97,6 +115,7 @@ public class AsmValidatorMethodGenerator
                         AsmCustomValidateGenerator.class, annAndRoot);
             }
         }
+
     }
 
     private void generateAsmValidateCode(
@@ -112,22 +131,6 @@ public class AsmValidatorMethodGenerator
     }
 
     /**
-     * 字段是否支持校验
-     *
-     * @param field 字段
-     * @return true支持 false不支持
-     */
-    private boolean isFieldValidateSupported(Field field) {
-        Class<?> fieldType = field.getType();
-        if (fieldType == String.class) return true;
-        if (fieldType == int.class) return true;
-        if (fieldType == long.class) return true;
-        if (isListAndItemAsmValid(fieldType, field.getGenericType())) return true;
-
-        return false;
-    }
-
-    /**
      * 为待校验的值（原值及转换后的字符串值）创建字节码局部变量。
      *
      * @param localIndices 局部变量索引
@@ -137,26 +140,18 @@ public class AsmValidatorMethodGenerator
     private void createFieldValueLocal(
             LocalIndices localIndices, MethodVisitor mv, Field field) {
         visitGetter(mv, field);
-
         localIndices.incrementAndSetOriginalLocalIndex();
 
         Class<?> fieldType = field.getType();
+        mv.visitVarInsn(Asms.storeOpCode(fieldType), localIndices.getLocalIndex());
+        mv.visitVarInsn(Asms.loadOpCode(fieldType), localIndices.getLocalIndex());
+        AsmValidators.processWideLocal(fieldType, localIndices);
 
-        if (fieldType == String.class) {
-            mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
-            mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
-            return;
-        }
+        if (fieldType == String.class) return;
 
-        if (fieldType.isPrimitive()) {
-            localIndices.setOriginalPrimitive(true);
-        }
+        if (fieldType.isPrimitive()) localIndices.setOriginalPrimitive(true);
 
         if (fieldType == int.class || fieldType == long.class) {
-            mv.visitVarInsn(Asms.storeOpCode(fieldType), localIndices.getLocalIndex());
-            mv.visitVarInsn(Asms.loadOpCode(fieldType), localIndices.getLocalIndex());
-            AsmValidators.processWideLocal(fieldType, localIndices);
-
             mv.visitMethodInsn(INVOKESTATIC, p(String.class),
                     "valueOf", sig(String.class, fieldType), false);
 
@@ -169,25 +164,6 @@ public class AsmValidatorMethodGenerator
 
     }
 
-
-    private boolean isAsmValidAndCall(MethodVisitor mv, Field field) {
-        if (isAsmValid(field)) {
-            asmValidate(mv, beanClass);
-            return true;
-        }
-
-        Class<?> type = field.getType();
-        if (List.class == type) {
-            visitGetter(mv, field);
-
-            Class itemClass = AsmValidators.getListItemClass(field);
-            AsmValidators.validateListItems(mv, itemClass);
-
-            return true;
-        }
-
-        return false;
-    }
 
     private boolean isAsmValid(Field field) {
         return field.isAnnotationPresent(AsmValid.class);

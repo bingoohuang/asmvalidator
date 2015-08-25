@@ -8,7 +8,9 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 @Documented
-@AsmConstraint(message = "可空")
+@AsmConstraint(
+        supportedClasses = String.class,
+        message = "可空")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmBlankable {

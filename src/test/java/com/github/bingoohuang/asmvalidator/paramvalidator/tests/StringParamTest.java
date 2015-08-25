@@ -40,7 +40,7 @@ public class StringParamTest {
             validate(validatorSignature, (String) null);
             fail();
         } catch (AsmValidateException e) {
-            assertTrue(e.getMessage().contains("字段不能为空"));
+            assertTrue(e.getMessage().contains("取值不能为空"));
         }
     }
 

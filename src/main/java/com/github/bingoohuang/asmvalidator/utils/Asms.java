@@ -1,10 +1,19 @@
 package com.github.bingoohuang.asmvalidator.utils;
 
+import com.google.common.primitives.Primitives;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public class Asms {
+    public static void wrapPrimitive(MethodVisitor mv, Class<?> type) {
+        if (type.isPrimitive()) {
+            Class<?> wrap = Primitives.wrap(type);
+            mv.visitMethodInsn(INVOKESTATIC, p(wrap),
+                    "valueOf", sig(wrap, type), false);
+        }
+    }
+
     // Creates a dotted class name from a path/package name
     public static String c(String p) {
         return p.replace('/', '.');
@@ -131,14 +140,17 @@ public class Asms {
     }
 
     public static int storeOpCode(Class<?> type) {
+        if (!type.isPrimitive()) return ASTORE;
         if (type == int.class) return ISTORE;
         if (type == long.class) return LSTORE;
         throw new RuntimeException("not supported now");
     }
 
     public static int loadOpCode(Class<?> type) {
+        if (!type.isPrimitive()) return ALOAD;
         if (type == int.class) return ILOAD;
         if (type == long.class) return LLOAD;
+
         throw new RuntimeException("not supported now");
     }
 }

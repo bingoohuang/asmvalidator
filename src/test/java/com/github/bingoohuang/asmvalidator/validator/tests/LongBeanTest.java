@@ -1,7 +1,6 @@
 package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
-import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
 import org.junit.Test;
 
 public class LongBeanTest {

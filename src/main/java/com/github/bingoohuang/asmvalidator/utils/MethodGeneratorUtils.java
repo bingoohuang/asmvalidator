@@ -1,18 +1,27 @@
 package com.github.bingoohuang.asmvalidator.utils;
 
+import com.github.bingoohuang.asmvalidator.AsmTypeValidateGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.MsaValidator;
 import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadUsageException;
+import com.github.bingoohuang.asmvalidator.validation.MsaNoopValidator;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.objenesis.ObjenesisStd;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
@@ -21,6 +30,8 @@ import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.objectweb.asm.Opcodes.*;
 
 public class MethodGeneratorUtils {
+    static Logger log = LoggerFactory.getLogger(MethodGeneratorUtils.class);
+
     public static List<AnnotationAndRoot> createValidateAnns(
             Annotation[] targetAnnotations,
             Class<?> type) {
@@ -29,23 +40,32 @@ public class MethodGeneratorUtils {
 
         // use default not empty and max size validator
         Method defaultMethod = getAsmDefaultAnnotations();
-        if (asmConstraintsAnns.isEmpty())
-            return filterForPrimitiveType(defaultMethod.getAnnotations(), type);
+        if (asmConstraintsAnns.isEmpty()) {
+            Annotation[] annotations = defaultMethod.getAnnotations();
+            asmConstraintsAnns = filterForSupportedType(annotations, type);
+        } else {
+            tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod, type);
+            tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type);
+        }
 
-        tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod);
-        tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type);
+        List<AnnotationAndRoot> filtered = Lists.newArrayList();
+        for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
+            if (supportType(annAndRoot.ann(), type)) filtered.add(annAndRoot);
+            else {
+                log.warn("{} not support type {}", annAndRoot.ann(), type);
+            }
+        }
 
-        return asmConstraintsAnns;
+        return filtered;
     }
 
-    private static List<AnnotationAndRoot> filterForPrimitiveType(
+    private static List<AnnotationAndRoot> filterForSupportedType(
             Annotation[] annotations, Class<?> type) {
         List<AnnotationAndRoot> result = Lists.newArrayList();
 
         for (Annotation ann : annotations) {
-            if (ann instanceof AsmNotBlank
-                    && type.isPrimitive()) continue;
-            result.add(new AnnotationAndRoot(ann, null));
+            if (supportType(ann, type))
+                result.add(new AnnotationAndRoot(ann, null));
         }
 
         return result;
@@ -56,7 +76,9 @@ public class MethodGeneratorUtils {
     }
 
     private static void tryAddAsmMaxSize(
-            List<AnnotationAndRoot> asmConstraintsAnns, Method defaultMethod) {
+            List<AnnotationAndRoot> asmConstraintsAnns,
+            Method defaultMethod,
+            Class<?> type) {
         for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
             Annotation ann = annAndRoot.ann();
             if (ann.annotationType() == AsmMaxSize.class) return;
@@ -64,7 +86,55 @@ public class MethodGeneratorUtils {
         }
 
         AsmMaxSize ann = defaultMethod.getAnnotation(AsmMaxSize.class);
-        asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
+
+        if (supportType(ann, type))
+            asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
+    }
+
+    public static boolean supportType(Annotation ann, Class<?> type) {
+        Class<? extends Annotation> annClass = ann.annotationType();
+        AsmConstraint asmConstraint = annClass.getAnnotation(AsmConstraint.class);
+        for (Class<?> supportedClass : asmConstraint.supportedClasses()) {
+            if (supportedClass.isAssignableFrom(type)) return true;
+        }
+
+        if (msaSupportType(asmConstraint, type)) return true;
+        if (asmTypeValidateGeneratorSupport(asmConstraint, type)) return true;
+
+        return false;
+    }
+
+    private static boolean asmTypeValidateGeneratorSupport(
+            AsmConstraint asmConstraint, Class<?> type) {
+        Class<? extends AsmValidateGenerator> asmValidateBy;
+        asmValidateBy = asmConstraint.asmValidateBy();
+        if (!AsmTypeValidateGenerator.class.isAssignableFrom(asmValidateBy))
+            return false;
+        AsmValidateGenerator instance = new ObjenesisStd().newInstance(asmValidateBy);
+        AsmTypeValidateGenerator generator = (AsmTypeValidateGenerator) instance;
+        if (generator.supportClass(type)) return true;
+
+        return false;
+    }
+
+    private static boolean msaSupportType(
+            AsmConstraint asmConstraint, Class<?> type) {
+        Class<? extends MsaValidator> msaValidator = asmConstraint.validateBy();
+        if (msaValidator == MsaNoopValidator.class) return false;
+
+
+        Type[] genericInterfaces = msaValidator.getGenericInterfaces();
+        for (Type genericInterface : genericInterfaces) {
+            if (!(genericInterface instanceof ParameterizedType)) continue;
+
+            ParameterizedType pType = (ParameterizedType) genericInterface;
+            if (pType.getRawType() != MsaValidator.class) continue;
+
+            Class<?> argType = (Class<?>) pType.getActualTypeArguments()[1];
+            if (argType.isAssignableFrom(type)) return true;
+        }
+
+        return false;
     }
 
     private static void tryAddAsmNotBlank(
@@ -80,7 +150,9 @@ public class MethodGeneratorUtils {
         }
 
         AsmNotBlank ann = defaultMethod.getAnnotation(AsmNotBlank.class);
-        asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
+
+        if (supportType(ann, type))
+            asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
     }
 
 
@@ -161,8 +233,9 @@ public class MethodGeneratorUtils {
                             + field.getName());
         }
 
+        Class<?> type = field.getType();
         mv.visitMethodInsn(INVOKEVIRTUAL, p(declaringClass),
-                getterName, sig(field.getType()), false);
+                getterName, sig(type), false);
     }
 
     public static void addIsStringNullLocal(
@@ -177,7 +250,6 @@ public class MethodGeneratorUtils {
         mv.visitLabel(l1);
         localIndices.incrementAndSetStringNullLocalIndex();
         mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
-        mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
     }
 
     public static void createBridge(

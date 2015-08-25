@@ -81,7 +81,8 @@ public class AsmParamsValidatorFactory {
             AsmValidator validator = getValidator(methodSignature, i);
             if (validator == null) continue;
 
-            result.addErrors(validator.validate(parametersValues[i]));
+            Object parametersValue = parametersValues[i];
+            result.addErrors(validator.validate(parametersValue));
         }
 
         result.throwExceptionIfError();

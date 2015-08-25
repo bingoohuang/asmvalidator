@@ -9,10 +9,13 @@ import java.lang.annotation.Target;
 
 import static java.lang.annotation.ElementType.*;
 
+
 @Documented
-@AsmConstraint(asmValidateBy = AsmNotEmptyValidateGenerator.class,
+@AsmConstraint(
+        supportedClasses = String.class,
+        asmValidateBy = AsmNotEmptyValidateGenerator.class,
         allowMessageOverride = false,
-        message = "字段不能为空")
+        message = "取值不能为空")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmNotBlank {

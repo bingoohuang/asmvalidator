@@ -5,9 +5,9 @@ import org.apache.commons.lang3.StringUtils;
 public class ValidateError {
     private String fieldName;
     private final String errorMessage;
-    private final String fieldValue;
+    private final Object fieldValue;
 
-    public ValidateError(String fieldName, String fieldValue, String errorMessage) {
+    public ValidateError(String fieldName, Object fieldValue, String errorMessage) {
         this.fieldName = fieldName;
         this.fieldValue = fieldValue;
         this.errorMessage = errorMessage;

@@ -19,6 +19,7 @@ import org.objenesis.ObjenesisStd;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -36,6 +37,7 @@ public class AsmParamValidatorMethodGenerator
     private final String implName;
     private final String fieldName;
     private final Type genericType;
+    private final Class<?> wrapTargetType;
     private ObjenesisStd objenesisStd = new ObjenesisStd();
 
     public AsmParamValidatorMethodGenerator(
@@ -48,6 +50,7 @@ public class AsmParamValidatorMethodGenerator
         Annotation[][] paramsAnns = targetMethod.getParameterAnnotations();
         this.targetAnns = paramsAnns[targetParameterIndex];
         this.targetType = targetMethod.getParameterTypes()[targetParameterIndex];
+        this.wrapTargetType  = Primitives.wrap(targetType);
         this.genericType = targetMethod.getGenericParameterTypes()[targetParameterIndex];
     }
 
@@ -59,15 +62,23 @@ public class AsmParamValidatorMethodGenerator
     }
 
     private void bodyParamValidator(MethodVisitor mv) {
-        List<AnnotationAndRoot> annotations = createValidateAnns(
-                targetAnns, targetType);
-        if (annotations.size() == 0) return;
-
-        if (!isParameterValidateSupported()) return;
-        if (isAsmValidAndCall(mv)) return;
-
         // 0: this, 1:bean, 2: AsmValidateResult
         AtomicInteger localIndex = new AtomicInteger(2);
+
+        List<AnnotationAndRoot> annotations =
+                createValidateAnns(targetAnns, targetType);
+        if (annotations.size() > 0)
+            validateByAnnotations(localIndex, mv, annotations);
+
+        if (isAsmValid()) asmValidate(mv);
+        if (isListAndItemAsmValid(targetType, genericType))
+            listItemsValid(localIndex, mv);
+
+    }
+
+    private void validateByAnnotations(
+            AtomicInteger localIndex, MethodVisitor mv, List<AnnotationAndRoot> annotations) {
+
         LocalIndices localIndices = new LocalIndices(localIndex);
         createValueLocal(localIndices, mv);
         addIsStringNullLocal(localIndices, mv);
@@ -93,7 +104,6 @@ public class AsmParamValidatorMethodGenerator
                         AsmCustomValidateGenerator.class, annAndRoot);
             }
         }
-
     }
 
     private void generateAsmValidateCode(
@@ -104,25 +114,17 @@ public class AsmParamValidatorMethodGenerator
             AnnotationAndRoot annAndRoot) {
         AsmValidateGenerator asmValidateBy;
         asmValidateBy = objenesisStd.newInstance(asmValidateByClz);
-        asmValidateBy.generateAsm(mv, fieldName, targetType,
+        asmValidateBy.generateAsm(mv, fieldName, wrapTargetType,
                 annAndRoot, localIndices,
                 defaultMessage);
     }
 
-    boolean isParameterValidateSupported() {
-        if (targetType == String.class) return true;
-        if (targetType == int.class) return true;
-        if (targetType == long.class) return true;
-        if (isListAndItemAsmValid(targetType, genericType)) return true;
-        if (isAsmValid()) return true;
-
-        return false;
-    }
 
     void createValueLocal(LocalIndices localIndices, MethodVisitor mv) {
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitTypeInsn(CHECKCAST, p(wrapTargetType));
+
         if (targetType == String.class) {
-            mv.visitVarInsn(ALOAD, 1);
-            mv.visitTypeInsn(CHECKCAST, p(String.class));
             localIndices.incrementAndSetStringLocalIndex();
             mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
             mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
@@ -130,16 +132,12 @@ public class AsmParamValidatorMethodGenerator
         }
 
         if (targetType == int.class || targetType == long.class) {
-            mv.visitVarInsn(ALOAD, 1);
-            Class<?> wrapClass = Primitives.wrap(targetType);
-            mv.visitTypeInsn(CHECKCAST, p(wrapClass));
-            AsmValidators.processWideLocal(targetType, localIndices);
             int localIndex = localIndices.incrementLocalIndex();
             mv.visitVarInsn(ASTORE, localIndex);
             localIndices.setOriginalLocalIndex(localIndex);
 
             mv.visitVarInsn(ALOAD, localIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, p(wrapClass),
+            mv.visitMethodInsn(INVOKEVIRTUAL, p(wrapTargetType),
                     "toString", sig(String.class), false);
 
             localIndices.incrementAndSetStringLocalIndex();
@@ -148,27 +146,16 @@ public class AsmParamValidatorMethodGenerator
 
             return;
         }
+
     }
 
-    private boolean isAsmValidAndCall(MethodVisitor mv) {
-        if (isAsmValid()) {
-            asmValidate(mv);
-            return true;
-        }
-
-        if (targetType == List.class) {
-            mv.visitVarInsn(ALOAD, 1);
-            mv.visitTypeInsn(CHECKCAST, p(List.class));
-            mv.visitVarInsn(ASTORE, 1);
-            mv.visitVarInsn(ALOAD, 1);
-
-            Class itemClass = AsmValidators.getListItemClass(genericType);
-            AsmValidators.validateListItems(mv, itemClass);
-
-            return true;
-        }
-
-        return false;
+    private void listItemsValid(AtomicInteger localIndex, MethodVisitor mv) {
+        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
+                "validateAll",
+                sig(void.class, Collection.class, AsmValidateResult.class),
+                false);
     }
 
     private boolean isAsmValid() {
@@ -185,7 +172,8 @@ public class AsmParamValidatorMethodGenerator
 
     private void createValidatorMainMethod() {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "validate",
-                sig(AsmValidateResult.class, Object.class), null, null);
+                sig(AsmValidateResult.class, Object.class),
+                null, null);
         mv.visitCode();
         mv.visitTypeInsn(NEW, p(AsmValidateResult.class));
         mv.visitInsn(DUP);

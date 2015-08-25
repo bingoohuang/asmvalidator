@@ -1,7 +1,6 @@
 package com.github.bingoohuang.asmvalidator.utils;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
-import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.ValidateError;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
@@ -17,17 +16,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Iterator;
 import java.util.List;
 
-import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
-import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.findAnn;
 import static org.objectweb.asm.Opcodes.*;
 
 public class AsmValidators {
     public static void addError(
-            String name, MethodVisitor mv,
+            String name,
+            Class<?> fieldType,
+            MethodVisitor mv,
             AnnotationAndRoot annAndRoot,
             String message,
             LocalIndices localIndices,
@@ -38,10 +36,11 @@ public class AsmValidators {
         mv.visitInsn(DUP);
 
         mv.visitLdcInsn(name);
-        mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
+        mv.visitVarInsn(Asms.loadOpCode(fieldType), localIndices.getOriginalLocalIndex());
+        Asms.wrapPrimitive(mv, fieldType);
         mv.visitLdcInsn(createMessage(annAndRoot, message));
         mv.visitMethodInsn(INVOKESPECIAL, Asms.p(ValidateError.class), "<init>",
-                Asms.sig(void.class, String.class, String.class, String.class), false);
+                Asms.sig(void.class, String.class, Object.class, String.class), false);
         mv.visitMethodInsn(INVOKEVIRTUAL, Asms.p(AsmValidateResult.class), "addError",
                 Asms.sig(AsmValidateResult.class, ValidateError.class), false);
         mv.visitInsn(POP); // Pop the unused result of addError
@@ -81,7 +80,7 @@ public class AsmValidators {
     }
 
     public static void processWideLocal(Class<?> type, LocalIndices localIndices) {
-        if (type == long.class) {
+        if (type == long.class || type == double.class) {
             localIndices.incrementLocalIndex();
         }
     }
@@ -111,33 +110,5 @@ public class AsmValidators {
     public static Class getListItemClass(Type genericType) {
         ParameterizedType pType = (ParameterizedType) genericType;
         return (Class) pType.getActualTypeArguments()[0];
-    }
-
-    public static void validateListItems(MethodVisitor mv, Class itemClass) {
-        mv.visitVarInsn(ASTORE, 3);
-        mv.visitVarInsn(ALOAD, 3);
-        Label l0 = new Label();
-        mv.visitJumpInsn(IFNULL, l0);
-        mv.visitVarInsn(ALOAD, 3);
-        mv.visitMethodInsn(INVOKEINTERFACE, p(List.class), "iterator",
-                sig(Iterator.class), true);
-        mv.visitVarInsn(ASTORE, 4);
-        Label l1 = new Label();
-        mv.visitLabel(l1);
-        mv.visitVarInsn(ALOAD, 4);
-        mv.visitMethodInsn(INVOKEINTERFACE, p(Iterator.class), "hasNext",
-                "()Z", true);
-        mv.visitJumpInsn(IFEQ, l0);
-        mv.visitVarInsn(ALOAD, 4);
-        mv.visitMethodInsn(INVOKEINTERFACE, p(Iterator.class), "next",
-                "()Ljava/lang/Object;", true);
-        mv.visitTypeInsn(CHECKCAST, p(itemClass));
-        mv.visitVarInsn(ASTORE, 5);
-        mv.visitVarInsn(ALOAD, 5);
-        mv.visitVarInsn(ALOAD, 2);
-        mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class), "validate",
-                sig(void.class, Object.class, AsmValidateResult.class), false);
-        mv.visitJumpInsn(GOTO, l1);
-        mv.visitLabel(l0);
     }
 }

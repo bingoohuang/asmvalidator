@@ -41,7 +41,7 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
                     localIndices, rangeValues, message)) return;
         }
 
-        enumsCheck(mv, fieldName, localIndices, rangeValues,
+        enumsCheck(mv, fieldName, fieldType, localIndices, rangeValues,
                 message, annAndRoot);
     }
 
@@ -70,15 +70,15 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         boolean includeFrom = fromStart == '[';
         boolean includeEnd = toEnd == ']';
 
-        if (int.class == fieldType) {
-            intRangeCheckGenerate(mv, fieldName, localIndices,
+        if (int.class == fieldType || Integer.class == fieldType) {
+            intRangeCheckGenerate(mv, fieldName, fieldType, localIndices,
                     from, to, includeFrom, includeEnd,
                     message, annAndRoot);
             return true;
         }
 
         if (String.class == fieldType) {
-            stringRangeCheckGenerate(mv, fieldName, localIndices,
+            stringRangeCheckGenerate(mv, fieldName, fieldType, localIndices,
                     from, to, includeFrom, includeEnd,
                     message, annAndRoot);
             return true;
@@ -93,7 +93,7 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private void enumsCheck(
-            MethodVisitor mv, String fieldName, LocalIndices localIndices,
+            MethodVisitor mv, String fieldName, Class<?> fieldType, LocalIndices localIndices,
             List<String> rangeValues,
             String msg,
             AnnotationAndRoot fieldAnn
@@ -120,11 +120,11 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
                 "contains", sig(boolean.class, Object.class), true);
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
-        addError(fieldName, mv, fieldAnn, msg, localIndices, l1);
+        addError(fieldName, fieldType, mv, fieldAnn, msg, localIndices, l1);
     }
 
     private void stringRangeCheckGenerate(
-            MethodVisitor mv, String fieldName,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             LocalIndices localIndices,
             String from, String to,
             boolean includeFrom, boolean includeEnd,
@@ -135,20 +135,20 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
             mv.visitLdcInsn(from);
-            compareStringValue(mv, fieldName, includeFrom,
+            compareStringValue(mv, fieldName, fieldType, includeFrom,
                     message, annAndRoot, localIndices);
         }
 
         if (isNotEmpty(to)) {
             mv.visitLdcInsn(to);
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
-            compareStringValue(mv, fieldName, includeEnd,
+            compareStringValue(mv, fieldName, fieldType, includeEnd,
                     message, annAndRoot, localIndices);
         }
     }
 
     private void intRangeCheckGenerate(
-            MethodVisitor mv, String fieldName,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             LocalIndices localIndices,
             String from, String to,
             boolean includeFrom, boolean includeEnd,
@@ -171,19 +171,19 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ILOAD, intIndex);
             Asms.visitInt(mv, Integer.parseInt(from));
-            compareValue(mv, fieldName, includeFrom,
+            compareValue(mv, fieldName, fieldType, includeFrom,
                     message, annAndRoot, localIndices);
         }
         if (isNotEmpty(to)) {
             Asms.visitInt(mv, Integer.parseInt(to));
             mv.visitVarInsn(ILOAD, intIndex);
-            compareValue(mv, fieldName, includeEnd,
+            compareValue(mv, fieldName, fieldType, includeEnd,
                     message, annAndRoot, localIndices);
         }
     }
 
     private void compareStringValue(
-            MethodVisitor mv, String fieldName,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             boolean includeEnd,
             String msg,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices
@@ -192,17 +192,17 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
                 "compareTo", sig(int.class, String.class), false);
         Label label = new Label();
         mv.visitJumpInsn(includeEnd ? IFGE : IFGT, label);
-        addError(fieldName, mv, annAndRoot, msg, localIndices, label);
+        addError(fieldName, fieldType, mv, annAndRoot, msg, localIndices, label);
     }
 
     private void compareValue(
-            MethodVisitor mv, String fieldName,
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
             boolean includeBoundary,
             String msg,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices
     ) {
         Label label = new Label();
         mv.visitJumpInsn(includeBoundary ? IF_ICMPGE : IF_ICMPGT, label);
-        addError(fieldName, mv, annAndRoot, msg, localIndices, label);
+        addError(fieldName, fieldType, mv, annAndRoot, msg, localIndices, label);
     }
 }

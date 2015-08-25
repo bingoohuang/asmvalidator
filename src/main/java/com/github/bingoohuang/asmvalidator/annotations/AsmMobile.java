@@ -10,7 +10,9 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmRegex("^1\\d{10}$")
-@AsmConstraint(message = "手机号码格式非法")
+@AsmConstraint(
+        supportedClasses = String.class,
+        message = "手机号码格式非法")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmMobile {

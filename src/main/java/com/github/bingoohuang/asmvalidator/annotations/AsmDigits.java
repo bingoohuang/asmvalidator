@@ -9,7 +9,9 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmRegex("^\\d+$")
-@AsmConstraint(message = "必须为数字")
+@AsmConstraint(
+        supportedClasses = String.class,
+        message = "必须为数字")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmDigits {

@@ -6,6 +6,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.objenesis.ObjenesisStd;
 
+import java.util.Collection;
 import java.util.concurrent.Callable;
 
 public class AsmValidatorFactory {
@@ -41,7 +42,19 @@ public class AsmValidatorFactory {
         return validator.validate(bean);
     }
 
+
+    public static void validateAll(Collection<?> beans, AsmValidateResult asmValidateResult) {
+        if (beans == null) return;
+
+        for (Object bean : beans) {
+            AsmValidator validator = getValidator(bean.getClass());
+            asmValidateResult.addErrors(validator.validate(bean));
+        }
+    }
+
     public static void validate(Object bean, AsmValidateResult asmValidateResult) {
+        if (bean == null) return;
+
         AsmValidator validator = getValidator(bean.getClass());
         asmValidateResult.addErrors(validator.validate(bean));
     }

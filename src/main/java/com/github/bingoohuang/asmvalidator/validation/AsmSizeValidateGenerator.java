@@ -8,6 +8,8 @@ import com.github.bingoohuang.asmvalidator.utils.Asms;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.util.Collection;
+
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static org.objectweb.asm.Opcodes.*;
@@ -24,15 +26,21 @@ public class AsmSizeValidateGenerator implements AsmValidateGenerator {
         mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
-        mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
-        mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class),
-                "length", "()I", false);
+
+        if (Collection.class.isAssignableFrom(fieldType)) {
+            mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
+            mv.visitMethodInsn(INVOKEINTERFACE, p(fieldType), "size", "()I", true);
+        } else {
+            mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
+            mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class),
+                    "length", "()I", false);
+        }
 
         int size = asmSize.value();
         Asms.visitInt(mv, size);
         Label l2 = new Label();
         mv.visitJumpInsn(IF_ICMPEQ, l2);
         mv.visitLabel(l1);
-        addError(fieldName, mv, annAndRoot, message, localIndices, l2);
+        addError(fieldName, fieldType, mv, annAndRoot, message, localIndices, l2);
     }
 }

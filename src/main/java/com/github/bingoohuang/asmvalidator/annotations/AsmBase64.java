@@ -11,6 +11,7 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmConstraint(
+        supportedClasses = String.class,
         asmValidateBy = AsmBase64ValidateGenerator.class,
         message = "不符合BASE64编码格式")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})

@@ -34,7 +34,9 @@ $			#end of the line
 @Documented
 @AsmRegex("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
         + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
-@AsmConstraint(message = "邮箱格式不正确")
+@AsmConstraint(
+        supportedClasses = String.class,
+        message = "邮箱格式不正确")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmEmail {

@@ -58,6 +58,6 @@ public class CharacterControllerTest {
                 get("/hello").
                 then().
                 statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR).
-                body(containsString("字段不能为空"));
+                body(containsString("取值不能为空"));
     }
 }
