@@ -33,7 +33,7 @@ public class AsmRegexValidateGenerator implements AsmValidateGenerator {
                     "正则表达式错误:" + annAndRoot);
         }
 
-        mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());
+        mv.visitVarInsn(ILOAD, localIndices.getIsNullIndex());
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
         mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());

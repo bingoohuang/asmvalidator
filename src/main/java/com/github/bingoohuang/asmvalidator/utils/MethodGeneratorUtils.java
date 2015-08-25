@@ -144,6 +144,7 @@ public class MethodGeneratorUtils {
 
         for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
             Annotation ann = annAndRoot.ann();
+            if (ann.annotationType() == AsmNotBlank.class) return;
             if (ann.annotationType() == AsmBlankable.class) return;
             if (ann.annotationType() == AsmMinSize.class) return;
             if (ann.annotationType() == AsmSize.class) return;
@@ -238,7 +239,7 @@ public class MethodGeneratorUtils {
                 getterName, sig(type), false);
     }
 
-    public static void addIsStringNullLocal(
+    public static void addIsNullLocal(
             LocalIndices localIndices, MethodVisitor mv) {
         Label l0 = new Label();
         mv.visitJumpInsn(IFNONNULL, l0);
@@ -248,7 +249,7 @@ public class MethodGeneratorUtils {
         mv.visitLabel(l0);
         mv.visitInsn(ICONST_0);
         mv.visitLabel(l1);
-        localIndices.incrementAndSetStringNullLocalIndex();
+        localIndices.incrementAndSetNullLocalIndex();
         mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
     }
 

@@ -91,7 +91,7 @@ public class AsmValidatorMethodGenerator
 
         LocalIndices localIndices = new LocalIndices(localIndex);
         createFieldValueLocal(localIndices, mv, field);
-        addIsStringNullLocal(localIndices, mv);
+        addIsNullLocal(localIndices, mv);
 
         String defaultMessage = AsmValidators.tryGetAsmMessage(field.getAnnotations());
 

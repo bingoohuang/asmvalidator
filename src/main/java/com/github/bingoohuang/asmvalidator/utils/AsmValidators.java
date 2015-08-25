@@ -16,8 +16,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.List;
 
+import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.findAnn;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -63,7 +65,7 @@ public class AsmValidators {
         Method[] methods = root.annotationType().getDeclaredMethods();
         for (Method method : methods) {
             String methodName = method.getName();
-            String value = invoke(method, root);
+            String value = "" + invoke(method, root);
 
             parsedMessage = parsedMessage.replace("{" + methodName + "}", value);
         }
@@ -71,9 +73,18 @@ public class AsmValidators {
         return parsedMessage;
     }
 
-    private static String invoke(Method method, Object annotation) {
+    public static Object annAttr(Annotation annotation, String methodName) {
         try {
-            return "" + method.invoke(annotation);
+            Method method = annotation.annotationType().getDeclaredMethod(methodName);
+            return invoke(method, annotation);
+        } catch (NoSuchMethodException e) {
+            throw Fucks.fuck(e);
+        }
+    }
+
+    private static Object invoke(Method method, Object annotation) {
+        try {
+            return method.invoke(annotation);
         } catch (Exception e) {
             throw Fucks.fuck(e);
         }
@@ -110,5 +121,15 @@ public class AsmValidators {
     public static Class getListItemClass(Type genericType) {
         ParameterizedType pType = (ParameterizedType) genericType;
         return (Class) pType.getActualTypeArguments()[0];
+    }
+
+    public static void computeSize(MethodVisitor mv, Class<?> fieldType, LocalIndices localIndices) {
+        if (Collection.class.isAssignableFrom(fieldType)) {
+            mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
+            mv.visitMethodInsn(INVOKEINTERFACE, p(fieldType), "size", "()I", true);
+        } else {
+            mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
+            mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "length", "()I", false);
+        }
     }
 }

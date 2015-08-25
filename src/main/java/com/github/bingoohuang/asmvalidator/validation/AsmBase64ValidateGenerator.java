@@ -35,7 +35,7 @@ public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
             mv.visitVarInsn(ASTORE, paddedIndex);
         }
 
-        mv.visitVarInsn(ILOAD, localIndices.getStringLocalNullIndex());
+        mv.visitVarInsn(ILOAD, localIndices.getIsNullIndex());
         Label l1 = new Label();
         mv.visitJumpInsn(IFNE, l1);
         mv.visitVarInsn(ALOAD, paddedIndex);

@@ -8,7 +8,7 @@ public class LocalIndices {
     private int originalLocalIndex = 1; // 原始本地变量索引
     private boolean originalPrimitive; // 原始变量是否是原生类型
     private int stringLocalIndex = 1; // 转换为string的本地变量索引
-    private int stringLocalNullIndex; // 空判断布尔本地变量索引
+    private int isNullIndex; // 空判断布尔本地变量索引
 
     public LocalIndices(AtomicInteger localIndex) {
         this.localIndex = localIndex;
@@ -23,8 +23,8 @@ public class LocalIndices {
     }
 
 
-    public int getStringLocalNullIndex() {
-        return stringLocalNullIndex;
+    public int getIsNullIndex() {
+        return isNullIndex;
     }
 
     public int getLocalIndex() {
@@ -40,8 +40,8 @@ public class LocalIndices {
         this.stringLocalIndex = localIndex.incrementAndGet();
     }
 
-    public void incrementAndSetStringNullLocalIndex() {
-        this.stringLocalNullIndex = localIndex.incrementAndGet();
+    public void incrementAndSetNullLocalIndex() {
+        this.isNullIndex = localIndex.incrementAndGet();
     }
 
     public int incrementLocalIndex() {

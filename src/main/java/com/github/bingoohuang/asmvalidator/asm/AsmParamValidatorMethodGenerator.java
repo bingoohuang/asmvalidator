@@ -81,7 +81,7 @@ public class AsmParamValidatorMethodGenerator
 
         LocalIndices localIndices = new LocalIndices(localIndex);
         createValueLocal(localIndices, mv);
-        addIsStringNullLocal(localIndices, mv);
+        addIsNullLocal(localIndices, mv);
 
         String defaultMessage = AsmValidators.tryGetAsmMessage(targetAnns);
 
