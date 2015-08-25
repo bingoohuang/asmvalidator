@@ -22,15 +22,6 @@ public class ValidEmailTest {
                 "mkyong@gmail.com.com", "mkyong+100@gmail.com",
                 "mkyong-100@yahoo-test.com"});
     }
-//
-//    @Parameterized.Parameters
-//    public static Collection<Object> invalidEmails() {
-//        return Arrays.asList(new Object[]{"mkyong", "mkyong@.com.my",
-//                "mkyong123@gmail.a", "mkyong123@.com", "mkyong123@.com.com",
-//                ".mkyong@mkyong.com", "mkyong()*@gmail.com", "mkyong@%*.com",
-//                "mkyong..2002@gmail.com", "mkyong.@gmail.com",
-//                "mkyong@mkyong@gmail.com", "mkyong@gmail.com.1a"});
-//    }
 
     public ValidEmailTest(String email) {
         this.email = email;

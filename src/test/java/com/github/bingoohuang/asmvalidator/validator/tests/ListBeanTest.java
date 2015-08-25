@@ -17,6 +17,7 @@ import java.util.List;
 import static com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory.createValidatorSignature;
 import static com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory.validate;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ListBeanTest {
     @Test
@@ -66,6 +67,7 @@ public class ListBeanTest {
 
         try {
             validate(validatorSignature, strings);
+            fail();
         } catch (AsmValidateException ex) {
             assertTrue(ex.getMessage().contains("手机号码格式非法"));
         }

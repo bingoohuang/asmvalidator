@@ -6,6 +6,7 @@ import com.github.bingoohuang.asmvalidator.validator.domain.AsmMobileOrEmailBean
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class AsmMobileOrEmailTest {
     @Test
@@ -29,6 +30,7 @@ public class AsmMobileOrEmailTest {
 
         try {
             AsmValidatorFactory.validateWithThrow(bean);
+            fail();
         } catch (AsmValidateException e) {
             assertTrue(e.getMessage().contains("必须为手机号码或者邮箱"));
         }
@@ -41,6 +43,7 @@ public class AsmMobileOrEmailTest {
 
         try {
             AsmValidatorFactory.validateWithThrow(bean);
+            fail();
         } catch (AsmValidateException e) {
             assertTrue(e.getMessage().contains("必须为手机号码或者邮箱"));
         }

@@ -28,14 +28,8 @@ public class AsmSizeValidateGenerator implements AsmValidateGenerator {
         AsmSize asmSize = (AsmSize) annAndRoot.ann();
         Asms.visitInt(mv, asmSize.value());
         Label l2 = new Label();
-        mv.visitJumpInsn(getIfCompareOpCode(), l2);
+        mv.visitJumpInsn(IF_ICMPEQ, l2);
         mv.visitLabel(l1);
         addError(fieldName, fieldType, mv, annAndRoot, message, localIndices, l2);
     }
-
-    private int getIfCompareOpCode() {
-        return IF_ICMPEQ;
-    }
-
-
 }

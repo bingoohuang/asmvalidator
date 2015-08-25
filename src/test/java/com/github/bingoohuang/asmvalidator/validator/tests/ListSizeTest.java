@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class ListSizeTest {
     public static class ListSizeBean {
@@ -41,6 +42,7 @@ public class ListSizeTest {
 
         try {
             AsmValidatorFactory.validateWithThrow(listSizeBean);
+            fail();
         } catch (AsmValidateException ex) {
             assertTrue(ex.getMessage().contains("长度不等于2"));
         }

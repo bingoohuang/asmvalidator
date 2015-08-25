@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.validator.domain.MobileBean;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class MobileBeanTest {
 
@@ -27,6 +28,7 @@ public class MobileBeanTest {
         try {
             AsmValidateResult result = AsmValidatorFactory.validate(mobileBean);
             result.throwExceptionIfError();
+            fail();
         } catch (AsmValidateException ex) {
             assertTrue(ex.getMessage().contains("手机号码格式非法"));
         }

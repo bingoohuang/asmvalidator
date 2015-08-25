@@ -98,7 +98,6 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
             String msg,
             AnnotationAndRoot fieldAnn
     ) {
-
         mv.visitTypeInsn(NEW, p(ArrayList.class));
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, p(ArrayList.class),
