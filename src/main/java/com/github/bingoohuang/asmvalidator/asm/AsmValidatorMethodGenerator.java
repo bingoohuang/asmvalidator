@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isListAndItemAsmValid;
+import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isCollectionAndItemAsmValid;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
@@ -73,7 +73,7 @@ public class AsmValidatorMethodGenerator
 
         if (isAsmValid(field)) asmValidate(mv, beanClass);
 
-        if (isListAndItemAsmValid(field.getType(), field.getGenericType())) {
+        if (isCollectionAndItemAsmValid(field.getType(), field.getGenericType())) {
             visitGetter(mv, field);
             mv.visitVarInsn(ALOAD, 2);
 

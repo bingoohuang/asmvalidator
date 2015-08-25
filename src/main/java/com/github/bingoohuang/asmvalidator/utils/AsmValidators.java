@@ -17,7 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.List;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.findAnn;
@@ -101,9 +100,9 @@ public class AsmValidators {
         return asmMessage != null ? asmMessage.value() : "";
     }
 
-    public static boolean isListAndItemAsmValid(
+    public static boolean isCollectionAndItemAsmValid(
             Class targetType, Type targetGenericType) {
-        if (List.class != targetType) return false;
+        if (!Collection.class.isAssignableFrom(targetType)) return false;
 
         if (!(targetGenericType instanceof ParameterizedType)) return false;
 
@@ -112,13 +111,13 @@ public class AsmValidators {
         return itemType.isAnnotationPresent(AsmValid.class);
     }
 
-    public static Class getListItemClass(Field field) {
+    public static Class getCollectionItemClass(Field field) {
         Type genericType = field.getGenericType();
 
-        return getListItemClass(genericType);
+        return getCollectionItemClass(genericType);
     }
 
-    public static Class getListItemClass(Type genericType) {
+    public static Class getCollectionItemClass(Type genericType) {
         ParameterizedType pType = (ParameterizedType) genericType;
         return (Class) pType.getActualTypeArguments()[0];
     }

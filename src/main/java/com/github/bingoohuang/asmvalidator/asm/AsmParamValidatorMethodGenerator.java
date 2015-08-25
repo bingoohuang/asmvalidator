@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isListAndItemAsmValid;
+import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isCollectionAndItemAsmValid;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
@@ -71,8 +71,8 @@ public class AsmParamValidatorMethodGenerator
             validateByAnnotations(localIndex, mv, annotations);
 
         if (isAsmValid()) asmValidate(mv);
-        if (isListAndItemAsmValid(targetType, genericType))
-            listItemsValid(localIndex, mv);
+        if (isCollectionAndItemAsmValid(targetType, genericType))
+            collectionItemsValid(mv);
 
     }
 
@@ -146,10 +146,9 @@ public class AsmParamValidatorMethodGenerator
 
             return;
         }
-
     }
 
-    private void listItemsValid(AtomicInteger localIndex, MethodVisitor mv) {
+    private void collectionItemsValid(MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
