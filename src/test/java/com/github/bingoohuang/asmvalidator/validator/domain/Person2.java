@@ -42,8 +42,7 @@ public class Person2 {
 
         Person2 person = (Person2) o;
 
-        if (name != null ? !name.equals(person.name) : person.name != null)
-            return false;
+        if (name != null ? !name.equals(person.name) : person.name != null) return false;
         return !(addr != null ? !addr.equals(person.addr) : person.addr != null);
 
     }

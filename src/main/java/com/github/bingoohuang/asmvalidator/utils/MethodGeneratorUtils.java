@@ -7,7 +7,6 @@ import com.github.bingoohuang.asmvalidator.MsaValidator;
 import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadUsageException;
-import com.github.bingoohuang.asmvalidator.validation.MsaNoopValidator;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
@@ -26,6 +25,7 @@ import java.util.List;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
+import static com.google.common.primitives.Primitives.wrap;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -98,7 +98,7 @@ public class MethodGeneratorUtils {
             if (supportedClass.isAssignableFrom(type)) return true;
         }
 
-        if (msaSupportType(asmConstraint, type)) return true;
+        if (findMsaSupportType(asmConstraint, type) != null) return true;
         if (asmTypeValidateGeneratorSupport(asmConstraint, type)) return true;
 
         return false;
@@ -106,35 +106,35 @@ public class MethodGeneratorUtils {
 
     private static boolean asmTypeValidateGeneratorSupport(
             AsmConstraint asmConstraint, Class<?> type) {
-        Class<? extends AsmValidateGenerator> asmValidateBy;
-        asmValidateBy = asmConstraint.asmValidateBy();
-        if (!AsmTypeValidateGenerator.class.isAssignableFrom(asmValidateBy))
-            return false;
-        AsmValidateGenerator instance = new ObjenesisStd().newInstance(asmValidateBy);
-        AsmTypeValidateGenerator generator = (AsmTypeValidateGenerator) instance;
-        if (generator.supportClass(type)) return true;
+        for (Class<? extends AsmValidateGenerator>  asmValidateBy
+                : asmConstraint.asmValidateBy()) {
+            Class<?> clazz = AsmTypeValidateGenerator.class;
+            if (!clazz.isAssignableFrom(asmValidateBy)) continue;
+
+            AsmValidateGenerator instance = new ObjenesisStd().newInstance(asmValidateBy);
+            AsmTypeValidateGenerator generator = (AsmTypeValidateGenerator) instance;
+            if (generator.supportClass(type)) return true;
+        }
 
         return false;
     }
 
-    private static boolean msaSupportType(
+    public static Class<? extends MsaValidator> findMsaSupportType(
             AsmConstraint asmConstraint, Class<?> type) {
-        Class<? extends MsaValidator> msaValidator = asmConstraint.validateBy();
-        if (msaValidator == MsaNoopValidator.class) return false;
+        for (Class<? extends MsaValidator> msaValidator : asmConstraint.validateBy()) {
+            Type[] genericInterfaces = msaValidator.getGenericInterfaces();
+            for (Type genericInterface : genericInterfaces) {
+                if (!(genericInterface instanceof ParameterizedType)) continue;
 
+                ParameterizedType pType = (ParameterizedType) genericInterface;
+                if (pType.getRawType() != MsaValidator.class) continue;
 
-        Type[] genericInterfaces = msaValidator.getGenericInterfaces();
-        for (Type genericInterface : genericInterfaces) {
-            if (!(genericInterface instanceof ParameterizedType)) continue;
-
-            ParameterizedType pType = (ParameterizedType) genericInterface;
-            if (pType.getRawType() != MsaValidator.class) continue;
-
-            Class<?> argType = (Class<?>) pType.getActualTypeArguments()[1];
-            if (argType.isAssignableFrom(type)) return true;
+                Class<?> argType = (Class<?>) pType.getActualTypeArguments()[1];
+                if (argType.isAssignableFrom(wrap(type))) return msaValidator;
+            }
         }
 
-        return false;
+        return null;
     }
 
     private static void tryAddAsmNotBlank(
