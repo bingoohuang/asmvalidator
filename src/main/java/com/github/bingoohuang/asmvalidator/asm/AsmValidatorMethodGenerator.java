@@ -105,7 +105,7 @@ public class AsmValidatorMethodGenerator
 
         if (fieldType.isPrimitive()) localIndices.setOriginalPrimitive(true);
 
-        if (fieldType == int.class || fieldType == long.class) {
+        if (fieldType.isPrimitive()) {
             mv.visitMethodInsn(INVOKESTATIC, p(String.class),
                     "valueOf", sig(String.class, fieldType), false);
 

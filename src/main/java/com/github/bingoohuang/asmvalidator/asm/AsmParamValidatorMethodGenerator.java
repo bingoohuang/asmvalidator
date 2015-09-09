@@ -82,7 +82,7 @@ public class AsmParamValidatorMethodGenerator
             return;
         }
 
-        if (targetType == int.class || targetType == long.class) {
+        if (targetType.isPrimitive()) {
             int localIndex = localIndices.incrementLocalIndex();
             mv.visitVarInsn(ASTORE, localIndex);
             localIndices.setOriginalLocalIndex(localIndex);

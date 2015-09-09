@@ -75,22 +75,6 @@ public class MethodGeneratorUtils {
         return AsmDefaultAnnotations.class.getMethods()[0];
     }
 
-    private static void tryAddAsmMaxSize(
-            List<AnnotationAndRoot> asmConstraintsAnns,
-            Method defaultMethod,
-            Class<?> type) {
-        for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
-            Annotation ann = annAndRoot.ann();
-            if (ann.annotationType() == AsmMaxSize.class) return;
-            if (ann.annotationType() == AsmSize.class) return;
-        }
-
-        AsmMaxSize ann = defaultMethod.getAnnotation(AsmMaxSize.class);
-
-        if (supportType(ann, type))
-            asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
-    }
-
     public static boolean supportType(Annotation ann, Class<?> type) {
         Class<? extends Annotation> annClass = ann.annotationType();
         AsmConstraint asmConstraint = annClass.getAnnotation(AsmConstraint.class);
@@ -105,14 +89,17 @@ public class MethodGeneratorUtils {
     }
 
     private static boolean asmTypeValidateGeneratorSupport(
-            AsmConstraint asmConstraint, Class<?> type) {
-        for (Class<? extends AsmValidateGenerator>  asmValidateBy
+            AsmConstraint asmConstraint, Class<?> type
+    ) {
+        ObjenesisStd objStd = new ObjenesisStd();
+        AsmTypeValidateGenerator generator;
+        for (Class<? extends AsmValidateGenerator> asmValidateBy
                 : asmConstraint.asmValidateBy()) {
             Class<?> clazz = AsmTypeValidateGenerator.class;
             if (!clazz.isAssignableFrom(asmValidateBy)) continue;
 
-            AsmValidateGenerator instance = new ObjenesisStd().newInstance(asmValidateBy);
-            AsmTypeValidateGenerator generator = (AsmTypeValidateGenerator) instance;
+            AsmValidateGenerator instance = objStd.newInstance(asmValidateBy);
+            generator = (AsmTypeValidateGenerator) instance;
             if (generator.supportClass(type)) return true;
         }
 
@@ -120,26 +107,60 @@ public class MethodGeneratorUtils {
     }
 
     public static Class<? extends MsaValidator> findMsaSupportType(
-            AsmConstraint asmConstraint, Class<?> type) {
-        for (Class<? extends MsaValidator> msaValidator : asmConstraint.validateBy()) {
-            Type[] genericInterfaces = msaValidator.getGenericInterfaces();
-            for (Type genericInterface : genericInterfaces) {
-                if (!(genericInterface instanceof ParameterizedType)) continue;
-
-                ParameterizedType pType = (ParameterizedType) genericInterface;
-                if (pType.getRawType() != MsaValidator.class) continue;
-
-                Class<?> argType = (Class<?>) pType.getActualTypeArguments()[1];
-                if (argType.isAssignableFrom(wrap(type))) return msaValidator;
-            }
+            AsmConstraint asmConstraint, Class<?> type
+    ) {
+        Class<?> wrap = wrap(type);
+        for (Class<? extends MsaValidator> msa : asmConstraint.validateBy()) {
+            Class<?> arg = findSuperActualTypeArg(msa, MsaValidator.class, 1);
+            if (arg == null) continue;
+            if (arg.isAssignableFrom(wrap)) return msa;
         }
 
         return null;
     }
 
+    public static Class<?> findSuperActualTypeArg(
+            final Class<?> subClass,
+            final Class<?> superClass,
+            final int argIndex
+    ) {
+        for (Type type : subClass.getGenericInterfaces()) {
+            if (!(type instanceof ParameterizedType)) continue;
+
+            ParameterizedType pType = (ParameterizedType) type;
+            if (pType.getRawType() != superClass) continue;
+
+            Type argType = pType.getActualTypeArguments()[argIndex];
+            if (argType instanceof Class) return (Class<?>) argType;
+        }
+
+        Class<?> parentClass = subClass.getSuperclass();
+        if (parentClass == Object.class) return null;
+
+        return findSuperActualTypeArg(parentClass, superClass, argIndex);
+    }
+
+    private static void tryAddAsmMaxSize(
+            List<AnnotationAndRoot> asmConstraintsAnns,
+            Method defaultMethod,
+            Class<?> type
+    ) {
+        for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
+            Annotation ann = annAndRoot.ann();
+            if (ann.annotationType() == AsmMaxSize.class) return;
+            if (ann.annotationType() == AsmSize.class) return;
+        }
+
+        AsmMaxSize ann = defaultMethod.getAnnotation(AsmMaxSize.class);
+
+        if (supportType(ann, type))
+            asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
+    }
+
     private static void tryAddAsmNotBlank(
             List<AnnotationAndRoot> asmConstraintsAnns,
-            Method defaultMethod, Class<?> type) {
+            Method defaultMethod, Class<?> type
+    ) {
         if (type.isPrimitive()) return;
 
         for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
@@ -187,8 +208,7 @@ public class MethodGeneratorUtils {
             String fieldName,
             Class beanClass
     ) {
-        MethodVisitor mv;
-        mv = cw.visitMethod(ACC_PRIVATE,
+        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE,
                 "validate" + StringUtils.capitalize(fieldName),
                 sig(void.class, beanClass, AsmValidateResult.class),
                 null, null);
@@ -204,7 +224,8 @@ public class MethodGeneratorUtils {
 
     public static boolean isAnnotationPresent(
             Annotation[] targetAnnotations,
-            Class<?> annotationType) {
+            Class<?> annotationType
+    ) {
         for (Annotation ann : targetAnnotations) {
             if (annotationType.isInstance(ann)) return true;
         }
@@ -214,7 +235,8 @@ public class MethodGeneratorUtils {
 
     public static <T> T findAnn(
             Annotation[] targetAnnotations,
-            Class<T> annotationType) {
+            Class<T> annotationType
+    ) {
         for (Annotation ann : targetAnnotations) {
             if (annotationType.isInstance(ann)) return (T) ann;
         }
@@ -222,7 +244,8 @@ public class MethodGeneratorUtils {
         return null;
     }
 
-    public static void visitGetter(MethodVisitor mv, Field field) {
+    public static void visitGetter(MethodVisitor mv, Field field
+    ) {
         mv.visitVarInsn(ALOAD, 1);
         String getterName = "get" + capitalize(field.getName());
         Class<?> declaringClass = field.getDeclaringClass();
@@ -240,7 +263,8 @@ public class MethodGeneratorUtils {
     }
 
     public static void addIsNullLocal(
-            LocalIndices localIndices, MethodVisitor mv) {
+            LocalIndices localIndices, MethodVisitor mv
+    ) {
         Label l0 = new Label();
         mv.visitJumpInsn(IFNONNULL, l0);
         mv.visitInsn(ICONST_1);
@@ -254,7 +278,8 @@ public class MethodGeneratorUtils {
     }
 
     public static void createBridge(
-            ClassWriter cw, Class beanClass, String implName) {
+            ClassWriter cw, Class beanClass, String implName
+    ) {
         MethodVisitor mv;
         mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "validate",
                 sig(AsmValidateResult.class, Object.class), null, null);
@@ -270,7 +295,8 @@ public class MethodGeneratorUtils {
     }
 
     public static void visitValidateFieldMethod(
-            MethodVisitor mv, String implName, String fieldName, Class fieldClass) {
+            MethodVisitor mv, String implName, String fieldName, Class fieldClass
+    ) {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
