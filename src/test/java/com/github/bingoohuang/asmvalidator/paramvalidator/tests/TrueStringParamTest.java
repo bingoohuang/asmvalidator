@@ -31,7 +31,7 @@ public class TrueStringParamTest {
 
     @Test
     public void validYes() {
-        validate(validatorSignature, "yes");
+        validate(validatorSignature, "YES");
     }
 
     @Test

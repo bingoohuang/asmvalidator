@@ -50,6 +50,6 @@ public class AsmTrueValidatorGenerator implements AsmTypeValidateGenerator {
     }
 
     protected String useRegex() {
-        return "(?)true|yes|on|ok";
+        return "(?i)true|yes|on|ok";
     }
 }
