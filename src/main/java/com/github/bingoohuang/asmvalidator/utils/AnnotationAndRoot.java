@@ -1,18 +1,14 @@
 package com.github.bingoohuang.asmvalidator.utils;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
+import lombok.AllArgsConstructor;
 
 import java.lang.annotation.Annotation;
 
+@AllArgsConstructor
 public class AnnotationAndRoot {
     Annotation annotation;
     Annotation rootAnnotation;
-
-
-    public AnnotationAndRoot(Annotation annotation, Annotation rootAnnotation) {
-        this.annotation = annotation;
-        this.rootAnnotation = rootAnnotation;
-    }
 
     public Annotation ann() {
         return annotation;

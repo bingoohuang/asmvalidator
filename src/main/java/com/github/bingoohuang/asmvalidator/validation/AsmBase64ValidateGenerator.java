@@ -4,13 +4,13 @@ import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmBase64;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
+import static org.apache.commons.lang3.StringUtils.rightPad;
 import static org.objectweb.asm.Opcodes.*;
 
 public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
@@ -54,6 +54,6 @@ public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
         int padding = length % 4;
         if (padding == 0) return str;
 
-        return StringUtils.rightPad(str, length + 4 - padding, '=');
+        return rightPad(str, length + 4 - padding, '=');
     }
 }

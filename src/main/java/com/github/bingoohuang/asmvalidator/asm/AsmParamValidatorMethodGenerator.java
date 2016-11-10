@@ -6,6 +6,7 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.google.common.primitives.Primitives;
+import lombok.val;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
@@ -47,7 +48,7 @@ public class AsmParamValidatorMethodGenerator
 
     public void generate() {
         createValidatorMainMethod();
-        MethodVisitor mv = startFieldValidatorMethod(cw, fieldName, Object.class);
+        val mv = startFieldValidatorMethod(cw, fieldName, Object.class);
         bodyParamValidator(mv);
         endFieldValidateMethod(mv);
     }

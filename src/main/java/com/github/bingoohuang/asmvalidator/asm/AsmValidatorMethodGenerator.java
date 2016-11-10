@@ -6,8 +6,8 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
-import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
+import lombok.val;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isCollectionAndItemAsmValid;
-import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
-import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
+import static com.github.bingoohuang.asmvalidator.utils.Asms.*;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -48,7 +47,7 @@ public class AsmValidatorMethodGenerator
         for (Field field : beanClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(AsmIgnore.class)) continue;
 
-            MethodVisitor mv = startFieldValidatorMethod(cw, field.getName(), beanClass);
+            val mv = startFieldValidatorMethod(cw, field.getName(), beanClass);
             bodyFieldValidator(mv, field);
             MethodGeneratorUtils.endFieldValidateMethod(mv);
         }
@@ -97,8 +96,8 @@ public class AsmValidatorMethodGenerator
         localIndices.incrementAndSetOriginalLocalIndex();
 
         Class<?> fieldType = field.getType();
-        mv.visitVarInsn(Asms.storeOpCode(fieldType), localIndices.getLocalIndex());
-        mv.visitVarInsn(Asms.loadOpCode(fieldType), localIndices.getLocalIndex());
+        mv.visitVarInsn(storeOpCode(fieldType), localIndices.getLocalIndex());
+        mv.visitVarInsn(loadOpCode(fieldType), localIndices.getLocalIndex());
         AsmValidators.processWideLocal(fieldType, localIndices);
 
         if (fieldType == String.class) return;

@@ -1,26 +1,14 @@
 package com.github.bingoohuang.asmvalidator;
 
+import lombok.AllArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
+@ToString @AllArgsConstructor
 public class ValidateError {
     private String fieldName;
-    private final String errorMessage;
     private final Object fieldValue;
-
-    public ValidateError(String fieldName, Object fieldValue, String errorMessage) {
-        this.fieldName = fieldName;
-        this.fieldValue = fieldValue;
-        this.errorMessage = errorMessage;
-    }
-
-    @Override
-    public String toString() {
-        return "ValidatorError{" +
-                "fieldName='" + fieldName + '\'' +
-                ", errorMessage='" + errorMessage + '\'' +
-                ", fieldValue='" + fieldValue + '\'' +
-                '}';
-    }
+    private final String errorMessage;
 
     public ValidateError replaceFieldName(String oldName, String newName) {
         if (StringUtils.equals(oldName, fieldName)) fieldName = newName;

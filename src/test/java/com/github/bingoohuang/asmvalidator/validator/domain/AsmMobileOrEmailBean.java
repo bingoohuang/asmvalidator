@@ -1,16 +1,9 @@
 package com.github.bingoohuang.asmvalidator.validator.domain;
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobileOrEmail;
+import lombok.Data;
 
+@Data
 public class AsmMobileOrEmailBean {
-    @AsmMobileOrEmail
-    String mobileOrEmail;
-
-    public String getMobileOrEmail() {
-        return mobileOrEmail;
-    }
-
-    public void setMobileOrEmail(String mobileOrEmail) {
-        this.mobileOrEmail = mobileOrEmail;
-    }
+    @AsmMobileOrEmail String mobileOrEmail;
 }

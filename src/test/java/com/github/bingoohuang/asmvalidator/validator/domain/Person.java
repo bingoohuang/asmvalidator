@@ -2,43 +2,17 @@ package com.github.bingoohuang.asmvalidator.validator.domain;
 
 
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
+import lombok.*;
 
+@Data @NoArgsConstructor @ToString
 public class Person {
-    String name;
-    String addr;
+    @Getter @Setter String name;
+    @Getter @Setter String addr;
 
-    @AsmIgnore
-    String code;
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public Person() {
-    }
+    @AsmIgnore String code;
 
     public Person(String name, String addr) {
         this.name = name;
-        this.addr = addr;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAddr() {
-        return addr;
-    }
-
-    public void setAddr(String addr) {
         this.addr = addr;
     }
 
@@ -49,7 +23,8 @@ public class Person {
 
         Person person = (Person) o;
 
-        if (name != null ? !name.equals(person.name) : person.name != null) return false;
+        if (name != null ? !name.equals(person.name) : person.name != null)
+            return false;
         return !(addr != null ? !addr.equals(person.addr) : person.addr != null);
 
     }
@@ -59,13 +34,5 @@ public class Person {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (addr != null ? addr.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Person{" +
-                "name='" + name + '\'' +
-                ", addr='" + addr + '\'' +
-                '}';
     }
 }

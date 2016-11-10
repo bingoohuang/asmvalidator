@@ -2,8 +2,8 @@ package com.github.bingoohuang.asmvalidator.asm;
 
 import com.github.bingoohuang.asmvalidator.AsmValidator;
 import com.google.common.io.Files;
+import lombok.val;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,8 +69,7 @@ public abstract class AsmBaseValidatorClassGenerator {
 
 
     protected void constructor() {
-        MethodVisitor mv;
-        mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        val mv = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL, p(Object.class),

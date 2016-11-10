@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.utils.lang.Fucks;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -58,8 +59,8 @@ public class AsmValidators {
 
     private static String parseAsmConstraintMsg(AnnotationAndRoot annAndRoot) {
         Annotation root = annAndRoot.root();
-        Class<? extends Annotation> annClass = root.annotationType();
-        AsmConstraint asmConstraint = annClass.getAnnotation(AsmConstraint.class);
+        val annClass = root.annotationType();
+        val asmConstraint = annClass.getAnnotation(AsmConstraint.class);
         String parsedMessage = asmConstraint.message();
         Method[] methods = root.annotationType().getDeclaredMethods();
         for (Method method : methods) {
@@ -118,7 +119,7 @@ public class AsmValidators {
     }
 
     public static Class getCollectionItemClass(Type genericType) {
-        ParameterizedType pType = (ParameterizedType) genericType;
+        val pType = (ParameterizedType) genericType;
         return (Class) pType.getActualTypeArguments()[0];
     }
 

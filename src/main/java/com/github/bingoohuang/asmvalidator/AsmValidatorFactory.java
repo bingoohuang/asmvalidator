@@ -4,16 +4,18 @@ import com.github.bingoohuang.asmvalidator.asm.AsmValidatorClassGenerator;
 import com.github.bingoohuang.utils.lang.Fucks;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import lombok.experimental.UtilityClass;
 import org.objenesis.ObjenesisStd;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
+@UtilityClass
 public class AsmValidatorFactory {
-    private static Cache<Class, AsmValidator>
+    private Cache<Class, AsmValidator>
             cache = CacheBuilder.newBuilder().build();
 
-    public static AsmValidator getValidator(final Class<?> beanClass) {
+    public AsmValidator getValidator(final Class<?> beanClass) {
         try {
             return cache.get(beanClass, new Callable<AsmValidator>() {
                 public AsmValidator call() throws Exception {
@@ -26,7 +28,7 @@ public class AsmValidatorFactory {
         }
     }
 
-    private static AsmValidator asmCreate(Class<?> beanClass) {
+    private AsmValidator asmCreate(Class<?> beanClass) {
         AsmValidatorClassGenerator generator
                 = new AsmValidatorClassGenerator(beanClass);
         Class<?> asmValidatorClass = generator.generate();
@@ -37,13 +39,13 @@ public class AsmValidatorFactory {
         return (AsmValidator) asmValidator;
     }
 
-    public static AsmValidateResult validate(Object bean) {
+    public AsmValidateResult validate(Object bean) {
         AsmValidator validator = getValidator(bean.getClass());
         return validator.validate(bean);
     }
 
 
-    public static void validateAll(Collection<?> beans, AsmValidateResult asmValidateResult) {
+    public void validateAll(Collection<?> beans, AsmValidateResult asmValidateResult) {
         if (beans == null) return;
 
         for (Object bean : beans) {
@@ -52,14 +54,14 @@ public class AsmValidatorFactory {
         }
     }
 
-    public static void validate(Object bean, AsmValidateResult asmValidateResult) {
+    public void validate(Object bean, AsmValidateResult asmValidateResult) {
         if (bean == null) return;
 
         AsmValidator validator = getValidator(bean.getClass());
         asmValidateResult.addErrors(validator.validate(bean));
     }
 
-    public static void validateWithThrow(Object bean) {
+    public void validateWithThrow(Object bean) {
         AsmValidator validator = getValidator(bean.getClass());
         validator.validate(bean).throwExceptionIfError();
     }

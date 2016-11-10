@@ -8,6 +8,7 @@ import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadUsageException;
 import com.google.common.collect.Lists;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
@@ -193,11 +194,11 @@ public class MethodGeneratorUtils {
 
         for (Annotation ann : annotations) {
             Class<?> annType = ann.annotationType();
-            AsmConstraint asmConstraint = annType.getAnnotation(AsmConstraint.class);
+            val asmConstraint = annType.getAnnotation(AsmConstraint.class);
             if (asmConstraint == null) continue;
 
             Annotation[] subAnns = ann.annotationType().getAnnotations();
-            Annotation rootAnn = rootAnnotation == null ? ann : rootAnnotation;
+            val rootAnn = rootAnnotation == null ? ann : rootAnnotation;
             searchConstraints(asmConstraintAnns, subAnns, rootAnn);
             asmConstraintAnns.add(new AnnotationAndRoot(ann, rootAnn));
         }
@@ -280,8 +281,7 @@ public class MethodGeneratorUtils {
     public static void createBridge(
             ClassWriter cw, Class beanClass, String implName
     ) {
-        MethodVisitor mv;
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "validate",
+        val mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "validate",
                 sig(AsmValidateResult.class, Object.class), null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
