@@ -19,7 +19,8 @@ public class IntParamTest {
 
     public interface IntParams {
         @AsmValid
-        String something(@AsmRange("[100,200]") int number, @AsmMaxSize(16) long money);
+        String something(
+                @AsmRange("[100,200]") int number, @AsmMaxSize(16) long money);
     }
 
     @BeforeClass

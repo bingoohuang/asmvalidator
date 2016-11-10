@@ -27,7 +27,7 @@ public class InValidEmailTest {
         this.email = email;
     }
 
-    @Test (expected = AsmValidateException.class)
+    @Test(expected = AsmValidateException.class)
     public void test1() {
         EmailBean emailBean = new EmailBean();
         emailBean.setEmail(email);

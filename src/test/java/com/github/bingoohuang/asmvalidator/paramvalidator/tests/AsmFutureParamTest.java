@@ -22,7 +22,7 @@ public class AsmFutureParamTest {
         @AsmValid
         String getAreaByDistrict(
                 @AsmFuture(format = "yyyy-MM-dd")
-                String future);
+                        String future);
     }
 
     @BeforeClass
@@ -57,7 +57,7 @@ public class AsmFutureParamTest {
         @AsmValid
         String getAreaByDistrict(
                 @AsmFuture
-                Date future);
+                        Date future);
     }
 
 

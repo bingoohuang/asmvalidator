@@ -1,7 +1,7 @@
 package com.github.bingoohuang.asmvalidator.custom;
 
-import com.github.bingoohuang.asmvalidator.MsaValidator;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.MsaValidator;
 import com.github.bingoohuang.asmvalidator.ValidateError;
 
 public class MsaSexValidator implements MsaValidator<MsaSex, String> {

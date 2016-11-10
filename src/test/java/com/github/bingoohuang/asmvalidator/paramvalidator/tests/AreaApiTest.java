@@ -22,7 +22,7 @@ public class AreaApiTest {
         String getAreaByDistrict(
                 @RequestParam("districtCode")
                 @AsmRegex("^(?:[1-9][0-9]{5})$") @AsmMessage("区县编码必须是6位数字")
-                String districtCode);
+                        String districtCode);
     }
 
     @BeforeClass

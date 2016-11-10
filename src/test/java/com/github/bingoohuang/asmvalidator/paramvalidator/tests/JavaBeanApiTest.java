@@ -4,6 +4,7 @@ import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmMobile;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
+import lombok.Data;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,7 +21,7 @@ public class JavaBeanApiTest {
         @AsmValid
         String getAreaByDistrict(
                 @RequestParam("districtCode")
-                DistrictCode districtCode);
+                        DistrictCode districtCode);
     }
 
     @BeforeClass
@@ -45,26 +46,9 @@ public class JavaBeanApiTest {
     }
 
 
-    @AsmValid
+    @AsmValid @Data
     public static class DistrictCode {
-        @AsmMobile
-        private String mobile;
+        @AsmMobile private String mobile;
         private long money;
-
-        public String getMobile() {
-            return mobile;
-        }
-
-        public void setMobile(String mobile) {
-            this.mobile = mobile;
-        }
-
-        public long getMoney() {
-            return money;
-        }
-
-        public void setMoney(long money) {
-            this.money = money;
-        }
     }
 }

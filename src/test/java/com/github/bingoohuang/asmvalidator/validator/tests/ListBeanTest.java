@@ -2,7 +2,6 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
-import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.github.bingoohuang.asmvalidator.validator.domain.ListBean;

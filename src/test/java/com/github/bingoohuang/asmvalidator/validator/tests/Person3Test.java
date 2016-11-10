@@ -2,8 +2,8 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
-import com.github.bingoohuang.asmvalidator.validator.domain.Person3;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
+import com.github.bingoohuang.asmvalidator.validator.domain.Person3;
 import org.junit.Test;
 
 public class Person3Test {

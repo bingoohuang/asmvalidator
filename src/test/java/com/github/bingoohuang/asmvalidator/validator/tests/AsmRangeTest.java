@@ -2,8 +2,8 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
-import com.github.bingoohuang.asmvalidator.validator.domain.AsmRangeBean;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
+import com.github.bingoohuang.asmvalidator.validator.domain.AsmRangeBean;
 import org.junit.Test;
 
 public class AsmRangeTest {
