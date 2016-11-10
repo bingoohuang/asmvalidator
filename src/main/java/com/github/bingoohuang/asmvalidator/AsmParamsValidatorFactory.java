@@ -5,7 +5,6 @@ import com.github.bingoohuang.asmvalidator.asm.AsmParamValidatorClassGenerator;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.primitives.UnsignedInts;
-import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.objenesis.ObjenesisStd;
@@ -14,22 +13,21 @@ import java.lang.reflect.Method;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 
-@UtilityClass
 public class AsmParamsValidatorFactory {
-    private Cache<String, AsmValidator>
+    private static Cache<String, AsmValidator>
             cache = CacheBuilder.newBuilder().build();
 
 
-    public AsmValidator getValidator(
+    public static AsmValidator getValidator(
             String methodSignature, int parameterIndex) {
         return cache.getIfPresent(createKey(methodSignature, parameterIndex));
     }
 
-    private String createKey(String methodSig, int parameterIndex) {
+    private static String createKey(String methodSig, int parameterIndex) {
         return methodSig + "." + parameterIndex;
     }
 
-    private AsmValidator asmCreate(Method method, int parameterIndex) {
+    private static AsmValidator asmCreate(Method method, int parameterIndex) {
         val generator = new AsmParamValidatorClassGenerator(method, parameterIndex);
         Class<?> asmValidatorClass = generator.generate();
 
@@ -39,7 +37,7 @@ public class AsmParamsValidatorFactory {
         return (AsmValidator) asmValidator;
     }
 
-    public boolean createValidators(Method method) {
+    public static boolean createValidators(Method method) {
         if (!method.isAnnotationPresent(AsmValid.class)) return false;
 
         Class<?>[] parameterTypes = method.getParameterTypes();
@@ -57,7 +55,7 @@ public class AsmParamsValidatorFactory {
         return true;
     }
 
-    public String createValidatorSignature(Method method) {
+    public static String createValidatorSignature(Method method) {
         String sig = sig(method.getReturnType(), method.getParameterTypes());
         String methodValidatorSignature =
                 method.getDeclaringClass().getName()
@@ -66,7 +64,7 @@ public class AsmParamsValidatorFactory {
         return methodValidatorSignature;
     }
 
-    public void validate(
+    public static void validate(
             Method method, int parameterIndex, Object parameterValue) {
 
         String methodSignature = createValidatorSignature(method);
@@ -76,7 +74,7 @@ public class AsmParamsValidatorFactory {
         result.throwExceptionIfError();
     }
 
-    public void validate(
+    public static void validate(
             String methodSignature, Object... parametersValues) {
         AsmValidateResult result = new AsmValidateResult();
         for (int i = 0, ii = parametersValues.length; i < ii; ++i) {
