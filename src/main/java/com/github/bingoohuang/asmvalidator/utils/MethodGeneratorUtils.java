@@ -8,14 +8,13 @@ import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadUsageException;
 import com.google.common.collect.Lists;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -30,9 +29,8 @@ import static com.google.common.primitives.Primitives.wrap;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.objectweb.asm.Opcodes.*;
 
+@Slf4j
 public class MethodGeneratorUtils {
-    static Logger log = LoggerFactory.getLogger(MethodGeneratorUtils.class);
-
     public static List<AnnotationAndRoot> createValidateAnns(
             Annotation[] targetAnnotations,
             Class<?> type) {
@@ -77,8 +75,8 @@ public class MethodGeneratorUtils {
     }
 
     public static boolean supportType(Annotation ann, Class<?> type) {
-        Class<? extends Annotation> annClass = ann.annotationType();
-        AsmConstraint asmConstraint = annClass.getAnnotation(AsmConstraint.class);
+        val annClass = ann.annotationType();
+        val asmConstraint = annClass.getAnnotation(AsmConstraint.class);
         for (Class<?> supportedClass : asmConstraint.supportedClasses()) {
             if (supportedClass.isAssignableFrom(type)) return true;
         }
@@ -93,14 +91,13 @@ public class MethodGeneratorUtils {
             AsmConstraint asmConstraint, Class<?> type
     ) {
         ObjenesisStd objStd = new ObjenesisStd();
-        AsmTypeValidateGenerator generator;
         for (Class<? extends AsmValidateGenerator> asmValidateBy
                 : asmConstraint.asmValidateBy()) {
             Class<?> clazz = AsmTypeValidateGenerator.class;
             if (!clazz.isAssignableFrom(asmValidateBy)) continue;
 
-            AsmValidateGenerator instance = objStd.newInstance(asmValidateBy);
-            generator = (AsmTypeValidateGenerator) instance;
+            val instance = objStd.newInstance(asmValidateBy);
+            val generator = (AsmTypeValidateGenerator) instance;
             if (generator.supportClass(type)) return true;
         }
 
@@ -193,11 +190,11 @@ public class MethodGeneratorUtils {
     ) {
 
         for (Annotation ann : annotations) {
-            Class<?> annType = ann.annotationType();
+            val annType = ann.annotationType();
             val asmConstraint = annType.getAnnotation(AsmConstraint.class);
             if (asmConstraint == null) continue;
 
-            Annotation[] subAnns = ann.annotationType().getAnnotations();
+            val subAnns = ann.annotationType().getAnnotations();
             val rootAnn = rootAnnotation == null ? ann : rootAnnotation;
             searchConstraints(asmConstraintAnns, subAnns, rootAnn);
             asmConstraintAnns.add(new AnnotationAndRoot(ann, rootAnn));
@@ -209,7 +206,7 @@ public class MethodGeneratorUtils {
             String fieldName,
             Class beanClass
     ) {
-        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE,
+        val mv = cw.visitMethod(ACC_PRIVATE,
                 "validate" + StringUtils.capitalize(fieldName),
                 sig(void.class, beanClass, AsmValidateResult.class),
                 null, null);
