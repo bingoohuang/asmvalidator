@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadArgException;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.Asms;
 import com.google.common.base.Splitter;
+import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -32,8 +33,8 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
 
         if (isEmpty(rangeExpression)) return;
 
-        Splitter splitter = Splitter.on(',').trimResults().omitEmptyStrings();
-        List<String> rangeValues = splitter.splitToList(rangeExpression);
+        val splitter = Splitter.on(',').trimResults().omitEmptyStrings();
+        val rangeValues = splitter.splitToList(rangeExpression);
         if (rangeValues.size() < 2) throw error(annAndRoot);
 
         if (rangeValues.size() == 2) {
@@ -46,9 +47,12 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private boolean tryRangeCheck(
-            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
             AnnotationAndRoot annAndRoot,
-            LocalIndices localIndices, List<String> rangeValues,
+            LocalIndices localIndices,
+            List<String> rangeValues,
             String message
     ) {
         String from = rangeValues.get(0);
@@ -93,7 +97,9 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private void enumsCheck(
-            MethodVisitor mv, String fieldName, Class<?> fieldType, LocalIndices localIndices,
+            MethodVisitor mv, String fieldName,
+            Class<?> fieldType,
+            LocalIndices localIndices,
             List<String> rangeValues,
             String msg,
             AnnotationAndRoot fieldAnn
@@ -123,7 +129,9 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private void stringRangeCheckGenerate(
-            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
             LocalIndices localIndices,
             String from, String to,
             boolean includeFrom, boolean includeEnd,
@@ -147,7 +155,9 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private void intRangeCheckGenerate(
-            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
             LocalIndices localIndices,
             String from, String to,
             boolean includeFrom, boolean includeEnd,
@@ -182,10 +192,13 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private void compareStringValue(
-            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
             boolean includeEnd,
             String msg,
-            AnnotationAndRoot annAndRoot, LocalIndices localIndices
+            AnnotationAndRoot annAndRoot,
+            LocalIndices localIndices
     ) {
         mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class),
                 "compareTo", sig(int.class, String.class), false);
@@ -195,10 +208,13 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     }
 
     private void compareValue(
-            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
             boolean includeBoundary,
             String msg,
-            AnnotationAndRoot annAndRoot, LocalIndices localIndices
+            AnnotationAndRoot annAndRoot,
+            LocalIndices localIndices
     ) {
         Label label = new Label();
         mv.visitJumpInsn(includeBoundary ? IF_ICMPGE : IF_ICMPGT, label);

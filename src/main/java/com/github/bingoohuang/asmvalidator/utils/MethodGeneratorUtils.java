@@ -49,9 +49,10 @@ public class MethodGeneratorUtils {
 
         List<AnnotationAndRoot> filtered = Lists.newArrayList();
         for (AnnotationAndRoot annAndRoot : asmConstraintsAnns) {
-            if (supportType(annAndRoot.ann(), type)) filtered.add(annAndRoot);
-            else {
-                log.warn("{} not support type {}", annAndRoot.ann(), type);
+            if (supportType(annAndRoot.ann(), type)) {
+                filtered.add(annAndRoot);
+            } else {
+                log.warn("{} does not support type {}", annAndRoot.ann(), type);
             }
         }
 
@@ -63,8 +64,7 @@ public class MethodGeneratorUtils {
         List<AnnotationAndRoot> result = Lists.newArrayList();
 
         for (Annotation ann : annotations) {
-            if (supportType(ann, type))
-                result.add(new AnnotationAndRoot(ann, null));
+            if (supportType(ann, type)) result.add(new AnnotationAndRoot(ann));
         }
 
         return result;
@@ -149,10 +149,9 @@ public class MethodGeneratorUtils {
             if (ann.annotationType() == AsmSize.class) return;
         }
 
-        AsmMaxSize ann = defaultMethod.getAnnotation(AsmMaxSize.class);
-
-        if (supportType(ann, type))
-            asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
+        val asmMaxSize = defaultMethod.getAnnotation(AsmMaxSize.class);
+        if (supportType(asmMaxSize, type))
+            asmConstraintsAnns.add(0, new AnnotationAndRoot(asmMaxSize));
     }
 
     private static void tryAddAsmNotBlank(
@@ -169,10 +168,9 @@ public class MethodGeneratorUtils {
             if (ann.annotationType() == AsmSize.class) return;
         }
 
-        AsmNotBlank ann = defaultMethod.getAnnotation(AsmNotBlank.class);
-
-        if (supportType(ann, type))
-            asmConstraintsAnns.add(0, new AnnotationAndRoot(ann, null));
+        val asmNotBlank = defaultMethod.getAnnotation(AsmNotBlank.class);
+        if (supportType(asmNotBlank, type))
+            asmConstraintsAnns.add(0, new AnnotationAndRoot(asmNotBlank));
     }
 
 
@@ -188,7 +186,6 @@ public class MethodGeneratorUtils {
             Annotation[] annotations,
             Annotation rootAnnotation
     ) {
-
         for (Annotation ann : annotations) {
             val annType = ann.annotationType();
             val asmConstraint = annType.getAnnotation(AsmConstraint.class);

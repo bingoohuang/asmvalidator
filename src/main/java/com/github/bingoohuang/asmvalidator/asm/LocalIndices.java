@@ -1,30 +1,20 @@
 package com.github.bingoohuang.asmvalidator.asm;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LocalIndices {
-    private AtomicInteger localIndex; // 当前变量索引
+    final AtomicInteger localIndex; // 当前变量索引
 
-    private int originalLocalIndex = 1; // 原始本地变量索引
-    private boolean originalPrimitive; // 原始变量是否是原生类型
-    private int stringLocalIndex = 1; // 转换为string的本地变量索引
-    private int isNullIndex; // 空判断布尔本地变量索引
+    @Setter @Getter int originalLocalIndex = 1; // 原始本地变量索引
+    @Setter @Getter boolean originalPrimitive; // 原始变量是否是原生类型
+    @Getter int stringLocalIndex = 1; // 转换为string的本地变量索引
+    @Getter int isNullIndex; // 空判断布尔本地变量索引
 
     public LocalIndices(AtomicInteger localIndex) {
         this.localIndex = localIndex;
-    }
-
-    public int getOriginalLocalIndex() {
-        return originalLocalIndex;
-    }
-
-    public int getStringLocalIndex() {
-        return stringLocalIndex;
-    }
-
-
-    public int getIsNullIndex() {
-        return isNullIndex;
     }
 
     public int getLocalIndex() {
@@ -46,17 +36,5 @@ public class LocalIndices {
 
     public int incrementLocalIndex() {
         return this.localIndex.incrementAndGet();
-    }
-
-    public void setOriginalLocalIndex(int originalLocalIndex) {
-        this.originalLocalIndex = originalLocalIndex;
-    }
-
-    public boolean isOriginalPrimitive() {
-        return originalPrimitive;
-    }
-
-    public void setOriginalPrimitive(boolean originalPrimitive) {
-        this.originalPrimitive = originalPrimitive;
     }
 }

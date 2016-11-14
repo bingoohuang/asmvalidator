@@ -4,7 +4,6 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.google.common.primitives.Primitives;
 import lombok.val;
 import org.objectweb.asm.ClassWriter;
@@ -15,7 +14,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isCollectionAndItemAsmValid;
@@ -55,10 +53,9 @@ public class AsmParamValidatorMethodGenerator
 
     private void bodyParamValidator(MethodVisitor mv) {
         // 0: this, 1:bean, 2: AsmValidateResult
-        AtomicInteger localIndex = new AtomicInteger(2);
+        val localIndex = new AtomicInteger(2);
 
-        List<AnnotationAndRoot> annotations =
-                createValidateAnns(targetAnns, targetType);
+        val annotations = createValidateAnns(targetAnns, targetType);
         if (annotations.size() > 0) validateByAnnotations(
                 localIndex, mv, null,
                 fieldName, wrapTargetType,
@@ -69,7 +66,6 @@ public class AsmParamValidatorMethodGenerator
             collectionItemsValid(mv);
 
     }
-
 
     protected void createValueLocal(
             LocalIndices localIndices, MethodVisitor mv, Field field) {
@@ -114,7 +110,7 @@ public class AsmParamValidatorMethodGenerator
     }
 
     private void createValidatorMainMethod() {
-        MethodVisitor mv = startMainMethod(Object.class);
+        val mv = startMainMethod(Object.class);
 
         if (!isAnnotationPresent(targetAnns, AsmIgnore.class)) {
             visitValidateFieldMethod(mv, implName, fieldName, Object.class);

@@ -4,6 +4,7 @@ import com.github.bingoohuang.asmvalidator.*;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.validation.AsmCustomValidateGenerator;
+import lombok.val;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
@@ -58,9 +59,7 @@ public abstract class AsmValidatorMethodGeneratable {
                         validateByClz, annAndRoot);
             }
 
-            Class<? extends MsaValidator> msaSupportType =
-                    findMsaSupportType(constraint, fieldType);
-
+            val msaSupportType = findMsaSupportType(constraint, fieldType);
             if (msaSupportType != null) {
                 generateAsmValidateCode(mv, localIndices,
                         defaultMessage, fieldType, fieldName,
@@ -88,11 +87,9 @@ public abstract class AsmValidatorMethodGeneratable {
             Class<?> fieldType, String fieldName,
             Class<? extends AsmValidateGenerator> asmValidateByClz,
             AnnotationAndRoot annAndRoot) {
-        AsmValidateGenerator asmValidateBy;
-        asmValidateBy = objenesisStd.newInstance(asmValidateByClz);
-
+        val asmValidateBy = objenesisStd.newInstance(asmValidateByClz);
         if (asmValidateBy instanceof AsmTypeValidateGenerator) {
-            AsmTypeValidateGenerator tg = (AsmTypeValidateGenerator) asmValidateBy;
+            val tg = (AsmTypeValidateGenerator) asmValidateBy;
             if (!tg.supportClass(fieldType)) return;
         }
 
@@ -102,7 +99,7 @@ public abstract class AsmValidatorMethodGeneratable {
 
 
     protected MethodVisitor startMainMethod(Class<?> targetClass) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "validate",
+        val mv = cw.visitMethod(ACC_PUBLIC, "validate",
                 sig(AsmValidateResult.class, targetClass), null, null);
 
         mv.visitCode();

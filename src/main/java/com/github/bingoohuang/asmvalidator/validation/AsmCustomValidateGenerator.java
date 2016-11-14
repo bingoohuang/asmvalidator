@@ -2,12 +2,12 @@ package com.github.bingoohuang.asmvalidator.validation;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
-import com.github.bingoohuang.asmvalidator.MsaValidator;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmConstraintCache;
 import com.google.common.primitives.UnsignedInts;
+import lombok.val;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
@@ -25,21 +25,19 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
             LocalIndices localIndices,
             String message
     ) {
-        String annHashCode = UnsignedInts.toString(annAndRoot.hashCode());
-        String hashCode = annAndRoot.ann().annotationType().getName() + ":" + annHashCode;
+        val annHashCode = UnsignedInts.toString(annAndRoot.hashCode());
+        val annType = annAndRoot.ann().annotationType();
+        val hashCode = annType.getName() + ":" + annHashCode;
 
         AsmConstraintCache.put(hashCode, annAndRoot.ann());
 
-        AsmConstraint constraint = annAndRoot.ann().annotationType()
-                .getAnnotation(AsmConstraint.class);
-
-        Class<? extends MsaValidator> msaSupportType =
-                findMsaSupportType(constraint, fieldType);
+        val constraint = annType.getAnnotation(AsmConstraint.class);
+        val msaSupportType = findMsaSupportType(constraint, fieldType);
 
         mv.visitLdcInsn(hashCode);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmConstraintCache.class), "get",
                 sig(Annotation.class, String.class), false);
-        mv.visitTypeInsn(CHECKCAST, p(annAndRoot.ann().annotationType()));
+        mv.visitTypeInsn(CHECKCAST, p(annType));
         int castedAnn = localIndices.incrementLocalIndex();
         mv.visitVarInsn(ASTORE, castedAnn);
         mv.visitTypeInsn(NEW, p(msaSupportType));
@@ -54,7 +52,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
         mv.visitTypeInsn(CHECKCAST, p(fieldType));
         mv.visitMethodInsn(INVOKEVIRTUAL, p(msaSupportType),
-                "validate", sig(void.class, annAndRoot.ann().annotationType(),
+                "validate", sig(void.class, annType,
                         AsmValidateResult.class, fieldType), false);
     }
 }

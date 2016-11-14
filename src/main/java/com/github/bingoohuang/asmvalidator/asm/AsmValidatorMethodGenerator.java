@@ -4,7 +4,6 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
 import lombok.val;
@@ -13,7 +12,6 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.isCollectionAndItemAsmValid;
@@ -21,9 +19,7 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.*;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
 import static org.objectweb.asm.Opcodes.*;
 
-public class AsmValidatorMethodGenerator
-        extends AsmValidatorMethodGeneratable {
-
+public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
     private final Class<?> beanClass;
 
     public AsmValidatorMethodGenerator(
@@ -55,11 +51,9 @@ public class AsmValidatorMethodGenerator
 
     private void bodyFieldValidator(MethodVisitor mv, Field field) {
         // 0: this, 1:bean, 2: AsmValidateResult
-        AtomicInteger localIndex = new AtomicInteger(2);
+        val localIndex = new AtomicInteger(2);
 
-        List<AnnotationAndRoot> anns = createValidateAnns(
-                field.getAnnotations(), field.getType());
-
+        val anns = createValidateAnns(field.getAnnotations(), field.getType());
         if (anns.size() > 0) validateByAnnotations(
                 localIndex, mv, field,
                 field.getName(), field.getType(),
@@ -122,7 +116,7 @@ public class AsmValidatorMethodGenerator
     }
 
     private void createValidatorMainMethod() {
-        MethodVisitor mv = startMainMethod(beanClass);
+        val mv = startMainMethod(beanClass);
 
         for (Field field : beanClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(AsmIgnore.class)) continue;
