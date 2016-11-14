@@ -56,15 +56,15 @@ public class AsmParamValidatorMethodGenerator
         val localIndex = new AtomicInteger(2);
 
         val annotations = createValidateAnns(targetAnns, targetType);
+        boolean checkBlank = hasBlankable(annotations);
         if (annotations.size() > 0) validateByAnnotations(
                 localIndex, mv, null,
                 fieldName, wrapTargetType,
-                annotations, targetAnns);
+                annotations, targetAnns, checkBlank);
 
         if (isAsmValid()) asmValidate(mv, Object.class);
         if (isCollectionAndItemAsmValid(targetType, genericType))
             collectionItemsValid(mv);
-
     }
 
     protected void createValueLocal(
@@ -91,7 +91,6 @@ public class AsmParamValidatorMethodGenerator
             localIndices.incrementAndSetStringLocalIndex();
             mv.visitVarInsn(ASTORE, localIndices.getLocalIndex());
             mv.visitVarInsn(ALOAD, localIndices.getLocalIndex());
-
             return;
         }
     }

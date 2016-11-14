@@ -8,6 +8,8 @@ import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmConstraintCache;
 import com.google.common.primitives.UnsignedInts;
 import lombok.val;
+import org.apache.commons.lang3.StringUtils;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
@@ -23,16 +25,25 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
             MethodVisitor mv, String fieldName,
             Class<?> fieldType, AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
-            String message
+            String message,
+            boolean checkBlank
     ) {
         val annHashCode = UnsignedInts.toString(annAndRoot.hashCode());
         val annType = annAndRoot.ann().annotationType();
         val hashCode = annType.getName() + ":" + annHashCode;
-
         AsmConstraintCache.put(hashCode, annAndRoot.ann());
 
         val constraint = annType.getAnnotation(AsmConstraint.class);
         val msaSupportType = findMsaSupportType(constraint, fieldType);
+
+        Label l0 = null;
+        if (checkBlank) {
+            mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
+            mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class),
+                    "isBlank", sig(boolean.class, CharSequence.class), false);
+            l0 = new Label();
+            mv.visitJumpInsn(IFNE, l0);
+        }
 
         mv.visitLdcInsn(hashCode);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmConstraintCache.class), "get",
@@ -54,5 +65,10 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         mv.visitMethodInsn(INVOKEVIRTUAL, p(msaSupportType),
                 "validate", sig(void.class, annType,
                         AsmValidateResult.class, fieldType), false);
+
+        if (checkBlank) {
+            mv.visitInsn(RETURN);
+            mv.visitLabel(l0);
+        }
     }
 }

@@ -27,7 +27,8 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices,
-            String message) {
+            String message,
+            boolean checkBlank) {
         AsmRange asmRange = (AsmRange) annAndRoot.ann();
         String rangeExpression = StringUtils.trim(asmRange.value());
 

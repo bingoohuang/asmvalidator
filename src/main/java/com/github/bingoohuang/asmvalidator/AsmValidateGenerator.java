@@ -9,6 +9,7 @@ public interface AsmValidateGenerator {
             MethodVisitor mv, String fieldName, Class<?> fieldType,
             AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
-            String message);
+            String message,
+            boolean checkBlank);
 
 }

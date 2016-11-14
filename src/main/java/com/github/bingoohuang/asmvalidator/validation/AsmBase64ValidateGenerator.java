@@ -19,7 +19,8 @@ public class AsmBase64ValidateGenerator implements AsmValidateGenerator {
             MethodVisitor mv,
             String fieldName, Class<?> fieldType,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices,
-            String message) {
+            String message,
+            boolean checkBlank) {
         int stringLocalIndex = localIndices.getStringLocalIndex();
 
         mv.visitVarInsn(ALOAD, stringLocalIndex);

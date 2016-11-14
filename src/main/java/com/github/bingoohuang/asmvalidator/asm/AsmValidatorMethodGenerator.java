@@ -40,7 +40,7 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
     }
 
     private void createValidatorFieldMethods() {
-        for (Field field : beanClass.getDeclaredFields()) {
+        for (val field : beanClass.getDeclaredFields()) {
             if (field.isAnnotationPresent(AsmIgnore.class)) continue;
 
             val mv = startFieldValidatorMethod(cw, field.getName(), beanClass);
@@ -54,10 +54,12 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         val localIndex = new AtomicInteger(2);
 
         val anns = createValidateAnns(field.getAnnotations(), field.getType());
+
+        boolean checkBlank = hasBlankable(anns);
         if (anns.size() > 0) validateByAnnotations(
                 localIndex, mv, field,
                 field.getName(), field.getType(),
-                anns, field.getAnnotations());
+                anns, field.getAnnotations(), checkBlank);
 
         if (isAsmValid(field)) asmValidate(mv, beanClass);
 

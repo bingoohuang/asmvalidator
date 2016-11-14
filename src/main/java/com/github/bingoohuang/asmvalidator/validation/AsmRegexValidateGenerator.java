@@ -21,7 +21,8 @@ public class AsmRegexValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices,
-            String message
+            String message,
+            boolean checkBlank
     ) {
         AsmRegex asmRegex = (AsmRegex) annAndRoot.ann();
         String regex = asmRegex.value();

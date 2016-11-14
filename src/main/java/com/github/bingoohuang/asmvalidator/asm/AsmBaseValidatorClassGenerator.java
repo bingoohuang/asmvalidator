@@ -55,9 +55,8 @@ public abstract class AsmBaseValidatorClassGenerator {
     }
 
     private Class<?> defineClass(byte[] bytes) {
-        ClassLoader parentClassLoader = getClass().getClassLoader();
-        AsmValidatorClassLoader classLoader =
-                new AsmValidatorClassLoader(parentClassLoader);
+        val parentClassLoader = getClass().getClassLoader();
+        val classLoader = new AsmValidatorClassLoader(parentClassLoader);
         return classLoader.defineClass(implName, bytes);
     }
 
@@ -81,7 +80,7 @@ public abstract class AsmBaseValidatorClassGenerator {
 
     private ClassWriter createClassWriter() {
         int flags = ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS;
-        ClassWriter cw = new ClassWriter(flags);
+        val cw = new ClassWriter(flags);
         cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, p(implName),
                 null, p(Object.class), new String[]{p(AsmValidator.class)});
 

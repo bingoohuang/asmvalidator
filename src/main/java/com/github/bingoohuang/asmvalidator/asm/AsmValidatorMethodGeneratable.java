@@ -39,7 +39,8 @@ public abstract class AsmValidatorMethodGeneratable {
             Field field,
             String fieldName, Class<?> fieldType,
             List<AnnotationAndRoot> anns,
-            Annotation[] targetAnns
+            Annotation[] targetAnns,
+            boolean checkBlank
     ) {
         val localIndices = new LocalIndices(localIndex);
         createValueLocal(localIndices, mv, field);
@@ -47,22 +48,21 @@ public abstract class AsmValidatorMethodGeneratable {
 
         String defaultMessage = tryGetAsmMessage(targetAnns);
 
-        AsmConstraint constraint;
         for (val annAndRoot : anns) {
             val annType = annAndRoot.ann().annotationType();
-            constraint = annType.getAnnotation(AsmConstraint.class);
+            val constraint = annType.getAnnotation(AsmConstraint.class);
 
             for (val validateByClz : constraint.asmValidateBy()) {
                 generateAsmValidateCode(mv, localIndices,
                         defaultMessage, fieldType, fieldName,
-                        validateByClz, annAndRoot);
+                        validateByClz, annAndRoot, checkBlank);
             }
 
             val msaSupportType = findMsaSupportType(constraint, fieldType);
             if (msaSupportType != null) {
                 generateAsmValidateCode(mv, localIndices,
                         defaultMessage, fieldType, fieldName,
-                        AsmCustomValidateGenerator.class, annAndRoot);
+                        AsmCustomValidateGenerator.class, annAndRoot, checkBlank);
             }
         }
 
@@ -85,7 +85,8 @@ public abstract class AsmValidatorMethodGeneratable {
             String defaultMessage,
             Class<?> fieldType, String fieldName,
             Class<? extends AsmValidateGenerator> asmValidateByClz,
-            AnnotationAndRoot annAndRoot
+            AnnotationAndRoot annAndRoot,
+            boolean checkBlank
     ) {
         val asmValidateBy = objenesisStd.newInstance(asmValidateByClz);
         if (asmValidateBy instanceof AsmTypeValidateGenerator) {
@@ -94,7 +95,7 @@ public abstract class AsmValidatorMethodGeneratable {
         }
 
         asmValidateBy.generateAsm(mv, fieldName, fieldType,
-                annAndRoot, localIndices, defaultMessage);
+                annAndRoot, localIndices, defaultMessage, checkBlank);
     }
 
 

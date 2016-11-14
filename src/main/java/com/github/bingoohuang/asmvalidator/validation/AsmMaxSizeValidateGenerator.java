@@ -17,7 +17,8 @@ public class AsmMaxSizeValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices,
-            String message
+            String message,
+            boolean checkBlank
     ) {
         mv.visitVarInsn(ILOAD, localIndices.getIsNullIndex());
         Label l1 = new Label();

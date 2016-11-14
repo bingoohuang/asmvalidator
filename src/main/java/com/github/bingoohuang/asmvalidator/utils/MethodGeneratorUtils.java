@@ -296,4 +296,13 @@ public class MethodGeneratorUtils {
                 "validate" + capitalize(fieldName),
                 sig(void.class, fieldClass, AsmValidateResult.class), false);
     }
+
+    public static boolean hasBlankable(List<AnnotationAndRoot> annotations) {
+        for (val annAndRoot : annotations) {
+            Annotation ann = annAndRoot.ann();
+            if (ann.annotationType() == AsmBlankable.class) return true;
+        }
+
+        return false;
+    }
 }

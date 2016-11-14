@@ -17,7 +17,8 @@ public class AsmNotBlankValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices,
-            String message) {
+            String message,
+            boolean checkBlank) {
         if (CharSequence.class.isAssignableFrom(fieldType)) {
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
             mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class), "isBlank",

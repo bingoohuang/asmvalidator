@@ -26,7 +26,8 @@ public class AsmTrueValidatorGenerator implements AsmTypeValidateGenerator {
             Class<?> fieldType,
             AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
-            String message
+            String message,
+            boolean checkBlank
     ) {
         mv.visitVarInsn(ILOAD, localIndices.getIsNullIndex());
         Label l1 = new Label();
