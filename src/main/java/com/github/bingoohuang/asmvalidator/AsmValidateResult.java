@@ -4,6 +4,7 @@ import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.ToString;
+import lombok.val;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class AsmValidateResult {
     }
 
     public AsmValidateResult replaceFieldName(String oldName, String newName) {
-        for (ValidateError validateError : errors) {
+        for (val validateError : errors) {
             validateError.replaceFieldName(oldName, newName);
         }
 

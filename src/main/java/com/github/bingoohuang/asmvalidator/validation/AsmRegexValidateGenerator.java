@@ -29,8 +29,7 @@ public class AsmRegexValidateGenerator implements AsmValidateGenerator {
         try {
             Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
-            throw new AsmValidateBadArgException(
-                    "正则表达式错误:" + annAndRoot);
+            throw new AsmValidateBadArgException("正则表达式错误:" + annAndRoot);
         }
 
         mv.visitVarInsn(ILOAD, localIndices.getIsNullIndex());

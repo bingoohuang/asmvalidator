@@ -39,21 +39,20 @@ public abstract class AsmValidatorMethodGeneratable {
             Field field,
             String fieldName, Class<?> fieldType,
             List<AnnotationAndRoot> anns,
-            Annotation[] targetAnns) {
-
-        LocalIndices localIndices = new LocalIndices(localIndex);
+            Annotation[] targetAnns
+    ) {
+        val localIndices = new LocalIndices(localIndex);
         createValueLocal(localIndices, mv, field);
         addIsNullLocal(localIndices, mv);
 
         String defaultMessage = tryGetAsmMessage(targetAnns);
 
         AsmConstraint constraint;
-        for (AnnotationAndRoot annAndRoot : anns) {
-            Class<?> annType = annAndRoot.ann().annotationType();
+        for (val annAndRoot : anns) {
+            val annType = annAndRoot.ann().annotationType();
             constraint = annType.getAnnotation(AsmConstraint.class);
 
-            for (Class<? extends AsmValidateGenerator> validateByClz :
-                    constraint.asmValidateBy()) {
+            for (val validateByClz : constraint.asmValidateBy()) {
                 generateAsmValidateCode(mv, localIndices,
                         defaultMessage, fieldType, fieldName,
                         validateByClz, annAndRoot);
@@ -86,7 +85,8 @@ public abstract class AsmValidatorMethodGeneratable {
             String defaultMessage,
             Class<?> fieldType, String fieldName,
             Class<? extends AsmValidateGenerator> asmValidateByClz,
-            AnnotationAndRoot annAndRoot) {
+            AnnotationAndRoot annAndRoot
+    ) {
         val asmValidateBy = objenesisStd.newInstance(asmValidateByClz);
         if (asmValidateBy instanceof AsmTypeValidateGenerator) {
             val tg = (AsmTypeValidateGenerator) asmValidateBy;
