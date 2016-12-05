@@ -102,13 +102,13 @@ public class AsmValidators {
     }
 
     public static boolean isCollectionAndItemAsmValid(
-            Class targetType, Type targetGenericType) {
+            Class<?> targetType, Type targetGenericType) {
         if (!Collection.class.isAssignableFrom(targetType)) return false;
 
         if (!(targetGenericType instanceof ParameterizedType)) return false;
 
-        ParameterizedType pType = (ParameterizedType) targetGenericType;
-        Class itemType = (Class) pType.getActualTypeArguments()[0];
+        val pType = (ParameterizedType) targetGenericType;
+        val itemType = (Class<?>) pType.getActualTypeArguments()[0];
         return itemType.isAnnotationPresent(AsmValid.class);
     }
 

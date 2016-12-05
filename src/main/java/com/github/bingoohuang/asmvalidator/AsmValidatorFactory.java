@@ -5,6 +5,7 @@ import com.github.bingoohuang.utils.lang.Fucks;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import lombok.experimental.UtilityClass;
+import lombok.val;
 import org.objenesis.ObjenesisStd;
 
 import java.util.Collection;
@@ -12,13 +13,13 @@ import java.util.concurrent.Callable;
 
 @UtilityClass
 public class AsmValidatorFactory {
-    private Cache<Class, AsmValidator>
+    private Cache<Class, AsmValidator<Object>>
             cache = CacheBuilder.newBuilder().build();
 
-    public AsmValidator getValidator(final Class<?> beanClass) {
+    public AsmValidator<Object> getValidator(final Class<?> beanClass) {
         try {
-            return cache.get(beanClass, new Callable<AsmValidator>() {
-                public AsmValidator call() throws Exception {
+            return cache.get(beanClass, new Callable<AsmValidator<Object>>() {
+                public AsmValidator<Object> call() throws Exception {
                     return asmCreate(beanClass);
                 }
             });
@@ -28,19 +29,19 @@ public class AsmValidatorFactory {
         }
     }
 
-    private AsmValidator asmCreate(Class<?> beanClass) {
-        AsmValidatorClassGenerator generator
-                = new AsmValidatorClassGenerator(beanClass);
-        Class<?> asmValidatorClass = generator.generate();
+    @SuppressWarnings("unchecked")
+    private AsmValidator<Object> asmCreate(Class<?> beanClass) {
+        val generator = new AsmValidatorClassGenerator(beanClass);
+        val asmValidatorClass = generator.generate();
 
-        ObjenesisStd objenesisStd = new ObjenesisStd();
-        Object asmValidator = objenesisStd.newInstance(asmValidatorClass);
+        val objenesisStd = new ObjenesisStd();
+        val asmValidator = objenesisStd.newInstance(asmValidatorClass);
 
-        return (AsmValidator) asmValidator;
+        return (AsmValidator<Object>) asmValidator;
     }
 
     public AsmValidateResult validate(Object bean) {
-        AsmValidator validator = getValidator(bean.getClass());
+        val validator = getValidator(bean.getClass());
         return validator.validate(bean);
     }
 
@@ -49,7 +50,7 @@ public class AsmValidatorFactory {
         if (beans == null) return;
 
         for (Object bean : beans) {
-            AsmValidator validator = getValidator(bean.getClass());
+            val validator = getValidator(bean.getClass());
             asmValidateResult.addErrors(validator.validate(bean));
         }
     }
@@ -57,12 +58,12 @@ public class AsmValidatorFactory {
     public void validate(Object bean, AsmValidateResult asmValidateResult) {
         if (bean == null) return;
 
-        AsmValidator validator = getValidator(bean.getClass());
+        val validator = getValidator(bean.getClass());
         asmValidateResult.addErrors(validator.validate(bean));
     }
 
     public void validateWithThrow(Object bean) {
-        AsmValidator validator = getValidator(bean.getClass());
+        val validator = getValidator(bean.getClass());
         validator.validate(bean).throwExceptionIfError();
     }
 }

@@ -226,7 +226,8 @@ public class MethodGeneratorUtils {
         return false;
     }
 
-    public static <T> T findAnn(
+    @SuppressWarnings("unchecked")
+    public static <T extends Annotation> T findAnn(
             Annotation[] targetAnnotations,
             Class<T> annotationType
     ) {
@@ -240,7 +241,7 @@ public class MethodGeneratorUtils {
     public static void visitGetter(MethodVisitor mv, Field field
     ) {
         mv.visitVarInsn(ALOAD, 1);
-        String getterName = "get" + capitalize(field.getName());
+        val getterName = "get" + capitalize(field.getName());
         val declaringClass = field.getDeclaringClass();
         try {
             declaringClass.getMethod(getterName);

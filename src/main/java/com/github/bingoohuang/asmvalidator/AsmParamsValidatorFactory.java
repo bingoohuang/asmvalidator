@@ -14,11 +14,11 @@ import java.lang.reflect.Method;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 
 public class AsmParamsValidatorFactory {
-    private static Cache<String, AsmValidator>
+    private static Cache<String, AsmValidator<Object>>
             cache = CacheBuilder.newBuilder().build();
 
 
-    public static AsmValidator getValidator(
+    public static AsmValidator<Object> getValidator(
             String methodSignature, int parameterIndex) {
         return cache.getIfPresent(createKey(methodSignature, parameterIndex));
     }
@@ -27,26 +27,27 @@ public class AsmParamsValidatorFactory {
         return methodSig + "." + parameterIndex;
     }
 
-    private static AsmValidator asmCreate(Method method, int parameterIndex) {
+    @SuppressWarnings("unchecked")
+    private static AsmValidator<Object> asmCreate(Method method, int parameterIndex) {
         val generator = new AsmParamValidatorClassGenerator(method, parameterIndex);
-        Class<?> asmValidatorClass = generator.generate();
+        val asmValidatorClass = generator.generate();
 
-        ObjenesisStd objenesisStd = new ObjenesisStd();
-        Object asmValidator = objenesisStd.newInstance(asmValidatorClass);
+        val objenesisStd = new ObjenesisStd();
+        val asmValidator = objenesisStd.newInstance(asmValidatorClass);
 
-        return (AsmValidator) asmValidator;
+        return (AsmValidator<Object>) asmValidator;
     }
 
     public static boolean createValidators(Method method) {
         if (!method.isAnnotationPresent(AsmValid.class)) return false;
 
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        String validatorSignature = createValidatorSignature(method);
+        val parameterTypes = method.getParameterTypes();
+        val validatorSignature = createValidatorSignature(method);
 
         for (int i = 0, ii = parameterTypes.length; i < ii; ++i) {
-            String key = createKey(validatorSignature, i);
+            val key = createKey(validatorSignature, i);
             if (cache.getIfPresent(key) == null) {
-                AsmValidator asmValidator = asmCreate(method, i);
+                val asmValidator = asmCreate(method, i);
                 cache.put(key, asmValidator);
             } else {
                 return true;
@@ -67,21 +68,21 @@ public class AsmParamsValidatorFactory {
     public static void validate(
             Method method, int parameterIndex, Object parameterValue) {
 
-        String methodSignature = createValidatorSignature(method);
-        String key = createKey(methodSignature, parameterIndex);
-        AsmValidator validator = cache.getIfPresent(key);
-        AsmValidateResult result = validator.validate(parameterValue);
+        val methodSignature = createValidatorSignature(method);
+        val key = createKey(methodSignature, parameterIndex);
+        val validator = cache.getIfPresent(key);
+        val result = validator.validate(parameterValue);
         result.throwExceptionIfError();
     }
 
     public static void validate(
             String methodSignature, Object... parametersValues) {
-        AsmValidateResult result = new AsmValidateResult();
+        val result = new AsmValidateResult();
         for (int i = 0, ii = parametersValues.length; i < ii; ++i) {
-            AsmValidator validator = getValidator(methodSignature, i);
+            val validator = getValidator(methodSignature, i);
             if (validator == null) continue;
 
-            Object parametersValue = parametersValues[i];
+            val parametersValue = parametersValues[i];
             result.addErrors(validator.validate(parametersValue));
         }
 

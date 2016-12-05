@@ -18,12 +18,14 @@ import static java.lang.annotation.ElementType.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AsmBase64 {
     /**
-     * 是否消除尾部等号。
+     * 指定是否消除尾部等号。
+     * @return 是否消除尾部等号
      */
     boolean purified() default false;
 
     /**
-     * BASE64格式
+     * 指定BASE64格式
+     * @return BASE64格式
      */
     Base64Format format() default Base64Format.Standard;
 
