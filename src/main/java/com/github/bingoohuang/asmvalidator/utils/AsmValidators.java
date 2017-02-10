@@ -20,6 +20,7 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
+import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.findAnn;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -131,5 +132,23 @@ public class AsmValidators {
             mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
             mv.visitMethodInsn(INVOKEVIRTUAL, p(String.class), "length", "()I", false);
         }
+    }
+
+    public static Label checkBlankStart(boolean checkBlank, MethodVisitor mv, LocalIndices localIndices) {
+        if (!checkBlank) return null;
+
+        mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
+        mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class),
+                "isBlank", sig(boolean.class, CharSequence.class), false);
+        Label l0 = new Label();
+        mv.visitJumpInsn(IFNE, l0);
+        return l0;
+    }
+
+    public static void checkBlankEnd(boolean checkBlank, MethodVisitor mv, Label l0) {
+        if (!checkBlank) return;
+
+        mv.visitInsn(RETURN);
+        mv.visitLabel(l0);
     }
 }

@@ -3,9 +3,11 @@ package com.github.bingoohuang.asmvalidator.asm;
 import com.github.bingoohuang.asmvalidator.*;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
+import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.validation.AsmCustomValidateGenerator;
 import lombok.val;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objenesis.ObjenesisStd;
 
@@ -46,6 +48,7 @@ public abstract class AsmValidatorMethodGeneratable {
         createValueLocal(localIndices, mv, field);
         addIsNullLocal(localIndices, mv);
 
+        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices);
         String defaultMessage = tryGetAsmMessage(targetAnns);
 
         for (val annAndRoot : anns) {
@@ -66,6 +69,7 @@ public abstract class AsmValidatorMethodGeneratable {
             }
         }
 
+        AsmValidators.checkBlankEnd(checkBlank, mv, l0);
     }
 
     protected abstract void createValueLocal(

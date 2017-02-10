@@ -6,9 +6,9 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmConstraintCache;
+import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.google.common.primitives.UnsignedInts;
 import lombok.val;
-import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -36,14 +36,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         val constraint = annType.getAnnotation(AsmConstraint.class);
         val msaSupportType = findMsaSupportType(constraint, fieldType);
 
-        Label l0 = null;
-        if (checkBlank) {
-            mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
-            mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class),
-                    "isBlank", sig(boolean.class, CharSequence.class), false);
-            l0 = new Label();
-            mv.visitJumpInsn(IFNE, l0);
-        }
+        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices);
 
         mv.visitLdcInsn(hashCode);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmConstraintCache.class), "get",
@@ -66,9 +59,8 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
                 "validate", sig(void.class, annType,
                         AsmValidateResult.class, fieldType), false);
 
-        if (checkBlank) {
-            mv.visitInsn(RETURN);
-            mv.visitLabel(l0);
-        }
+        AsmValidators.checkBlankEnd(checkBlank, mv, l0);
     }
+
+
 }

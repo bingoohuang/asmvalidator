@@ -35,4 +35,8 @@ public class AsmValidateResult {
 
         return this;
     }
+
+    public boolean hasErrors() {
+        return !errors.isEmpty();
+    }
 }
