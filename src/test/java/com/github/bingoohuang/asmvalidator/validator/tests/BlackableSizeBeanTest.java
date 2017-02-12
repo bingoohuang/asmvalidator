@@ -14,6 +14,7 @@ public class BlackableSizeBeanTest {
     @Test
     public void test() {
         BlackableSizeBean bean = new BlackableSizeBean();
+        bean.setPortrait("1223");
         AsmValidateResult result = new AsmValidateResult();
         AsmValidatorFactory.validate(bean, result);
         assertThat(result.hasErrors()).isFalse();

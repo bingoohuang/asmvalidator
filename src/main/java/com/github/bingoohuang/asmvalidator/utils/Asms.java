@@ -133,9 +133,11 @@ public class Asms {
         else if (value >= -128 && value <= 127)
             // // bipush can push constant values between -128 and 127. It is a two-byte instruction.
             mv.visitIntInsn(BIPUSH, value);
-        else {
+        else if (value >=-32768 && value <= 32767){
             // sipush: push a two-byte signed integer (-32768 to 32767)
             mv.visitIntInsn(SIPUSH, value);
+        } else {
+            mv.visitLdcInsn(new Integer(value));
         }
     }
 
