@@ -9,7 +9,7 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmConstraint(
-        supportedClasses = String.class,
+        supportedClasses = Object.class,
         message = "可空")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)

@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadUsageException;
 import com.google.common.collect.Lists;
+import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +29,10 @@ import static com.google.common.primitives.Primitives.wrap;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.objectweb.asm.Opcodes.*;
 
-@Slf4j
+@Slf4j @UtilityClass
 public class MethodGeneratorUtils {
+    public static final String VALIDATE = "validate";
+
     public static List<AnnotationAndRoot> createValidateAnns(
             Annotation[] targetAnnotations,
             Class<?> type) {
@@ -37,7 +40,7 @@ public class MethodGeneratorUtils {
         searchConstraints(asmConstraintsAnns, targetAnnotations);
 
         // use default not empty and max size validator
-        Method defaultMethod = getAsmDefaultAnnotations();
+        val defaultMethod = getAsmDefaultAnnotations();
         if (asmConstraintsAnns.isEmpty()) {
             val annotations = defaultMethod.getAnnotations();
             asmConstraintsAnns = filterForSupportedType(annotations, type);
@@ -63,7 +66,9 @@ public class MethodGeneratorUtils {
         List<AnnotationAndRoot> result = Lists.newArrayList();
 
         for (val ann : annotations) {
-            if (supportType(ann, type)) result.add(new AnnotationAndRoot(ann));
+            if (supportType(ann, type)) {
+                result.add(new AnnotationAndRoot(ann));
+            }
         }
 
         return result;
@@ -77,13 +82,16 @@ public class MethodGeneratorUtils {
         val annClass = ann.annotationType();
         val asmConstraint = annClass.getAnnotation(AsmConstraint.class);
         for (val supportedClass : asmConstraint.supportedClasses()) {
-            if (supportedClass.isAssignableFrom(type)) return true;
+            if (supportedClass.isAssignableFrom(type)) {
+                return true;
+            }
         }
 
-        if (findMsaSupportType(asmConstraint, type) != null) return true;
-        if (asmTypeValidateGeneratorSupport(asmConstraint, type)) return true;
+        if (findMsaSupportType(asmConstraint, type) != null) {
+            return true;
+        }
 
-        return false;
+        return asmTypeValidateGeneratorSupport(asmConstraint, type);
     }
 
     private static boolean asmTypeValidateGeneratorSupport(
@@ -92,11 +100,14 @@ public class MethodGeneratorUtils {
         ObjenesisStd objStd = new ObjenesisStd();
         for (val asmValidateBy : asmConstraint.asmValidateBy()) {
             val clazz = AsmTypeValidateGenerator.class;
-            if (!clazz.isAssignableFrom(asmValidateBy)) continue;
+            if (!clazz.isAssignableFrom(asmValidateBy)) {
+                continue;
+            }
 
-            val instance = objStd.newInstance(asmValidateBy);
-            val generator = (AsmTypeValidateGenerator) instance;
-            if (generator.supportClass(type)) return true;
+            val generator = (AsmTypeValidateGenerator) objStd.newInstance(asmValidateBy);
+            if (generator.supportClass(type)) {
+                return true;
+            }
         }
 
         return false;
@@ -108,8 +119,12 @@ public class MethodGeneratorUtils {
         Class<?> wrap = wrap(type);
         for (val msa : asmConstraint.validateBy()) {
             val arg = findSuperActualTypeArg(msa, MsaValidator.class, 1);
-            if (arg == null) continue;
-            if (arg.isAssignableFrom(wrap)) return msa;
+            if (arg == null) {
+                continue;
+            }
+            if (arg.isAssignableFrom(wrap)) {
+                return msa;
+            }
         }
 
         return null;
@@ -120,20 +135,35 @@ public class MethodGeneratorUtils {
             final Class<?> superClass,
             final int argIndex
     ) {
-        for (Type type : subClass.getGenericInterfaces()) {
-            if (!(type instanceof ParameterizedType)) continue;
-
-            val pType = (ParameterizedType) type;
-            if (pType.getRawType() != superClass) continue;
-
-            Type argType = pType.getActualTypeArguments()[argIndex];
-            if (argType instanceof Class) return (Class<?>) argType;
+        for (val type : subClass.getGenericInterfaces()) {
+            val argType = findSuperActualTypeArg(type, superClass, argIndex);
+            if (argType != null) {
+                return argType;
+            }
         }
 
         Class<?> parentClass = subClass.getSuperclass();
-        if (parentClass == Object.class) return null;
+        if (parentClass == Object.class) {
+            return null;
+        }
 
         return findSuperActualTypeArg(parentClass, superClass, argIndex);
+    }
+
+    private static Class<?> findSuperActualTypeArg(Type type, Class<?> superClass, int argIndex) {
+        if (!(type instanceof ParameterizedType)) {
+            return null;
+        }
+
+        val pType = (ParameterizedType) type;
+        if (pType.getRawType() == superClass) {
+            val argType = pType.getActualTypeArguments()[argIndex];
+            if (argType instanceof Class) {
+                return (Class<?>) argType;
+            }
+        }
+
+        return null;
     }
 
     private static void tryAddAsmMaxSize(
@@ -142,9 +172,11 @@ public class MethodGeneratorUtils {
             Class<?> type
     ) {
         for (val annAndRoot : asmConstraintsAnns) {
-            Annotation ann = annAndRoot.ann();
-            if (ann.annotationType() == AsmMaxSize.class) return;
-            if (ann.annotationType() == AsmSize.class) return;
+            val annType = annAndRoot.ann().annotationType();
+            if (annType == AsmMaxSize.class
+                    || annType == AsmSize.class) {
+                return;
+            }
         }
 
         val asmMaxSize = defaultMethod.getAnnotation(AsmMaxSize.class);
@@ -156,19 +188,24 @@ public class MethodGeneratorUtils {
             List<AnnotationAndRoot> asmConstraintsAnns,
             Method defaultMethod, Class<?> type
     ) {
-        if (type.isPrimitive()) return;
+        if (type.isPrimitive()) {
+            return;
+        }
 
         for (val annAndRoot : asmConstraintsAnns) {
-            Annotation ann = annAndRoot.ann();
-            if (ann.annotationType() == AsmNotBlank.class) return;
-            if (ann.annotationType() == AsmBlankable.class) return;
-            if (ann.annotationType() == AsmMinSize.class) return;
-            if (ann.annotationType() == AsmSize.class) return;
+            val annType = annAndRoot.ann().annotationType();
+            if (annType == AsmNotBlank.class
+                    || annType == AsmBlankable.class
+                    || annType == AsmMinSize.class
+                    || annType == AsmSize.class) {
+                return;
+            }
         }
 
         val asmNotBlank = defaultMethod.getAnnotation(AsmNotBlank.class);
-        if (supportType(asmNotBlank, type))
+        if (supportType(asmNotBlank, type)) {
             asmConstraintsAnns.add(0, new AnnotationAndRoot(asmNotBlank));
+        }
     }
 
 
@@ -185,9 +222,9 @@ public class MethodGeneratorUtils {
             Annotation rootAnnotation
     ) {
         for (val ann : annotations) {
-            val annType = ann.annotationType();
-            val asmConstraint = annType.getAnnotation(AsmConstraint.class);
-            if (asmConstraint == null) continue;
+            if (!ann.annotationType().isAnnotationPresent(AsmConstraint.class)) {
+                continue;
+            }
 
             val subAnns = ann.annotationType().getAnnotations();
             val rootAnn = rootAnnotation == null ? ann : rootAnnotation;
@@ -202,7 +239,7 @@ public class MethodGeneratorUtils {
             Class beanClass
     ) {
         val mv = cw.visitMethod(ACC_PRIVATE,
-                "validate" + StringUtils.capitalize(fieldName),
+                VALIDATE + StringUtils.capitalize(fieldName),
                 sig(void.class, beanClass, AsmValidateResult.class),
                 null, null);
         mv.visitCode();
@@ -220,7 +257,9 @@ public class MethodGeneratorUtils {
             Class<?> annotationType
     ) {
         for (val ann : targetAnnotations) {
-            if (annotationType.isInstance(ann)) return true;
+            if (annotationType.isInstance(ann)) {
+                return true;
+            }
         }
 
         return false;
@@ -274,13 +313,13 @@ public class MethodGeneratorUtils {
     public static void createBridge(
             ClassWriter cw, Class beanClass, String implName
     ) {
-        val mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, "validate",
+        val mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, MethodGeneratorUtils.VALIDATE,
                 sig(AsmValidateResult.class, Object.class), null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitTypeInsn(CHECKCAST, p(beanClass));
-        mv.visitMethodInsn(INVOKEVIRTUAL, p(implName), "validate",
+        mv.visitMethodInsn(INVOKEVIRTUAL, p(implName), MethodGeneratorUtils.VALIDATE,
                 sig(AsmValidateResult.class, beanClass), false);
         mv.visitInsn(ARETURN);
         mv.visitMaxs(2, 2);
@@ -294,14 +333,16 @@ public class MethodGeneratorUtils {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESPECIAL, p(implName),
-                "validate" + capitalize(fieldName),
+                MethodGeneratorUtils.VALIDATE + capitalize(fieldName),
                 sig(void.class, fieldClass, AsmValidateResult.class), false);
     }
 
     public static boolean hasBlankable(List<AnnotationAndRoot> annotations) {
         for (val annAndRoot : annotations) {
             Annotation ann = annAndRoot.ann();
-            if (ann.annotationType() == AsmBlankable.class) return true;
+            if (ann.annotationType() == AsmBlankable.class) {
+                return true;
+            }
         }
 
         return false;

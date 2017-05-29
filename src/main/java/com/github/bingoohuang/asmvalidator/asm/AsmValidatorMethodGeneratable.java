@@ -1,9 +1,13 @@
 package com.github.bingoohuang.asmvalidator.asm;
 
-import com.github.bingoohuang.asmvalidator.*;
+import com.github.bingoohuang.asmvalidator.AsmTypeValidateGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateGenerator;
+import com.github.bingoohuang.asmvalidator.AsmValidateResult;
+import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmConstraint;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
+import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
 import com.github.bingoohuang.asmvalidator.validation.AsmCustomValidateGenerator;
 import lombok.val;
 import org.objectweb.asm.ClassWriter;
@@ -80,7 +84,7 @@ public abstract class AsmValidatorMethodGeneratable {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
-                "validate",
+                MethodGeneratorUtils.VALIDATE,
                 sig(void.class, targetClass, AsmValidateResult.class), false);
     }
 
@@ -104,7 +108,7 @@ public abstract class AsmValidatorMethodGeneratable {
 
 
     protected MethodVisitor startMainMethod(Class<?> targetClass) {
-        val mv = cw.visitMethod(ACC_PUBLIC, "validate",
+        val mv = cw.visitMethod(ACC_PUBLIC, MethodGeneratorUtils.VALIDATE,
                 sig(AsmValidateResult.class, targetClass), null, null);
 
         mv.visitCode();

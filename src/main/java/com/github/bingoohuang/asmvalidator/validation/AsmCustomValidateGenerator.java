@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import com.github.bingoohuang.asmvalidator.utils.AsmConstraintCache;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
+import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
 import com.google.common.primitives.UnsignedInts;
 import lombok.val;
 import org.objectweb.asm.Label;
@@ -56,7 +57,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
         mv.visitTypeInsn(CHECKCAST, p(fieldType));
         mv.visitMethodInsn(INVOKEVIRTUAL, p(msaSupportType),
-                "validate", sig(void.class, annType,
+                MethodGeneratorUtils.VALIDATE, sig(void.class, annType,
                         AsmValidateResult.class, fieldType), false);
 
         AsmValidators.checkBlankEnd(checkBlank, mv, l0);
