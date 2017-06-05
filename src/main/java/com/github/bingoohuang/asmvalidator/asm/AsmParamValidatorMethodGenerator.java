@@ -37,7 +37,7 @@ public class AsmParamValidatorMethodGenerator
         super(classWriter, implName);
         this.fieldName = "arg" + targetParameterIndex;
 
-        Annotation[][] paramsAnns = targetMethod.getParameterAnnotations();
+        val paramsAnns = targetMethod.getParameterAnnotations();
         this.targetAnns = paramsAnns[targetParameterIndex];
         this.targetType = targetMethod.getParameterTypes()[targetParameterIndex];
         this.wrapTargetType = Primitives.wrap(targetType);
@@ -56,7 +56,7 @@ public class AsmParamValidatorMethodGenerator
         val localIndex = new AtomicInteger(2);
 
         val annotations = createValidateAnns(targetAnns, targetType);
-        boolean checkBlank = hasBlankable(annotations);
+        val checkBlank = hasBlankable(annotations);
         if (annotations.size() > 0) validateByAnnotations(
                 localIndex, mv, null,
                 fieldName, wrapTargetType,

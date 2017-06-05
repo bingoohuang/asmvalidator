@@ -7,6 +7,8 @@ import com.github.bingoohuang.asmvalidator.annotations.AsmMessage;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.utils.lang.Fucks;
+import lombok.SneakyThrows;
+import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
@@ -24,6 +26,7 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.findAnn;
 import static org.objectweb.asm.Opcodes.*;
 
+@UtilityClass
 public class AsmValidators {
     public static void addError(
             String name,
@@ -32,8 +35,7 @@ public class AsmValidators {
             AnnotationAndRoot annAndRoot,
             String message,
             LocalIndices localIndices,
-            Label label
-    ) {
+            Label label) {
         mv.visitVarInsn(ALOAD, 2);
         mv.visitTypeInsn(NEW, Asms.p(ValidateError.class));
         mv.visitInsn(DUP);
@@ -51,20 +53,18 @@ public class AsmValidators {
         mv.visitLabel(label);
     }
 
-    private static String createMessage(
-            AnnotationAndRoot annAndRoot, String message) {
+    private static String createMessage(AnnotationAndRoot annAndRoot, String message) {
         if (StringUtils.isNotEmpty(message)) return message;
 
         return parseAsmConstraintMsg(annAndRoot);
     }
 
     private static String parseAsmConstraintMsg(AnnotationAndRoot annAndRoot) {
-        Annotation root = annAndRoot.root();
-        val annClass = root.annotationType();
-        val asmConstraint = annClass.getAnnotation(AsmConstraint.class);
+        val root = annAndRoot.root();
+        val asmConstraint = root.annotationType().getAnnotation(AsmConstraint.class);
         String parsedMessage = asmConstraint.message();
-        Method[] methods = root.annotationType().getDeclaredMethods();
-        for (Method method : methods) {
+        val methods = root.annotationType().getDeclaredMethods();
+        for (val method : methods) {
             String methodName = method.getName();
             String value = "" + invoke(method, root);
 
@@ -76,19 +76,16 @@ public class AsmValidators {
 
     public static Object annAttr(Annotation annotation, String methodName) {
         try {
-            Method method = annotation.annotationType().getDeclaredMethod(methodName);
+            val method = annotation.annotationType().getDeclaredMethod(methodName);
             return invoke(method, annotation);
         } catch (NoSuchMethodException e) {
             throw Fucks.fuck(e);
         }
     }
 
+    @SneakyThrows
     private static Object invoke(Method method, Object annotation) {
-        try {
-            return method.invoke(annotation);
-        } catch (Exception e) {
-            throw Fucks.fuck(e);
-        }
+        return method.invoke(annotation);
     }
 
     public static void processWideLocal(Class<?> type, LocalIndices localIndices) {
@@ -98,7 +95,7 @@ public class AsmValidators {
     }
 
     public static String tryGetAsmMessage(Annotation[] targetAnns) {
-        AsmMessage asmMessage = findAnn(targetAnns, AsmMessage.class);
+        val asmMessage = findAnn(targetAnns, AsmMessage.class);
         return asmMessage != null ? asmMessage.value() : "";
     }
 
@@ -140,7 +137,7 @@ public class AsmValidators {
         mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
         mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class),
                 "isBlank", sig(boolean.class, CharSequence.class), false);
-        Label l0 = new Label();
+        val l0 = new Label();
         mv.visitJumpInsn(IFNE, l0);
         return l0;
     }
