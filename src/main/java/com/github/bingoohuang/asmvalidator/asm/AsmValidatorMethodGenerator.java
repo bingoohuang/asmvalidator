@@ -45,7 +45,7 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
 
             val mv = startFieldValidatorMethod(cw, field.getName(), beanClass);
             bodyFieldValidator(mv, field);
-            MethodGeneratorUtils.endFieldValidateMethod(mv);
+            endFieldValidateMethod(mv);
         }
     }
 

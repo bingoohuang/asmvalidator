@@ -145,6 +145,7 @@ public class Asms {
         if (!type.isPrimitive()) return ASTORE;
         if (type == int.class) return ISTORE;
         if (type == long.class) return LSTORE;
+        if (type == float.class) return FSTORE;
         throw new RuntimeException("not supported now");
     }
 
@@ -152,6 +153,7 @@ public class Asms {
         if (!type.isPrimitive()) return ALOAD;
         if (type == int.class) return ILOAD;
         if (type == long.class) return LLOAD;
+        if (type == float.class) return FLOAD;
 
         throw new RuntimeException("not supported now");
     }

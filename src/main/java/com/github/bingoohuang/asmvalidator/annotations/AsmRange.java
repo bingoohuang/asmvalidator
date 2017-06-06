@@ -11,7 +11,10 @@ import static java.lang.annotation.ElementType.*;
 
 @Documented
 @AsmConstraint(
-        supportedClasses = {String.class, int.class},
+        supportedClasses = {String.class,
+                int.class, Integer.class,
+                float.class, Float.class,
+                long.class, Long.class},
         asmValidateBy = AsmRangeValidateGenerator.class,
         message = "取值不在范围{value}")
 @Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE})

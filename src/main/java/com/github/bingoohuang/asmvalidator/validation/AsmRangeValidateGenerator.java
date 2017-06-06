@@ -75,8 +75,22 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         boolean includeFrom = fromStart == '[';
         boolean includeEnd = toEnd == ']';
 
-        if (int.class == fieldType || Integer.class == fieldType) {
+        if (Integer.TYPE == fieldType || Integer.class == fieldType) {
             intRangeCheckGenerate(mv, fieldName, fieldType, localIndices,
+                    from, to, includeFrom, includeEnd,
+                    message, annAndRoot);
+            return true;
+        }
+
+        if (Float.TYPE == fieldType || Float.class == fieldType) {
+            floatRangeCheckGenerate(mv, fieldName, fieldType, localIndices,
+                    from, to, includeFrom, includeEnd,
+                    message, annAndRoot);
+            return true;
+        }
+
+        if (Long.TYPE == fieldType || Long.class == fieldType) {
+            longRangeCheckGenerate(mv, fieldName, fieldType, localIndices,
                     from, to, includeFrom, includeEnd,
                     message, annAndRoot);
             return true;
@@ -181,13 +195,91 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         if (isNotEmpty(from)) {
             mv.visitVarInsn(ILOAD, intIndex);
             Asms.visitInt(mv, Integer.parseInt(from));
-            compareValue(mv, fieldName, fieldType, includeFrom,
+            compareValue(mv, fieldName, fieldType, includeFrom ? IF_ICMPGE : IF_ICMPGT,
                     message, annAndRoot, localIndices);
         }
         if (isNotEmpty(to)) {
             Asms.visitInt(mv, Integer.parseInt(to));
             mv.visitVarInsn(ILOAD, intIndex);
-            compareValue(mv, fieldName, fieldType, includeEnd,
+            compareValue(mv, fieldName, fieldType, includeEnd ? IF_ICMPGE : IF_ICMPGT,
+                    message, annAndRoot, localIndices);
+        }
+    }
+
+    private void floatRangeCheckGenerate(
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
+            LocalIndices localIndices,
+            String from, String to,
+            boolean includeFrom, boolean includeEnd,
+            String message,
+            AnnotationAndRoot annAndRoot
+    ) {
+        int floatIndex = 0;
+        if (isNotEmpty(from) || isNotEmpty(to)) {
+            if (localIndices.isOriginalPrimitive()) {
+                floatIndex = localIndices.getOriginalLocalIndex();
+            } else {
+                mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
+                mv.visitMethodInsn(INVOKEVIRTUAL, p(Float.class),
+                        "floatValue", sig(float.class), false);
+                floatIndex = localIndices.incrementLocalIndex();
+                mv.visitVarInsn(FSTORE, floatIndex);
+            }
+        }
+
+        if (isNotEmpty(from)) {
+            mv.visitVarInsn(FLOAD, floatIndex);
+            mv.visitLdcInsn(new Float(from));
+            mv.visitInsn(FCMPG);
+            compareValue(mv, fieldName, fieldType, includeFrom ? IFGE : IFGT,
+                    message, annAndRoot, localIndices);
+        }
+        if (isNotEmpty(to)) {
+            mv.visitLdcInsn(new Float(to));
+            mv.visitVarInsn(FLOAD, floatIndex);
+            mv.visitInsn(FCMPL);
+            compareValue(mv, fieldName, fieldType, includeEnd ? IFGE : IFGT,
+                    message, annAndRoot, localIndices);
+        }
+    }
+
+    private void longRangeCheckGenerate(
+            MethodVisitor mv,
+            String fieldName,
+            Class<?> fieldType,
+            LocalIndices localIndices,
+            String from, String to,
+            boolean includeFrom, boolean includeEnd,
+            String message,
+            AnnotationAndRoot annAndRoot
+    ) {
+        int longIndex = 0;
+        if (isNotEmpty(from) || isNotEmpty(to)) {
+            if (localIndices.isOriginalPrimitive()) {
+                longIndex = localIndices.getOriginalLocalIndex();
+            } else {
+                mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
+                mv.visitMethodInsn(INVOKEVIRTUAL, p(Long.class),
+                        "longValue", sig(long.class), false);
+                longIndex = localIndices.incrementLocalIndex();
+                mv.visitVarInsn(LSTORE, longIndex);
+            }
+        }
+
+        if (isNotEmpty(from)) {
+            mv.visitVarInsn(LLOAD, longIndex);
+            mv.visitLdcInsn(new Long(from));
+            mv.visitInsn(LCMP);
+            compareValue(mv, fieldName, fieldType, includeFrom ? IFGE : IFGT,
+                    message, annAndRoot, localIndices);
+        }
+        if (isNotEmpty(to)) {
+            mv.visitLdcInsn(new Long(to));
+            mv.visitVarInsn(LLOAD, longIndex);
+            mv.visitInsn(LCMP);
+            compareValue(mv, fieldName, fieldType, includeEnd ? IFGE : IFGT,
                     message, annAndRoot, localIndices);
         }
     }
@@ -212,13 +304,13 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
             MethodVisitor mv,
             String fieldName,
             Class<?> fieldType,
-            boolean includeBoundary,
+            int jumpInsnCode,
             String msg,
             AnnotationAndRoot annAndRoot,
             LocalIndices localIndices
     ) {
         Label label = new Label();
-        mv.visitJumpInsn(includeBoundary ? IF_ICMPGE : IF_ICMPGT, label);
+        mv.visitJumpInsn(jumpInsnCode, label);
         addError(fieldName, fieldType, mv, annAndRoot, msg, localIndices, label);
     }
 }
