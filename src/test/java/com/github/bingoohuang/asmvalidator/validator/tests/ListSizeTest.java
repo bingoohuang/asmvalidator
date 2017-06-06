@@ -4,6 +4,8 @@ import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmSize;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.google.common.collect.Lists;
+import lombok.Data;
+import lombok.val;
 import org.junit.Test;
 
 import java.util.List;
@@ -12,17 +14,22 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ListSizeTest {
+    @Data
     public static class ListSizeBean {
         @AsmSize(2)
         List<String> addresses;
+    }
 
-        public List<String> getAddresses() {
-            return addresses;
-        }
+    @Data
+    public static class ListBean {
+        List<String> addresses;
+    }
 
-        public void setAddresses(List<String> addresses) {
-            this.addresses = addresses;
-        }
+    @Test
+    public void test1() {
+        val listBean = new ListBean();
+        listBean.setAddresses(Lists.newArrayList("xxx", "yyyy"));
+        AsmValidatorFactory.validateWithThrow(listBean);
     }
 
     @Test

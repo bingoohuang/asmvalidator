@@ -37,7 +37,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         val constraint = annType.getAnnotation(AsmConstraint.class);
         val msaSupportType = findMsaSupportType(constraint, fieldType);
 
-        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices);
+        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices, fieldType);
 
         mv.visitLdcInsn(hashCode);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmConstraintCache.class), "get",
@@ -60,7 +60,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
                 MethodGeneratorUtils.VALIDATE, sig(void.class, annType,
                         AsmValidateResult.class, fieldType), false);
 
-        AsmValidators.checkBlankEnd(checkBlank, mv, l0);
+        AsmValidators.checkBlankEnd(mv, l0);
     }
 
 

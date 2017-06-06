@@ -131,8 +131,9 @@ public class AsmValidators {
         }
     }
 
-    public static Label checkBlankStart(boolean checkBlank, MethodVisitor mv, LocalIndices localIndices) {
+    public static Label checkBlankStart(boolean checkBlank, MethodVisitor mv, LocalIndices localIndices, Class<?> fieldType) {
         if (!checkBlank) return null;
+        if (!CharSequence.class.isAssignableFrom(fieldType)) return null;
 
         mv.visitVarInsn(ALOAD, localIndices.getStringLocalIndex());
         mv.visitMethodInsn(INVOKESTATIC, p(StringUtils.class),
@@ -142,8 +143,8 @@ public class AsmValidators {
         return l0;
     }
 
-    public static void checkBlankEnd(boolean checkBlank, MethodVisitor mv, Label l0) {
-        if (!checkBlank) return;
+    public static void checkBlankEnd(MethodVisitor mv, Label l0) {
+        if (l0 == null) return;
 
         mv.visitInsn(RETURN);
         mv.visitLabel(l0);

@@ -52,7 +52,7 @@ public abstract class AsmValidatorMethodGeneratable {
         createValueLocal(localIndices, mv, field);
         addIsNullLocal(localIndices, mv);
 
-        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices);
+        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices, fieldType);
         String defaultMessage = tryGetAsmMessage(targetAnns);
 
         for (val annAndRoot : anns) {
@@ -73,7 +73,7 @@ public abstract class AsmValidatorMethodGeneratable {
             }
         }
 
-        AsmValidators.checkBlankEnd(checkBlank, mv, l0);
+        AsmValidators.checkBlankEnd(mv, l0);
     }
 
     protected abstract void createValueLocal(
