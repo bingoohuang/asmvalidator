@@ -7,6 +7,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.Type;
+
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
@@ -16,7 +18,7 @@ public class AsmNotBlankValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
-            AnnotationAndRoot annAndRoot, LocalIndices localIndices,
+            Type genericFieldType, AnnotationAndRoot annAndRoot, LocalIndices localIndices,
             String message,
             boolean checkBlank) {
         if (CharSequence.class.isAssignableFrom(fieldType)) {

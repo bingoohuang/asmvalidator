@@ -55,12 +55,13 @@ public class AsmParamValidatorMethodGenerator
         // 0: this, 1:bean, 2: AsmValidateResult
         val localIndex = new AtomicInteger(2);
 
-        val annotations = createValidateAnns(targetAnns, targetType);
+        val annotations = createValidateAnns(targetAnns, targetType, genericType);
         val checkBlank = hasBlankable(annotations);
-        if (annotations.size() > 0) validateByAnnotations(
-                localIndex, mv, null,
-                fieldName, wrapTargetType,
-                annotations, targetAnns, checkBlank);
+        if (annotations.size() > 0) {
+            validateByAnnotations(localIndex, mv, null,
+                    fieldName, wrapTargetType,
+                    genericType, annotations, targetAnns, checkBlank);
+        }
 
         if (isAsmValid()) asmValidate(mv, Object.class);
         if (isCollectionAndItemAsmValid(targetType, genericType))

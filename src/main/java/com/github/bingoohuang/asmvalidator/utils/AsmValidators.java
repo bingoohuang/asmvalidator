@@ -131,7 +131,8 @@ public class AsmValidators {
         }
     }
 
-    public static Label checkBlankStart(boolean checkBlank, MethodVisitor mv, LocalIndices localIndices, Class<?> fieldType) {
+    public static Label checkBlankStart(
+            boolean checkBlank, MethodVisitor mv, LocalIndices localIndices, Class<?> fieldType) {
         if (!checkBlank) return null;
         if (!CharSequence.class.isAssignableFrom(fieldType)) return null;
 

@@ -17,6 +17,7 @@ import org.objenesis.ObjenesisStd;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,7 +45,7 @@ public abstract class AsmValidatorMethodGeneratable {
             AtomicInteger localIndex, MethodVisitor mv,
             Field field,
             String fieldName, Class<?> fieldType,
-            List<AnnotationAndRoot> anns,
+            Type genericFieldType, List<AnnotationAndRoot> anns,
             Annotation[] targetAnns,
             boolean checkBlank
     ) {
@@ -61,14 +62,14 @@ public abstract class AsmValidatorMethodGeneratable {
 
             for (val validateByClz : constraint.asmValidateBy()) {
                 generateAsmValidateCode(mv, localIndices,
-                        defaultMessage, fieldType, fieldName,
+                        defaultMessage, fieldType, genericFieldType, fieldName,
                         validateByClz, annAndRoot, checkBlank);
             }
 
             val msaSupportType = findMsaSupportType(constraint, fieldType);
             if (msaSupportType != null) {
                 generateAsmValidateCode(mv, localIndices,
-                        defaultMessage, fieldType, fieldName,
+                        defaultMessage, fieldType, genericFieldType, fieldName,
                         AsmCustomValidateGenerator.class, annAndRoot, checkBlank);
             }
         }
@@ -91,7 +92,7 @@ public abstract class AsmValidatorMethodGeneratable {
     protected void generateAsmValidateCode(
             MethodVisitor mv, LocalIndices localIndices,
             String defaultMessage,
-            Class<?> fieldType, String fieldName,
+            Class<?> fieldType, Type genericFieldType, String fieldName,
             Class<? extends AsmValidateGenerator> asmValidateByClz,
             AnnotationAndRoot annAndRoot,
             boolean checkBlank
@@ -102,7 +103,7 @@ public abstract class AsmValidatorMethodGeneratable {
             if (!tg.supportClass(fieldType)) return;
         }
 
-        asmValidateBy.generateAsm(mv, fieldName, fieldType,
+        asmValidateBy.generateAsm(mv, fieldName, fieldType, genericFieldType,
                 annAndRoot, localIndices, defaultMessage, checkBlank);
     }
 

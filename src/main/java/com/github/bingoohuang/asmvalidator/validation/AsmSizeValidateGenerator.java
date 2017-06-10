@@ -9,6 +9,8 @@ import com.github.bingoohuang.asmvalidator.utils.Asms;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.Type;
+
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -16,7 +18,7 @@ public class AsmSizeValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
             MethodVisitor mv, String fieldName, Class<?> fieldType,
-            AnnotationAndRoot annAndRoot, LocalIndices localIndices,
+            Type genericFieldType, AnnotationAndRoot annAndRoot, LocalIndices localIndices,
             String message,
             boolean checkBlank
     ) {

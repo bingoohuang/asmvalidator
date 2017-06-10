@@ -18,7 +18,7 @@ import static com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory.vali
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ListBeanTest {
+public class RangeListBeanTest {
     @Test
     public void test() {
         ListBean listBean = new ListBean();

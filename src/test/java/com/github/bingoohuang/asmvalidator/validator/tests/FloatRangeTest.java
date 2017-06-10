@@ -1,6 +1,5 @@
 package com.github.bingoohuang.asmvalidator.validator.tests;
 
-import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
@@ -36,24 +35,6 @@ public class FloatRangeTest {
             assertThat(ex.getMessage()).contains("取值不在范围[10,1100]");
             assertThat(ex.getMessage()).contains("取值不在范围[0,2000]");
             assertThat(ex.getMessage()).contains("取值不在范围[10,3100]");
-        }
-    }
-
-    private void validatePrice(FloatRangeBean var1, AsmValidateResult var2) {
-        long price = var1.getMoney();
-        if (price < 0L) {
-            System.out.println("<0");
-        }
-        if (price <= 0L) {
-            System.out.println("<=0");
-        }
-
-        if (price > 1000L) {
-            System.out.println(">1000f");
-        }
-
-        if (price >= 1000L) {
-            System.out.println(">=1000f");
         }
     }
 }

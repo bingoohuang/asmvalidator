@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,7 +23,7 @@ public class AsmPastValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv,
             String fieldName, Class<?> fieldType,
-            AnnotationAndRoot annAndRoot,
+            Type genericFieldType, AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
             String message,
             boolean checkBlank

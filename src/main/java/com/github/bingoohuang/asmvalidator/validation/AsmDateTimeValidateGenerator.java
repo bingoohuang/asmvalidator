@@ -8,6 +8,7 @@ import lombok.val;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -22,7 +23,7 @@ public class AsmDateTimeValidateGenerator implements AsmValidateGenerator {
     public void generateAsm(
             MethodVisitor mv,
             String fieldName, Class<?> fieldType,
-            AnnotationAndRoot annAndRoot,
+            Type genericFieldType, AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
             String message,
             boolean checkBlank

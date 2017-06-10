@@ -5,7 +5,6 @@ import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
-import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
 import lombok.val;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -53,13 +52,14 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         // 0: this, 1:bean, 2: AsmValidateResult
         val localIndex = new AtomicInteger(2);
 
-        val anns = createValidateAnns(field.getAnnotations(), field.getType());
+        val anns = createValidateAnns(field.getAnnotations(), field.getType(), field.getGenericType());
 
         val checkBlank = hasBlankable(anns);
-        if (anns.size() > 0) validateByAnnotations(
-                localIndex, mv, field,
-                field.getName(), field.getType(),
-                anns, field.getAnnotations(), checkBlank);
+        if (anns.size() > 0) {
+            validateByAnnotations(localIndex, mv, field,
+                    field.getName(), field.getType(), field.getGenericType(),
+                    anns, field.getAnnotations(), checkBlank);
+        }
 
         if (isAsmValid(field)) asmValidate(mv, beanClass);
 

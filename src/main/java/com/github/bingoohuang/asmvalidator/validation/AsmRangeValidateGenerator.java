@@ -12,7 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
@@ -25,10 +28,11 @@ import static org.objectweb.asm.Opcodes.*;
 public class AsmRangeValidateGenerator implements AsmValidateGenerator {
     @Override
     public void generateAsm(
-            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            MethodVisitor mv, String fieldName, Class<?> fieldType, Type genericFieldType,
             AnnotationAndRoot annAndRoot, LocalIndices localIndices,
             String message,
-            boolean checkBlank) {
+            boolean checkBlank
+    ) {
         AsmRange asmRange = (AsmRange) annAndRoot.ann();
         String rangeExpression = StringUtils.trim(asmRange.value());
 
@@ -39,7 +43,7 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         if (rangeValues.size() < 2) throw error(annAndRoot);
 
         if (rangeValues.size() == 2) {
-            if (tryRangeCheck(mv, fieldName, fieldType, annAndRoot,
+            if (tryRangeCheck(mv, fieldName, fieldType, genericFieldType, annAndRoot,
                     localIndices, rangeValues, message)) return;
         }
 
@@ -51,6 +55,7 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
             MethodVisitor mv,
             String fieldName,
             Class<?> fieldType,
+            Type genericFieldType,
             AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
             List<String> rangeValues,
@@ -75,10 +80,94 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
         boolean includeFrom = fromStart == '[';
         boolean includeEnd = toEnd == ']';
 
+        if (variousRangeCheckGenerate(mv, fieldName, fieldType,
+                annAndRoot, localIndices, message,
+                from, to, includeFrom, includeEnd, false)) {
+            return true;
+        }
+
+        if (Collection.class.isAssignableFrom(fieldType)) {
+            if (genericFieldType instanceof ParameterizedType) {
+                val pType = (ParameterizedType) genericFieldType;
+                Type[] actualTypeArguments = pType.getActualTypeArguments();
+                if (actualTypeArguments.length == 1) {
+                    val itemType = (Class<?>) actualTypeArguments[0];
+                    if (isValueTypeSupported(itemType)) {
+                        loopCollection(mv, fieldType, fieldName, annAndRoot,
+                                localIndices, message, from, to,
+                                includeFrom, includeEnd, itemType);
+
+                        return true;
+                    }
+                }
+            }
+        }
+
+        throw new AsmValidateBadArgException(annAndRoot.ann()
+                + " is not support yet for " + fieldType);
+    }
+
+    private void loopCollection(
+            MethodVisitor mv, Class<?> fieldType, String fieldName,
+            AnnotationAndRoot annAndRoot,
+            LocalIndices localIndices, String message,
+            String from, String to,
+            boolean includeFrom, boolean includeEnd, Class<?> itemType
+    ) {
+        mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
+        mv.visitMethodInsn(INVOKEINTERFACE, p(fieldType), "iterator", "()Ljava/util/Iterator;", true);
+        int iteratorIndex = localIndices.incrementLocalIndex();
+        mv.visitVarInsn(ASTORE, iteratorIndex);
+        Label loopLabel = new Label();
+        mv.visitLabel(loopLabel);
+        mv.visitVarInsn(ALOAD, iteratorIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Iterator", "hasNext", "()Z", true);
+        Label label = new Label();
+        mv.visitJumpInsn(IFEQ, label);
+        mv.visitVarInsn(ALOAD, iteratorIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Iterator", "next", "()Ljava/lang/Object;", true);
+        mv.visitTypeInsn(CHECKCAST, p(itemType));
+        int itemIndex = localIndices.incrementLocalIndex();
+        mv.visitVarInsn(ASTORE, itemIndex);
+
+        variousRangeCheckGenerate(mv, fieldName, itemType,
+                annAndRoot, localIndices, message,
+                from, to, includeFrom, includeEnd, true);
+
+        mv.visitJumpInsn(GOTO, loopLabel);
+        mv.visitLabel(label);
+    }
+
+    private boolean isValueTypeSupported(Class<?> fieldType) {
+        if (Integer.TYPE == fieldType || Integer.class == fieldType) {
+            return true;
+        }
+
+        if (Float.TYPE == fieldType || Float.class == fieldType) {
+            return true;
+        }
+
+        if (Long.TYPE == fieldType || Long.class == fieldType) {
+            return true;
+        }
+
+        if (String.class == fieldType) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean variousRangeCheckGenerate(
+            MethodVisitor mv, String fieldName, Class<?> fieldType,
+            AnnotationAndRoot annAndRoot, LocalIndices localIndices, String message,
+            String from, String to, boolean includeFrom, boolean includeEnd,
+            boolean collectionItem
+    ) {
         if (Integer.TYPE == fieldType || Integer.class == fieldType) {
             intRangeCheckGenerate(mv, fieldName, fieldType, localIndices,
                     from, to, includeFrom, includeEnd,
-                    message, annAndRoot);
+                    message, annAndRoot, collectionItem);
             return true;
         }
 
@@ -103,8 +192,7 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
             return true;
         }
 
-        throw new AsmValidateBadArgException(annAndRoot.ann()
-                + " is not support yet for " + fieldType);
+        return false;
     }
 
     private AsmValidateBadArgException error(AnnotationAndRoot annAndRoot) {
@@ -177,14 +265,15 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
             String from, String to,
             boolean includeFrom, boolean includeEnd,
             String message,
-            AnnotationAndRoot annAndRoot
-    ) {
+            AnnotationAndRoot annAndRoot,
+            boolean collectionItem) {
         int intIndex = 0;
         if (isNotEmpty(from) || isNotEmpty(to)) {
             if (localIndices.isOriginalPrimitive()) {
                 intIndex = localIndices.getOriginalLocalIndex();
             } else {
-                mv.visitVarInsn(ALOAD, localIndices.getOriginalLocalIndex());
+                mv.visitVarInsn(ALOAD, collectionItem
+                        ? localIndices.getLocalIndex() : localIndices.getOriginalLocalIndex());
                 mv.visitMethodInsn(INVOKEVIRTUAL, p(Integer.class),
                         "intValue", sig(int.class), false);
                 intIndex = localIndices.incrementLocalIndex();

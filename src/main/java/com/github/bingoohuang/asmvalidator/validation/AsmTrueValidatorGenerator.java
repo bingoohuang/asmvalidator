@@ -6,6 +6,8 @@ import com.github.bingoohuang.asmvalidator.utils.AnnotationAndRoot;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.reflect.Type;
+
 import static com.github.bingoohuang.asmvalidator.utils.AsmValidators.addError;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
@@ -24,7 +26,7 @@ public class AsmTrueValidatorGenerator implements AsmTypeValidateGenerator {
             MethodVisitor mv,
             String fieldName,
             Class<?> fieldType,
-            AnnotationAndRoot annAndRoot,
+            Type genericFieldType, AnnotationAndRoot annAndRoot,
             LocalIndices localIndices,
             String message,
             boolean checkBlank

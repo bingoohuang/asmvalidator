@@ -32,8 +32,7 @@ public class AsmRangeTest {
         bean.setAgeMax(10);
         bean.setCode("A00");
 
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -47,8 +46,7 @@ public class AsmRangeTest {
         bean.setAgeMax(10);
         bean.setCode("A00");
 
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -62,8 +60,7 @@ public class AsmRangeTest {
         bean.setAgeMax(10);
         bean.setCode("A00");
 
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -76,8 +73,7 @@ public class AsmRangeTest {
         bean.setAgeMax(10);
         bean.setCode("A00");
 
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -90,8 +86,7 @@ public class AsmRangeTest {
         bean.setAgeMin(10);
         bean.setAgeMax(10);
         bean.setCode("A00");
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -103,8 +98,7 @@ public class AsmRangeTest {
         bean.setRmb(100);
         bean.setAgeMin(9);
         bean.setCode("A00");
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -117,8 +111,7 @@ public class AsmRangeTest {
         bean.setAgeMin(10);
         bean.setAgeMax(11);
         bean.setCode("A00");
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test(expected = AsmValidateException.class)
@@ -131,11 +124,10 @@ public class AsmRangeTest {
         bean.setAgeMin(10);
         bean.setAgeMax(100);
         bean.setCode("A00");
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
 
-    @Test()
+    @Test
     public void rangeBad9() {
         AsmRangeBean bean = new AsmRangeBean();
         bean.setAge(10);
@@ -145,23 +137,6 @@ public class AsmRangeTest {
         bean.setAgeMin(10);
         bean.setAgeMax(10);
         bean.setCode("A01");
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
+        AsmValidatorFactory.validateWithThrow(bean);
     }
-
-    @Test
-    public void rangeBad10() {
-        AsmRangeBean bean = new AsmRangeBean();
-        bean.setAge(10);
-        bean.setAddr("A00");
-        bean.setSex("男");
-        bean.setRmb(100);
-        bean.setAgeMin(10);
-        bean.setAgeMax(10);
-        bean.setCode("A01");
-        AsmValidateResult result = AsmValidatorFactory.validate(bean);
-        result.throwExceptionIfError();
-    }
-
-
 }
