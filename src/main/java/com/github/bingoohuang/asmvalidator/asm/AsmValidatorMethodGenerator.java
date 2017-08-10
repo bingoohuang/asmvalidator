@@ -10,6 +10,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,7 +41,8 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
 
     private void createValidatorFieldMethods() {
         for (val field : beanClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(AsmIgnore.class)) continue;
+            if (field.isAnnotationPresent(AsmIgnore.class)
+                    || Modifier.isStatic(field.getModifiers())) continue;
 
             val mv = startFieldValidatorMethod(cw, field.getName(), beanClass);
             bodyFieldValidator(mv, field);
@@ -121,7 +123,8 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         val mv = startMainMethod(beanClass);
 
         for (val field : beanClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(AsmIgnore.class)) continue;
+            if (field.isAnnotationPresent(AsmIgnore.class)
+                    || Modifier.isStatic(field.getModifiers())) continue;
 
             visitValidateFieldMethod(mv, implName, field.getName(), beanClass);
         }
