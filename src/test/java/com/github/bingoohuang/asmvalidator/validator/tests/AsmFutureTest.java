@@ -2,6 +2,7 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmFuture;
+import lombok.Data;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -13,17 +14,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 public class AsmFutureTest {
+    @Data
     public static class AsmPastBean1 {
         @AsmFuture
         Date date;
-
-        public Date getDate() {
-            return date;
-        }
-
-        public void setDate(Date date) {
-            this.date = date;
-        }
     }
 
     @Test

@@ -1,11 +1,11 @@
 package com.github.bingoohuang.asmvalidator;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
-import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 
-@ToString @AllArgsConstructor
+@Data @AllArgsConstructor
 public class ValidateError {
     @Getter String fieldName;
     @Getter final Object fieldValue;

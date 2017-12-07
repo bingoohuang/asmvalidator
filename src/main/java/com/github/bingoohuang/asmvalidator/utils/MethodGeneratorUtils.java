@@ -7,6 +7,7 @@ import com.github.bingoohuang.asmvalidator.annotations.*;
 import com.github.bingoohuang.asmvalidator.asm.LocalIndices;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadUsageException;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Primitives;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -25,7 +26,6 @@ import java.util.List;
 
 import static com.github.bingoohuang.asmvalidator.utils.Asms.p;
 import static com.github.bingoohuang.asmvalidator.utils.Asms.sig;
-import static com.google.common.primitives.Primitives.wrap;
 import static org.apache.commons.lang3.StringUtils.capitalize;
 import static org.objectweb.asm.Opcodes.*;
 
@@ -43,7 +43,7 @@ public class MethodGeneratorUtils {
         val defaultMethod = getAsmDefaultAnnotations();
         if (asmConstraintsAnns.isEmpty()) {
             val annotations = defaultMethod.getAnnotations();
-            asmConstraintsAnns = filterForSupportedType(annotations, type, genericType);
+            asmConstraintsAnns = filterForSupportedType(annotations, type);
         } else {
             tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod, type, genericType);
             tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type, genericType);
@@ -51,7 +51,7 @@ public class MethodGeneratorUtils {
 
         List<AnnotationAndRoot> filtered = Lists.newArrayList();
         for (val annAndRoot : asmConstraintsAnns) {
-            if (supportType(annAndRoot.ann(), type, genericType)) {
+            if (supportType(annAndRoot.ann(), type)) {
                 filtered.add(annAndRoot);
             } else {
                 log.warn("{} does not support type {}", annAndRoot.ann(), type);
@@ -62,12 +62,12 @@ public class MethodGeneratorUtils {
     }
 
     private static List<AnnotationAndRoot> filterForSupportedType(
-            Annotation[] annotations, Class<?> type, Type genericType
+            Annotation[] annotations, Class<?> type
     ) {
         List<AnnotationAndRoot> result = Lists.newArrayList();
 
         for (val ann : annotations) {
-            if (supportType(ann, type, genericType)) {
+            if (supportType(ann, type)) {
                 result.add(new AnnotationAndRoot(ann));
             }
         }
@@ -79,9 +79,7 @@ public class MethodGeneratorUtils {
         return AsmDefaultAnnotations.class.getMethods()[0];
     }
 
-    public static boolean supportType(
-            Annotation ann, Class<?> type, Type genericType
-    ) {
+    public static boolean supportType(Annotation ann, Class<?> type) {
         val annClass = ann.annotationType();
         val asmConstraint = annClass.getAnnotation(AsmConstraint.class);
         for (val supportedClass : asmConstraint.supportedClasses()) {
@@ -119,7 +117,7 @@ public class MethodGeneratorUtils {
     public static Class<? extends MsaValidator> findMsaSupportType(
             AsmConstraint asmConstraint, Class<?> type
     ) {
-        Class<?> wrap = wrap(type);
+        Class<?> wrap = Primitives.wrap(type);
         for (val msa : asmConstraint.validateBy()) {
             val arg = findSuperActualTypeArg(msa, MsaValidator.class, 1);
             if (arg == null) {
@@ -163,6 +161,9 @@ public class MethodGeneratorUtils {
             val argType = pType.getActualTypeArguments()[argIndex];
             if (argType instanceof Class) {
                 return (Class<?>) argType;
+            } else if (argType instanceof ParameterizedType) {
+                val pArgType = (ParameterizedType)argType;
+                return (Class<?>) pArgType.getRawType();
             }
         }
 
@@ -183,7 +184,7 @@ public class MethodGeneratorUtils {
         }
 
         val asmMaxSize = defaultMethod.getAnnotation(AsmMaxSize.class);
-        if (supportType(asmMaxSize, type, genericType))
+        if (supportType(asmMaxSize, type))
             asmConstraintsAnns.add(0, new AnnotationAndRoot(asmMaxSize));
     }
 
@@ -207,7 +208,7 @@ public class MethodGeneratorUtils {
         }
 
         val asmNotBlank = defaultMethod.getAnnotation(AsmNotBlank.class);
-        if (supportType(asmNotBlank, type, genericType)) {
+        if (supportType(asmNotBlank, type)) {
             asmConstraintsAnns.add(0, new AnnotationAndRoot(asmNotBlank));
         }
     }
