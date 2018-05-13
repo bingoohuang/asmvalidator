@@ -54,7 +54,7 @@ public class AsmFutureTest {
     }
 
     @Test
-    public void testCalendar() throws ParseException {
+    public void testCalendar() {
         AsmPastBean2 bean = new AsmPastBean2();
         Calendar instance = Calendar.getInstance();
         instance.setTimeInMillis(System.currentTimeMillis() + 100);
@@ -63,7 +63,7 @@ public class AsmFutureTest {
     }
 
     @Test
-    public void testCalendarBad() throws ParseException {
+    public void testCalendarBad() {
         AsmPastBean2 bean = new AsmPastBean2();
         Calendar instance = Calendar.getInstance();
         instance.setTimeInMillis(System.currentTimeMillis() - 100);
@@ -91,14 +91,14 @@ public class AsmFutureTest {
     }
 
     @Test
-    public void testString() throws ParseException {
+    public void testString() {
         AsmPastBean3 bean = new AsmPastBean3();
         bean.setDate("2055-09-11");
         AsmValidatorFactory.validateWithThrow(bean);
     }
 
     @Test
-    public void testStringBad() throws ParseException {
+    public void testStringBad() {
         AsmPastBean3 bean = new AsmPastBean3();
         bean.setDate("2001-09-11");
         try {

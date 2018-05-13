@@ -37,7 +37,7 @@ public class HiPostProcessor implements BeanFactoryAware, BeanPostProcessor, Ini
         return bean;
     }
 
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
     }
 
     @Override

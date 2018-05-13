@@ -31,9 +31,7 @@ public class AsmParamValidatorMethodGenerator
     private final Type genericType;
     private final Class<?> wrapTargetType;
 
-    public AsmParamValidatorMethodGenerator(
-            String implName, Method targetMethod, int targetParameterIndex,
-            ClassWriter classWriter) {
+    public AsmParamValidatorMethodGenerator(String implName, Method targetMethod, int targetParameterIndex, ClassWriter classWriter) {
         super(classWriter, implName);
         this.fieldName = "arg" + targetParameterIndex;
 
@@ -55,7 +53,7 @@ public class AsmParamValidatorMethodGenerator
         // 0: this, 1:bean, 2: AsmValidateResult
         val localIndex = new AtomicInteger(2);
 
-        val annotations = createValidateAnns(targetAnns, targetType, genericType);
+        val annotations = createValidateAnns(targetAnns, targetType);
         val checkBlank = hasBlankable(annotations);
         if (annotations.size() > 0) {
             validateByAnnotations(localIndex, mv, null,
@@ -68,8 +66,7 @@ public class AsmParamValidatorMethodGenerator
             collectionItemsValid(mv);
     }
 
-    protected void createValueLocal(
-            LocalIndices localIndices, MethodVisitor mv, Field field) {
+    protected void createValueLocal(LocalIndices localIndices, MethodVisitor mv, Field field) {
         mv.visitVarInsn(ALOAD, 1);
         mv.visitTypeInsn(CHECKCAST, p(wrapTargetType));
 
@@ -100,9 +97,7 @@ public class AsmParamValidatorMethodGenerator
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
-                "validateAll",
-                sig(void.class, Collection.class, AsmValidateResult.class),
-                false);
+                "validateAll", sig(void.class, Collection.class, AsmValidateResult.class), false);
     }
 
     private boolean isAsmValid() {

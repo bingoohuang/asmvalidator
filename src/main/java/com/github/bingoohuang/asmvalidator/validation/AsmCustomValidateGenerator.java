@@ -10,7 +10,6 @@ import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils;
 import com.google.common.primitives.UnsignedInts;
 import lombok.val;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.lang.annotation.Annotation;
@@ -38,7 +37,7 @@ public class AsmCustomValidateGenerator implements AsmValidateGenerator {
         val constraint = annType.getAnnotation(AsmConstraint.class);
         val msaSupportType = findMsaSupportType(constraint, fieldType);
 
-        Label l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices, fieldType);
+        val l0 = AsmValidators.checkBlankStart(checkBlank, mv, localIndices, fieldType);
 
         mv.visitLdcInsn(hashCode);
         mv.visitMethodInsn(INVOKESTATIC, p(AsmConstraintCache.class), "get",

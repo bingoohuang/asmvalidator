@@ -19,7 +19,7 @@ public class AsmValidatorFactory {
     public AsmValidator<Object> getValidator(final Class<?> beanClass) {
         try {
             return cache.get(beanClass, new Callable<AsmValidator<Object>>() {
-                public AsmValidator<Object> call() throws Exception {
+                public AsmValidator<Object> call() {
                     return asmCreate(beanClass);
                 }
             });

@@ -37,12 +37,12 @@ public class AsmFutureParamTest {
     }
 
     @Test
-    public void testString() throws ParseException {
+    public void testString() {
         AsmParamsValidatorFactory.validate(stringSignature, "2055-09-11");
     }
 
     @Test
-    public void testStringBad() throws ParseException {
+    public void testStringBad() {
         try {
             AsmParamsValidatorFactory.validate(stringSignature, "2011-09-11");
             fail();
@@ -68,7 +68,7 @@ public class AsmFutureParamTest {
     }
 
     @Test
-    public void testDateBad() throws ParseException {
+    public void testDateBad() {
         try {
             AsmParamsValidatorFactory.validate(dateSignature,
                     new SimpleDateFormat("yyyy-MM-dd").parse("2011-09-11"));

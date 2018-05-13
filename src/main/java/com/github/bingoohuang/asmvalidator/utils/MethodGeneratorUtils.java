@@ -33,9 +33,7 @@ import static org.objectweb.asm.Opcodes.*;
 public class MethodGeneratorUtils {
     public static final String VALIDATE = "validate";
 
-    public static List<AnnotationAndRoot> createValidateAnns(
-            Annotation[] targetAnnotations, Class<?> type, Type genericType
-    ) {
+    public static List<AnnotationAndRoot> createValidateAnns(Annotation[] targetAnnotations, Class<?> type) {
         List<AnnotationAndRoot> asmConstraintsAnns = Lists.newArrayList();
         searchConstraints(asmConstraintsAnns, targetAnnotations);
 
@@ -45,8 +43,8 @@ public class MethodGeneratorUtils {
             val annotations = defaultMethod.getAnnotations();
             asmConstraintsAnns = filterForSupportedType(annotations, type);
         } else {
-            tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod, type, genericType);
-            tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type, genericType);
+            tryAddAsmMaxSize(asmConstraintsAnns, defaultMethod, type);
+            tryAddAsmNotBlank(asmConstraintsAnns, defaultMethod, type);
         }
 
         List<AnnotationAndRoot> filtered = Lists.newArrayList();
@@ -61,9 +59,7 @@ public class MethodGeneratorUtils {
         return filtered;
     }
 
-    private static List<AnnotationAndRoot> filterForSupportedType(
-            Annotation[] annotations, Class<?> type
-    ) {
+    private static List<AnnotationAndRoot> filterForSupportedType(Annotation[] annotations, Class<?> type) {
         List<AnnotationAndRoot> result = Lists.newArrayList();
 
         for (val ann : annotations) {
@@ -83,78 +79,52 @@ public class MethodGeneratorUtils {
         val annClass = ann.annotationType();
         val asmConstraint = annClass.getAnnotation(AsmConstraint.class);
         for (val supportedClass : asmConstraint.supportedClasses()) {
-            if (supportedClass.isAssignableFrom(type)) {
-                return true;
-            }
+            if (supportedClass.isAssignableFrom(type)) return true;
         }
 
-        if (findMsaSupportType(asmConstraint, type) != null) {
-            return true;
-        }
+        if (findMsaSupportType(asmConstraint, type) != null) return true;
 
         return asmTypeValidateGeneratorSupport(asmConstraint, type);
     }
 
-    private static boolean asmTypeValidateGeneratorSupport(
-            AsmConstraint asmConstraint, Class<?> type
-    ) {
+    private static boolean asmTypeValidateGeneratorSupport(AsmConstraint asmConstraint, Class<?> type) {
         ObjenesisStd objStd = new ObjenesisStd();
         for (val asmValidateBy : asmConstraint.asmValidateBy()) {
             val clazz = AsmTypeValidateGenerator.class;
-            if (!clazz.isAssignableFrom(asmValidateBy)) {
-                continue;
-            }
+            if (!clazz.isAssignableFrom(asmValidateBy)) continue;
 
             val generator = (AsmTypeValidateGenerator) objStd.newInstance(asmValidateBy);
-            if (generator.supportClass(type)) {
-                return true;
-            }
+            if (generator.supportClass(type)) return true;
         }
 
         return false;
     }
 
-    public static Class<? extends MsaValidator> findMsaSupportType(
-            AsmConstraint asmConstraint, Class<?> type
-    ) {
+    public static Class<? extends MsaValidator> findMsaSupportType(AsmConstraint asmConstraint, Class<?> type) {
         Class<?> wrap = Primitives.wrap(type);
         for (val msa : asmConstraint.validateBy()) {
             val arg = findSuperActualTypeArg(msa, MsaValidator.class, 1);
-            if (arg == null) {
-                continue;
-            }
-            if (arg.isAssignableFrom(wrap)) {
-                return msa;
-            }
+            if (arg == null) continue;
+            if (arg.isAssignableFrom(wrap)) return msa;
         }
 
         return null;
     }
 
-    public static Class<?> findSuperActualTypeArg(
-            final Class<?> subClass,
-            final Class<?> superClass,
-            final int argIndex
-    ) {
+    public static Class<?> findSuperActualTypeArg(Class<?> subClass, Class<?> superClass, int argIndex) {
         for (val type : subClass.getGenericInterfaces()) {
             val argType = findSuperActualTypeArg(type, superClass, argIndex);
-            if (argType != null) {
-                return argType;
-            }
+            if (argType != null) return argType;
         }
 
         Class<?> parentClass = subClass.getSuperclass();
-        if (parentClass == Object.class) {
-            return null;
-        }
+        if (parentClass == Object.class) return null;
 
         return findSuperActualTypeArg(parentClass, superClass, argIndex);
     }
 
     private static Class<?> findSuperActualTypeArg(Type type, Class<?> superClass, int argIndex) {
-        if (!(type instanceof ParameterizedType)) {
-            return null;
-        }
+        if (!(type instanceof ParameterizedType)) return null;
 
         val pType = (ParameterizedType) type;
         if (pType.getRawType() == superClass) {
@@ -162,25 +132,16 @@ public class MethodGeneratorUtils {
             if (argType instanceof Class) {
                 return (Class<?>) argType;
             } else if (argType instanceof ParameterizedType) {
-                val pArgType = (ParameterizedType)argType;
-                return (Class<?>) pArgType.getRawType();
+                return (Class<?>) ((ParameterizedType) argType).getRawType();
             }
         }
 
         return null;
     }
 
-    private static void tryAddAsmMaxSize(
-            List<AnnotationAndRoot> asmConstraintsAnns,
-            Method defaultMethod,
-            Class<?> type,
-            Type genericType
-    ) {
-        for (val annAndRoot : asmConstraintsAnns) {
-            val annType = annAndRoot.ann().annotationType();
-            if (annType == AsmMaxSize.class || annType == AsmSize.class) {
-                return;
-            }
+    private static void tryAddAsmMaxSize(List<AnnotationAndRoot> asmConstraintsAnns, Method defaultMethod, Class<?> type) {
+        for (val ar : asmConstraintsAnns) {
+            if (Arrays.anyOf(ar.ann().annotationType(), AsmMaxSize.class, AsmSize.class)) return;
         }
 
         val asmMaxSize = defaultMethod.getAnnotation(AsmMaxSize.class);
@@ -188,23 +149,14 @@ public class MethodGeneratorUtils {
             asmConstraintsAnns.add(0, new AnnotationAndRoot(asmMaxSize));
     }
 
-    private static void tryAddAsmNotBlank(
-            List<AnnotationAndRoot> asmConstraintsAnns,
-            Method defaultMethod, Class<?> type,
-            Type genericType
-    ) {
-        if (type.isPrimitive()) {
-            return;
-        }
+    private static void tryAddAsmNotBlank(List<AnnotationAndRoot> asmConstraintsAnns, Method defaultMethod, Class<?> type) {
+        if (type.isPrimitive()) return;
 
-        for (val annAndRoot : asmConstraintsAnns) {
-            val annType = annAndRoot.ann().annotationType();
-            if (annType == AsmNotBlank.class
-                    || annType == AsmBlankable.class
-                    || annType == AsmMinSize.class
-                    || annType == AsmSize.class) {
+        for (val ar : asmConstraintsAnns) {
+            if (Arrays.anyOf(ar.ann().annotationType(),
+                    AsmNotBlank.class, AsmBlankable.class,
+                    AsmMinSize.class, AsmSize.class))
                 return;
-            }
         }
 
         val asmNotBlank = defaultMethod.getAnnotation(AsmNotBlank.class);
@@ -214,35 +166,22 @@ public class MethodGeneratorUtils {
     }
 
 
-    public static void searchConstraints(
-            List<AnnotationAndRoot> asmConstraintAnns,
-            Annotation[] annotations
-    ) {
-        searchConstraints(asmConstraintAnns, annotations, null);
+    public static void searchConstraints(List<AnnotationAndRoot> asmConstraintAnns, Annotation[] as) {
+        searchConstraints(asmConstraintAnns, as, null);
     }
 
-    public static void searchConstraints(
-            List<AnnotationAndRoot> asmConstraintAnns,
-            Annotation[] annotations,
-            Annotation rootAnnotation
-    ) {
-        for (val ann : annotations) {
-            if (!ann.annotationType().isAnnotationPresent(AsmConstraint.class)) {
-                continue;
-            }
+    public static void searchConstraints(List<AnnotationAndRoot> asmConstraintAnns, Annotation[] as, Annotation ra) {
+        for (val a : as) {
+            if (!a.annotationType().isAnnotationPresent(AsmConstraint.class)) continue;
 
-            val subAnns = ann.annotationType().getAnnotations();
-            val rootAnn = rootAnnotation == null ? ann : rootAnnotation;
+            val subAnns = a.annotationType().getAnnotations();
+            val rootAnn = ra == null ? a : ra;
             searchConstraints(asmConstraintAnns, subAnns, rootAnn);
-            asmConstraintAnns.add(new AnnotationAndRoot(ann, rootAnn));
+            asmConstraintAnns.add(new AnnotationAndRoot(a, rootAnn));
         }
     }
 
-    public static MethodVisitor startFieldValidatorMethod(
-            ClassWriter cw,
-            String fieldName,
-            Class beanClass
-    ) {
+    public static MethodVisitor startFieldValidatorMethod(ClassWriter cw, String fieldName, Class beanClass) {
         val mv = cw.visitMethod(ACC_PRIVATE,
                 VALIDATE + StringUtils.capitalize(fieldName),
                 sig(void.class, beanClass, AsmValidateResult.class),
@@ -257,42 +196,31 @@ public class MethodGeneratorUtils {
         mv.visitEnd();
     }
 
-    public static boolean isAnnotationPresent(
-            Annotation[] targetAnnotations,
-            Class<?> annotationType
-    ) {
+    public static boolean isAnnotationPresent(Annotation[] targetAnnotations, Class<?> annotationType) {
         for (val ann : targetAnnotations) {
-            if (annotationType.isInstance(ann)) {
-                return true;
-            }
+            if (annotationType.isInstance(ann)) return true;
         }
 
         return false;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T findAnn(
-            Annotation[] targetAnnotations,
-            Class<T> annotationType
-    ) {
-        for (val ann : targetAnnotations) {
+    public static <T extends Annotation> T findAnn(Annotation[] ta, Class<T> annotationType) {
+        for (val ann : ta) {
             if (annotationType.isInstance(ann)) return (T) ann;
         }
 
         return null;
     }
 
-    public static void visitGetter(MethodVisitor mv, Field field
-    ) {
+    public static void visitGetter(MethodVisitor mv, Field field) {
         mv.visitVarInsn(ALOAD, 1);
         val getterName = "get" + capitalize(field.getName());
         val declaringClass = field.getDeclaringClass();
         try {
             declaringClass.getMethod(getterName);
         } catch (NoSuchMethodException e) {
-            throw new AsmValidateBadUsageException(
-                    "there is no getter method for field "
-                            + field.getName());
+            throw new AsmValidateBadUsageException("there is no getter method for field " + field.getName());
         }
 
         val type = field.getType();
@@ -300,9 +228,7 @@ public class MethodGeneratorUtils {
                 getterName, sig(type), false);
     }
 
-    public static void addIsNullLocal(
-            LocalIndices localIndices, MethodVisitor mv
-    ) {
+    public static void addIsNullLocal(LocalIndices localIndices, MethodVisitor mv) {
         Label l0 = new Label();
         mv.visitJumpInsn(IFNONNULL, l0);
         mv.visitInsn(ICONST_1);
@@ -315,9 +241,7 @@ public class MethodGeneratorUtils {
         mv.visitVarInsn(ISTORE, localIndices.getLocalIndex());
     }
 
-    public static void createBridge(
-            ClassWriter cw, Class beanClass, String implName
-    ) {
+    public static void createBridge(ClassWriter cw, Class beanClass, String implName) {
         val mv = cw.visitMethod(ACC_PUBLIC + ACC_BRIDGE + ACC_SYNTHETIC, MethodGeneratorUtils.VALIDATE,
                 sig(AsmValidateResult.class, Object.class), null, null);
         mv.visitCode();
@@ -331,9 +255,7 @@ public class MethodGeneratorUtils {
         mv.visitEnd();
     }
 
-    public static void visitValidateFieldMethod(
-            MethodVisitor mv, String implName, String fieldName, Class fieldClass
-    ) {
+    public static void visitValidateFieldMethod(MethodVisitor mv, String implName, String fieldName, Class fieldClass) {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitVarInsn(ALOAD, 2);
@@ -343,11 +265,8 @@ public class MethodGeneratorUtils {
     }
 
     public static boolean hasBlankable(List<AnnotationAndRoot> annotations) {
-        for (val annAndRoot : annotations) {
-            Annotation ann = annAndRoot.ann();
-            if (ann.annotationType() == AsmBlankable.class) {
-                return true;
-            }
+        for (val ar : annotations) {
+            if (ar.ann().annotationType() == AsmBlankable.class) return true;
         }
 
         return false;

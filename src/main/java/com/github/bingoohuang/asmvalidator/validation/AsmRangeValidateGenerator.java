@@ -151,11 +151,8 @@ public class AsmRangeValidateGenerator implements AsmValidateGenerator {
             return true;
         }
 
-        if (String.class == fieldType) {
-            return true;
-        }
+        return String.class == fieldType;
 
-        return false;
     }
 
     private boolean variousRangeCheckGenerate(

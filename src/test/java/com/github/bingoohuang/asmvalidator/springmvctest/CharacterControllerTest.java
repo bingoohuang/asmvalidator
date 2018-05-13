@@ -41,7 +41,7 @@ public class CharacterControllerTest {
     }
 
     @Test
-    public void canHello() throws Exception {
+    public void canHello() {
         given().
                 queryParam("name", "黄进兵").
                 when().
@@ -52,7 +52,7 @@ public class CharacterControllerTest {
     }
 
     @Test
-    public void canHelloNullName() throws Exception {
+    public void canHelloNullName() {
         given().
                 when().
                 get("/hello").

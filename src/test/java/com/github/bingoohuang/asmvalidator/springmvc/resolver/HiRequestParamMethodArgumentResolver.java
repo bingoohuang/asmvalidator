@@ -82,8 +82,6 @@ public class HiRequestParamMethodArgumentResolver
     private boolean maybeJsonType(Class<?> parameterType) {
         if (parameterType.isPrimitive()) return false;
         if (Primitives.isWrapperType(parameterType)) return false;
-        if (CharSequence.class.isAssignableFrom(parameterType)) return false;
-
-        return true;
+        return !CharSequence.class.isAssignableFrom(parameterType);
     }
 }

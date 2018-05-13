@@ -77,8 +77,7 @@ public abstract class AsmValidatorMethodGeneratable {
         AsmValidators.checkBlankEnd(mv, l0);
     }
 
-    protected abstract void createValueLocal(
-            LocalIndices localIndices, MethodVisitor mv, Field field);
+    protected abstract void createValueLocal(LocalIndices localIndices, MethodVisitor mv, Field field);
 
 
     protected void asmValidate(MethodVisitor mv, Class<?> targetClass) {

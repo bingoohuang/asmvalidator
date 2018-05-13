@@ -54,7 +54,7 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         // 0: this, 1:bean, 2: AsmValidateResult
         val localIndex = new AtomicInteger(2);
 
-        val anns = createValidateAnns(field.getAnnotations(), field.getType(), field.getGenericType());
+        val anns = createValidateAnns(field.getAnnotations(), field.getType());
 
         val checkBlank = hasBlankable(anns);
         if (anns.size() > 0) {
@@ -99,10 +99,9 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         AsmValidators.processWideLocal(fieldType, localIndices);
 
         if (fieldType == String.class) return;
-
-        if (fieldType.isPrimitive()) localIndices.setOriginalPrimitive(true);
-
         if (fieldType.isPrimitive()) {
+            localIndices.setOriginalPrimitive(true);
+
             mv.visitMethodInsn(INVOKESTATIC, p(String.class),
                     "valueOf", sig(String.class, fieldType), false);
 
