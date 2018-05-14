@@ -4,7 +4,9 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
+import com.github.bingoohuang.asmvalidator.utils.Arrays;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -19,6 +21,7 @@ import static com.github.bingoohuang.asmvalidator.utils.Asms.*;
 import static com.github.bingoohuang.asmvalidator.utils.MethodGeneratorUtils.*;
 import static org.objectweb.asm.Opcodes.*;
 
+@Slf4j
 public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
     private final Class<?> beanClass;
 
@@ -39,13 +42,14 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         createValidatorFieldMethods();
     }
 
-    private void createValidatorFieldMethods() {
-        for (val field : beanClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(AsmIgnore.class)
-                    || Modifier.isStatic(field.getModifiers())) continue;
 
-            val mv = startFieldValidatorMethod(cw, field.getName(), beanClass);
-            bodyFieldValidator(mv, field);
+    private void createValidatorFieldMethods() {
+        for (val f : beanClass.getDeclaredFields()) {
+            if (f.isAnnotationPresent(AsmIgnore.class)
+                    || Modifier.isStatic(f.getModifiers())) continue;
+
+            val mv = startFieldValidatorMethod(cw, f.getName(), beanClass);
+            bodyFieldValidator(mv, f);
             endFieldValidateMethod(mv);
         }
     }
@@ -128,7 +132,32 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
             visitValidateFieldMethod(mv, implName, field.getName(), beanClass);
         }
 
+        createCustomValidateMethods(mv);
+
         endMainMethod(mv);
     }
 
+
+    private void createCustomValidateMethods(MethodVisitor mv) {
+        for (val f : beanClass.getMethods()) {
+            if (!f.isAnnotationPresent(AsmValid.class)) continue;
+            if (!Arrays.anyOf(f.getReturnType(), void.class, Void.class)) {
+                log.warn("{} is annotated by @AsmValid without void return is ignored!", f);
+                continue;
+            }
+
+            int parameterCount = f.getParameterTypes().length;
+
+            if (parameterCount == 0) {
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitMethodInsn(INVOKEVIRTUAL, p(beanClass), f.getName(), sig(void.class), false);
+            } else if (parameterCount == 1 && f.getParameterTypes()[0] == AsmValidateResult.class) {
+                mv.visitVarInsn(ALOAD, 1);
+                mv.visitVarInsn(ALOAD, 2); // AsmValidateResult
+                mv.visitMethodInsn(INVOKEVIRTUAL, p(beanClass), f.getName(), sig(void.class, AsmValidateResult.class), false);
+            } else {
+                log.warn("{} is annotated by @AsmValid is ignored because of unsupported parameter types!", f);
+            }
+        }
+    }
 }

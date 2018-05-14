@@ -256,9 +256,9 @@ public class MethodGeneratorUtils {
     }
 
     public static void visitValidateFieldMethod(MethodVisitor mv, String implName, String fieldName, Class fieldClass) {
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, 1);
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 0); // this
+        mv.visitVarInsn(ALOAD, 1); // field value
+        mv.visitVarInsn(ALOAD, 2); // AsmValidateResult
         mv.visitMethodInsn(INVOKESPECIAL, p(implName),
                 MethodGeneratorUtils.VALIDATE + capitalize(fieldName),
                 sig(void.class, fieldClass, AsmValidateResult.class), false);

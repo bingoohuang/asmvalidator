@@ -1,7 +1,6 @@
 package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
-import com.github.bingoohuang.asmvalidator.annotations.AsmCreateClassFile4Debug;
 import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
 import com.google.common.collect.Lists;
@@ -16,7 +15,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 public class RangeListTest {
-    @Data @Builder @AsmCreateClassFile4Debug
+    @Data @Builder
     public static class RangeListBean {
         @AsmRange("[1,7]")
         private Collection<Integer> days;
