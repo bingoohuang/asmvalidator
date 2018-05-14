@@ -196,36 +196,34 @@ public class MethodGeneratorUtils {
         mv.visitEnd();
     }
 
-    public static boolean isAnnotationPresent(Annotation[] targetAnnotations, Class<?> annotationType) {
-        for (val ann : targetAnnotations) {
-            if (annotationType.isInstance(ann)) return true;
+    public static boolean isAnnotationPresent(Annotation[] as, Class<?> ac) {
+        for (val a : as) {
+            if (ac.isInstance(a)) return true;
         }
 
         return false;
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends Annotation> T findAnn(Annotation[] ta, Class<T> annotationType) {
-        for (val ann : ta) {
-            if (annotationType.isInstance(ann)) return (T) ann;
+    public static <T extends Annotation> T findAnn(Annotation[] as, Class<T> ac) {
+        for (val a : as) {
+            if (ac.isInstance(a)) return (T) a;
         }
 
         return null;
     }
 
-    public static void visitGetter(MethodVisitor mv, Field field) {
+    public static void visitGetter(MethodVisitor mv, Field f) {
         mv.visitVarInsn(ALOAD, 1);
-        val getterName = "get" + capitalize(field.getName());
-        val declaringClass = field.getDeclaringClass();
+        val getterName = "get" + capitalize(f.getName());
+        val declaringClass = f.getDeclaringClass();
         try {
             declaringClass.getMethod(getterName);
         } catch (NoSuchMethodException e) {
-            throw new AsmValidateBadUsageException("there is no getter method for field " + field.getName());
+            throw new AsmValidateBadUsageException("there is no getter method for field " + f.getName());
         }
 
-        val type = field.getType();
-        mv.visitMethodInsn(INVOKEVIRTUAL, p(declaringClass),
-                getterName, sig(type), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, p(declaringClass), getterName, sig(f.getType()), false);
     }
 
     public static void addIsNullLocal(LocalIndices localIndices, MethodVisitor mv) {

@@ -4,7 +4,6 @@ import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
 import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
-import com.github.bingoohuang.asmvalidator.utils.Arrays;
 import com.github.bingoohuang.asmvalidator.utils.AsmValidators;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -79,9 +78,7 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
         mv.visitVarInsn(ALOAD, 2);
 
         mv.visitMethodInsn(INVOKESTATIC, p(AsmValidatorFactory.class),
-                "validateAll",
-                sig(void.class, Collection.class, AsmValidateResult.class),
-                false);
+                "validateAll", sig(void.class, Collection.class, AsmValidateResult.class), false);
     }
 
 
@@ -90,24 +87,21 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
      *
      * @param localIndices 局部变量索引
      * @param mv           方法访问器
-     * @param field        字段
+     * @param f            字段
      */
-    protected void createValueLocal(
-            LocalIndices localIndices, MethodVisitor mv, Field field) {
-        visitGetter(mv, field);
+    protected void createValueLocal(LocalIndices localIndices, MethodVisitor mv, Field f) {
+        visitGetter(mv, f);
         localIndices.incrementAndSetOriginalLocalIndex();
 
-        Class<?> fieldType = field.getType();
-        mv.visitVarInsn(storeOpCode(fieldType), localIndices.getLocalIndex());
-        mv.visitVarInsn(loadOpCode(fieldType), localIndices.getLocalIndex());
-        AsmValidators.processWideLocal(fieldType, localIndices);
+        mv.visitVarInsn(storeOpCode(f.getType()), localIndices.getLocalIndex());
+        mv.visitVarInsn(loadOpCode(f.getType()), localIndices.getLocalIndex());
+        AsmValidators.processWideLocal(f.getType(), localIndices);
 
-        if (fieldType == String.class) return;
-        if (fieldType.isPrimitive()) {
+        if (f.getType() == String.class) return;
+        if (f.getType().isPrimitive()) {
             localIndices.setOriginalPrimitive(true);
 
-            mv.visitMethodInsn(INVOKESTATIC, p(String.class),
-                    "valueOf", sig(String.class, fieldType), false);
+            mv.visitMethodInsn(INVOKESTATIC, p(String.class), "valueOf", sig(String.class, f.getType()), false);
 
             localIndices.incrementAndSetStringLocalIndex();
 
@@ -125,11 +119,11 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
     private void createValidatorMainMethod() {
         val mv = startMainMethod(beanClass);
 
-        for (val field : beanClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(AsmIgnore.class)
-                    || Modifier.isStatic(field.getModifiers())) continue;
+        for (val f : beanClass.getDeclaredFields()) {
+            if (f.isAnnotationPresent(AsmIgnore.class)
+                    || Modifier.isStatic(f.getModifiers())) continue;
 
-            visitValidateFieldMethod(mv, implName, field.getName(), beanClass);
+            visitValidateFieldMethod(mv, implName, f.getName(), beanClass);
         }
 
         createCustomValidateMethods(mv);
@@ -141,17 +135,15 @@ public class AsmValidatorMethodGenerator extends AsmValidatorMethodGeneratable {
     private void createCustomValidateMethods(MethodVisitor mv) {
         for (val f : beanClass.getMethods()) {
             if (!f.isAnnotationPresent(AsmValid.class)) continue;
-            if (!Arrays.anyOf(f.getReturnType(), void.class, Void.class)) {
+            if (f.getReturnType() != void.class) {
                 log.warn("{} is annotated by @AsmValid without void return is ignored!", f);
                 continue;
             }
 
-            int parameterCount = f.getParameterTypes().length;
-
-            if (parameterCount == 0) {
+            if (f.getParameterTypes().length == 0) {
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitMethodInsn(INVOKEVIRTUAL, p(beanClass), f.getName(), sig(void.class), false);
-            } else if (parameterCount == 1 && f.getParameterTypes()[0] == AsmValidateResult.class) {
+            } else if (f.getParameterTypes().length == 1 && f.getParameterTypes()[0] == AsmValidateResult.class) {
                 mv.visitVarInsn(ALOAD, 1);
                 mv.visitVarInsn(ALOAD, 2); // AsmValidateResult
                 mv.visitMethodInsn(INVOKEVIRTUAL, p(beanClass), f.getName(), sig(void.class, AsmValidateResult.class), false);
