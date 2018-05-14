@@ -22,7 +22,7 @@ public class Person {
          
     @AsmIgnore String code;
     
-    @AsmMaxSize(2) @AsmMessage("节目名称不能为空，长度不能超过20")
+    @AsmMaxSize(20) @AsmMessage("节目名称不能为空，长度不能超过20")
     String playName;
     
     @AsmMaxSize(7864320) @AsmMessage("图片不能超过5M")
@@ -98,6 +98,15 @@ public class Person {
     
         }
     }
-
+    
+    public static void main(String[] args) {
+        Person person = new Person();
+        // set person properties...
+        
+        // validate person bean
+        AsmValidatorFactory.validateWithThrow(bean);
+    }
 }
+
+
 ```
