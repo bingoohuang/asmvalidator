@@ -55,6 +55,18 @@ public class Person {
     @AsmBase64 String base64;
     @AsmBase64(purified = true) String other;
     @AsmBase64(format = UrlSafe) String third;
+    
+    @AsmValid
+    public void customValidate() {
+        // do some custom validations
+        // throw runtime excption when failed.
+    }
+
+    @AsmValid
+    public void customValidate(AsmValidateResult result) {
+        // do some custom validations
+        // add errors to result when failed.
+    }
         
     @UrlsChecker
     List<String> urls;
