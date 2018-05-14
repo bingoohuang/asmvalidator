@@ -63,9 +63,7 @@ public class MethodGeneratorUtils {
         List<AnnotationAndRoot> result = Lists.newArrayList();
 
         for (val ann : annotations) {
-            if (supportType(ann, type)) {
-                result.add(new AnnotationAndRoot(ann));
-            }
+            if (supportType(ann, type)) result.add(new AnnotationAndRoot(ann));
         }
 
         return result;
@@ -101,11 +99,10 @@ public class MethodGeneratorUtils {
     }
 
     public static Class<? extends MsaValidator> findMsaSupportType(AsmConstraint asmConstraint, Class<?> type) {
-        Class<?> wrap = Primitives.wrap(type);
         for (val msa : asmConstraint.validateBy()) {
             val arg = findSuperActualTypeArg(msa, MsaValidator.class, 1);
             if (arg == null) continue;
-            if (arg.isAssignableFrom(wrap)) return msa;
+            if (arg.isAssignableFrom(Primitives.wrap(type))) return msa;
         }
 
         return null;
@@ -117,10 +114,9 @@ public class MethodGeneratorUtils {
             if (argType != null) return argType;
         }
 
-        Class<?> parentClass = subClass.getSuperclass();
-        if (parentClass == Object.class) return null;
+        if (subClass.getSuperclass() == Object.class) return null;
 
-        return findSuperActualTypeArg(parentClass, superClass, argIndex);
+        return findSuperActualTypeArg(subClass.getSuperclass(), superClass, argIndex);
     }
 
     private static Class<?> findSuperActualTypeArg(Type type, Class<?> superClass, int argIndex) {
@@ -182,10 +178,8 @@ public class MethodGeneratorUtils {
     }
 
     public static MethodVisitor startFieldValidatorMethod(ClassWriter cw, String fieldName, Class beanClass) {
-        val mv = cw.visitMethod(ACC_PRIVATE,
-                VALIDATE + StringUtils.capitalize(fieldName),
-                sig(void.class, beanClass, AsmValidateResult.class),
-                null, null);
+        val mv = cw.visitMethod(ACC_PRIVATE, VALIDATE + StringUtils.capitalize(fieldName),
+                sig(void.class, beanClass, AsmValidateResult.class), null, null);
         mv.visitCode();
         return mv;
     }
@@ -197,18 +191,14 @@ public class MethodGeneratorUtils {
     }
 
     public static boolean isAnnotationPresent(Annotation[] as, Class<?> ac) {
-        for (val a : as) {
-            if (ac.isInstance(a)) return true;
-        }
+        for (val a : as) if (ac.isInstance(a)) return true;
 
         return false;
     }
 
     @SuppressWarnings("unchecked")
     public static <T extends Annotation> T findAnn(Annotation[] as, Class<T> ac) {
-        for (val a : as) {
-            if (ac.isInstance(a)) return (T) a;
-        }
+        for (val a : as) if (ac.isInstance(a)) return (T) a;
 
         return null;
     }
@@ -216,14 +206,13 @@ public class MethodGeneratorUtils {
     public static void visitGetter(MethodVisitor mv, Field f) {
         mv.visitVarInsn(ALOAD, 1);
         val getterName = "get" + capitalize(f.getName());
-        val declaringClass = f.getDeclaringClass();
         try {
-            declaringClass.getMethod(getterName);
+            f.getDeclaringClass().getMethod(getterName);
         } catch (NoSuchMethodException e) {
             throw new AsmValidateBadUsageException("there is no getter method for field " + f.getName());
         }
 
-        mv.visitMethodInsn(INVOKEVIRTUAL, p(declaringClass), getterName, sig(f.getType()), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, p(f.getDeclaringClass()), getterName, sig(f.getType()), false);
     }
 
     public static void addIsNullLocal(LocalIndices localIndices, MethodVisitor mv) {
@@ -257,15 +246,12 @@ public class MethodGeneratorUtils {
         mv.visitVarInsn(ALOAD, 0); // this
         mv.visitVarInsn(ALOAD, 1); // field value
         mv.visitVarInsn(ALOAD, 2); // AsmValidateResult
-        mv.visitMethodInsn(INVOKESPECIAL, p(implName),
-                MethodGeneratorUtils.VALIDATE + capitalize(fieldName),
+        mv.visitMethodInsn(INVOKESPECIAL, p(implName), MethodGeneratorUtils.VALIDATE + capitalize(fieldName),
                 sig(void.class, fieldClass, AsmValidateResult.class), false);
     }
 
     public static boolean hasBlankable(List<AnnotationAndRoot> annotations) {
-        for (val ar : annotations) {
-            if (ar.ann().annotationType() == AsmBlankable.class) return true;
-        }
+        for (val ar : annotations) if (ar.ann().annotationType() == AsmBlankable.class) return true;
 
         return false;
     }
