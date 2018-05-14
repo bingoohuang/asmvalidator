@@ -2,8 +2,10 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
-import com.github.bingoohuang.asmvalidator.validator.domain.Person;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.Test;
 
 public class PersonTest {
@@ -30,5 +32,18 @@ public class PersonTest {
         person.setAddr("aaa");
         AsmValidateResult result = AsmValidatorFactory.validate(person);
         result.throwExceptionIfError();
+    }
+
+    @Data @NoArgsConstructor
+    public static class Person {
+        String name;
+        String addr;
+
+        @AsmIgnore String code;
+
+        public Person(String name, String addr) {
+            this.name = name;
+            this.addr = addr;
+        }
     }
 }

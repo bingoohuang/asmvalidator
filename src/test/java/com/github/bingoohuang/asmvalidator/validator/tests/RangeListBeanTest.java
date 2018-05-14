@@ -2,11 +2,12 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmParamsValidatorFactory;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmIgnore;
 import com.github.bingoohuang.asmvalidator.annotations.AsmValid;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
-import com.github.bingoohuang.asmvalidator.validator.domain.ListBean;
 import com.github.bingoohuang.asmvalidator.validator.domain.MobileBean;
 import com.google.common.collect.Lists;
+import lombok.Data;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
@@ -72,4 +73,9 @@ public class RangeListBeanTest {
         }
     }
 
+    @Data
+    public static class ListBean {
+        @AsmIgnore private String name;
+        private List<MobileBean> mobiles;
+    }
 }

@@ -2,8 +2,13 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmBlankable;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMaxSize;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMinSize;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
-import com.github.bingoohuang.asmvalidator.validator.domain.Person2;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.junit.Test;
 
 public class Person2Test {
@@ -45,5 +50,11 @@ public class Person2Test {
 
         AsmValidateResult result = AsmValidatorFactory.validate(person2);
         result.throwExceptionIfError();
+    }
+
+    @Data @NoArgsConstructor @AllArgsConstructor
+    public static class Person2 {
+        @AsmMinSize(3) @AsmMaxSize(16) String name;
+        @AsmBlankable String addr;
     }
 }

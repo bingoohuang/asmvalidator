@@ -3,8 +3,9 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmRange;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateBadArgException;
-import com.github.bingoohuang.asmvalidator.validator.domain.AsmRangeBean2;
+import lombok.Data;
 import org.junit.Test;
 
 public class AsmRangeTest2 {
@@ -15,5 +16,10 @@ public class AsmRangeTest2 {
         bean.setUpperBound("xxx");
         AsmValidateResult result = AsmValidatorFactory.validate(bean);
         result.throwExceptionIfError();
+    }
+
+    @Data
+    public static class AsmRangeBean2 {
+        @AsmRange("[A0,") String upperBound;
     }
 }

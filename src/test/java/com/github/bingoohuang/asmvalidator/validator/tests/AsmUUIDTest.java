@@ -2,8 +2,9 @@ package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidateResult;
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmUUID;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
-import com.github.bingoohuang.asmvalidator.validator.domain.UUIDBean;
+import lombok.Data;
 import org.junit.Test;
 
 public class AsmUUIDTest {
@@ -25,5 +26,11 @@ public class AsmUUIDTest {
 
         AsmValidateResult result = AsmValidatorFactory.validate(UUIDBean);
         result.throwExceptionIfError();
+    }
+
+    @Data
+    public static class UUIDBean {
+        @AsmUUID String uuid;
+        @AsmUUID String uuid2;
     }
 }
