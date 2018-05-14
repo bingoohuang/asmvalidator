@@ -12,7 +12,6 @@ import org.junit.Test;
 import static org.junit.Assert.assertTrue;
 
 public class DateTimeTest {
-
     @Data @AllArgsConstructor
     public static class DateTimeBean {
         @AsmDateTime(format = "yyyy-MM") private String date;

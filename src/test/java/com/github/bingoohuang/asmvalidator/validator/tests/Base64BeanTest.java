@@ -1,9 +1,12 @@
 package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmBase64;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
-import com.github.bingoohuang.asmvalidator.validator.domain.Base64Bean;
+import lombok.Data;
 import org.junit.Test;
+
+import static com.github.bingoohuang.asmvalidator.annotations.AsmBase64.Base64Format.UrlSafe;
 
 public class Base64BeanTest {
     @Test
@@ -50,5 +53,12 @@ public class Base64BeanTest {
         base64Bean.setOther("YWJjZGU");
         base64Bean.setThird("5LuAS-S4nEzllYo_");
         AsmValidatorFactory.validateWithThrow(base64Bean);
+    }
+
+    @Data
+    public static class Base64Bean {
+        @AsmBase64 String base64;
+        @AsmBase64(purified = true) String other;
+        @AsmBase64(format = UrlSafe) String third;
     }
 }

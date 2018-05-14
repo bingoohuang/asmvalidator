@@ -1,14 +1,20 @@
 package com.github.bingoohuang.asmvalidator.validator.tests;
 
 import com.github.bingoohuang.asmvalidator.AsmValidatorFactory;
+import com.github.bingoohuang.asmvalidator.annotations.AsmMobileOrEmail;
 import com.github.bingoohuang.asmvalidator.ex.AsmValidateException;
-import com.github.bingoohuang.asmvalidator.validator.domain.AsmMobileOrEmailBean;
+import lombok.Data;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class AsmMobileOrEmailTest {
+    @Data
+    public static class AsmMobileOrEmailBean {
+        @AsmMobileOrEmail String mobileOrEmail;
+    }
+
     @Test
     public void test1() {
         AsmMobileOrEmailBean bean = new AsmMobileOrEmailBean();

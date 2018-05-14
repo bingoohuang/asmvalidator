@@ -39,18 +39,10 @@ public class AsmFutureTest {
         }
     }
 
-
+    @Data
     public static class AsmPastBean2 {
         @AsmFuture
         Calendar date;
-
-        public Calendar getDate() {
-            return date;
-        }
-
-        public void setDate(Calendar date) {
-            this.date = date;
-        }
     }
 
     @Test
@@ -77,17 +69,10 @@ public class AsmFutureTest {
         }
     }
 
+    @Data
     public static class AsmPastBean3 {
         @AsmFuture(format = "yyyy-MM-dd")
         String date;
-
-        public String getDate() {
-            return date;
-        }
-
-        public void setDate(String date) {
-            this.date = date;
-        }
     }
 
     @Test
